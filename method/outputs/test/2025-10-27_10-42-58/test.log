@@ -1,0 +1,17 @@
+[2025-10-27 10:42:58,968][root][INFO] - Workspace: /home/rtx4090/hnu/changyuandao/idea/method/outputs/test/2025-10-27_10-42-58
+[2025-10-27 10:42:58,968][root][INFO] - Project Root: /home/rtx4090/hnu/changyuandao/idea/method
+[2025-10-27 10:42:59,048][root][INFO] - Using LLM: qwen3-coder-plus
+[2025-10-27 10:42:59,048][root][INFO] - Task: ShadowHand
+[2025-10-27 10:42:59,048][root][INFO] - Task description: to make the shadow hand spin the object to a target orientation
+[2025-10-27 10:42:59,070][root][INFO] - Iteration 0: Generating 3 samples with qwen3-coder-plus
+[2025-10-27 10:43:11,762][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-10-27 10:43:11,773][root][INFO] - Iteration 0: Prompt Tokens: 1765, Completion Tokens: 2, Total Tokens: 1767
+[2025-10-27 10:43:11,773][root][INFO] - Iteration 0: Processing Code Run 0
+[2025-10-27 10:43:11,774][root][INFO] - Iteration 0: Code Run 0 cannot parse function signature!
+[2025-10-27 10:43:11,774][root][INFO] - Iteration 0: Processing Code Run 1
+[2025-10-27 10:43:11,774][root][INFO] - Iteration 0: Code Run 1 cannot parse function signature!
+[2025-10-27 10:43:11,774][root][INFO] - Iteration 0: Processing Code Run 2
+[2025-10-27 10:43:11,774][root][INFO] - Iteration 0: Code Run 2 cannot parse function signature!
+[2025-10-27 10:43:11,774][root][INFO] - All code generation failed! Repeat this iteration from the current message checkpoint!
+[2025-10-27 10:43:11,774][root][INFO] - All iterations of code generation failed, aborting...
+[2025-10-27 10:43:11,774][root][INFO] - Please double check the output env_iter*_response*.txt files for repeating errors!

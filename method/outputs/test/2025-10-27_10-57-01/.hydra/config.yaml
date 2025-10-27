@@ -1,0 +1,15 @@
+model: qwen3-coder-plus
+temperature: 1.0
+suffix: GPT
+iteration: 1
+sample: 1
+max_iterations: 30
+num_eval: 5
+capture_video: false
+use_wandb: false
+wandb_username: ''
+wandb_project: ''
+env:
+  task: ShadowHand
+  env_name: shadow_hand
+  description: to make the shadow hand spin the object to a target orientation

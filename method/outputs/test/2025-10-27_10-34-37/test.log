@@ -1,0 +1,12 @@
+[2025-10-27 10:34:37,304][root][INFO] - Eureka Root Dir: /home/rtx4090/hnu/changyuandao/idea/method
+[2025-10-27 10:34:37,304][root][INFO] - IsaacGymEnvs Root Dir: /home/rtx4090/hnu/changyuandao/idea/IsaacGymEnvs/isaacgymenvs
+[2025-10-27 10:34:37,304][root][INFO] - Workspace: /home/rtx4090/hnu/changyuandao/idea/method/outputs/test/2025-10-27_10-34-37
+[2025-10-27 10:34:37,304][root][INFO] - Project Root: /home/rtx4090/hnu/changyuandao/idea/method
+[2025-10-27 10:34:37,378][root][INFO] - Using LLM: qwen3-coder-plus
+[2025-10-27 10:34:37,378][root][INFO] - Task: ShadowHand
+[2025-10-27 10:34:37,378][root][INFO] - Task description: to make the shadow hand spin the object to a target orientation
+[2025-10-27 10:34:37,378][root][INFO] - Env parent:isaac
+[2025-10-27 10:34:37,400][root][INFO] - Iteration 0: Generating 3 samples with qwen3-coder-plus
+[2025-10-27 10:34:49,099][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-10-27 10:34:49,108][root][INFO] - Iteration 0: Prompt Tokens: 1765, Completion Tokens: 1409, Total Tokens: 3174
+[2025-10-27 10:34:49,108][root][INFO] - Iteration 0: Processing Code Run 0

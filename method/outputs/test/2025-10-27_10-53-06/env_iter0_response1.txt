@@ -1,0 +1,97 @@
+Importing module 'gym_38' (/home/rtx4090/hnu/changyuandao/thirdParty/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)
+Setting GYM_USD_PLUG_INFO_PATH to /home/rtx4090/hnu/changyuandao/thirdParty/isaacgym/python/isaacgym/_bindings/linux-x86_64/usd/plugInfo.json
+PyTorch version 2.4.1+cu121
+Device count 1
+/home/rtx4090/hnu/changyuandao/thirdParty/isaacgym/python/isaacgym/_bindings/src/gymtorch
+Using /home/rtx4090/.cache/torch_extensions/py38_cu121 as PyTorch extensions root...
+Emitting ninja build file /home/rtx4090/.cache/torch_extensions/py38_cu121/gymtorch/build.ninja...
+Building extension module gymtorch...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+ninja: no work to do.
+Loading extension module gymtorch...
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+2025-10-27 10:53:44,753 - INFO - logger - logger initialized
+<unknown>:3: DeprecationWarning: invalid escape sequence \*
+Error: FBX library failed to load - importing FBX data will not succeed. Message: No module named 'fbx'
+FBX tools must be installed from https://help.autodesk.com/view/FBX/2020/ENU/?guid=FBX_Developer_Help_scripting_with_python_fbx_installing_python_fbx_html
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/networkx/classes/graph.py:23: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working
+  from collections import Mapping
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/networkx/classes/reportviews.py:95: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working
+  from collections import Mapping, Set, Iterable
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/networkx/readwrite/graphml.py:346: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  (np.int, "int"), (np.int8, "int"),
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/networkx/drawing/nx_pydot.py:27: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import parse_version
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/pkg_resources/__init__.py:3154: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/pkg_resources/__init__.py:3154: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/home/rtx4090/hnu/changyuandao/idea/IsaacGymEnvs/isaacgymenvs/train.py:75: UserWarning: 
+The version_base parameter is not specified.
+Please specify a compatability version level, or None.
+Will assume defaults for version 1.1
+  @hydra.main(config_name="config", config_path="./cfg")
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/hydra/_internal/defaults_list.py:415: UserWarning: In config: Invalid overriding of hydra/job_logging:
+Default list overrides requires 'override' keyword.
+See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/defaults_list_override for more information.
+
+  deprecation_warning(msg)
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/hydra/_internal/hydra.py:119: UserWarning: Future Hydra versions will no longer change working directory at job runtime by default.
+See https://hydra.cc/docs/1.2/upgrades/1.1_to_1.2/changes_to_job_working_dir/ for more information.
+  ret = run_job(
+Setting seed: 42
+Network Directory: /home/rtx4090/hnu/changyuandao/idea/method/outputs/test/2025-10-27_10-53-06/policy-2025-10-27_10-53-45/runs/ShadowHandGPT-2025-10-27_10-53-46/nn
+Tensorboard Directory: /home/rtx4090/hnu/changyuandao/idea/method/outputs/test/2025-10-27_10-53-06/policy-2025-10-27_10-53-45/runs/ShadowHandGPT-2025-10-27_10-53-46/summaries
+self.seed = 42
+Started to train
+Obs type: full_state
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/gym/spaces/box.py:84: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
+[Warning] [carb.gym.plugin] useGpu is set, forcing single scene (0 subscenes)
+Not connected to PVD
++++ Using GPU PhysX
+Physics Engine: PhysX
+Physics Device: cuda:0
+GPU Pipeline: enabled
+/home/rtx4090/hnu/changyuandao/idea/IsaacGymEnvs/isaacgymenvs/tasks/shadow_handgpt.py:211: DeprecationWarning: an integer is required (got type isaacgym._bindings.linux-x86_64.gym_38.DofDriveMode).  Implicit conversion to integers using __int__ is deprecated, and may be removed in a future version of Python.
+  asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
+JointSpec type free not yet supported!
+Box(-1.0, 1.0, (20,), float32) Box(-inf, inf, (211,), float32)
+WARNING: seq_len is deprecated, use seq_length instead
+seq_length: 4
+current training device: cuda:0
+build mlp: 211
+RunningMeanStd:  (1,)
+RunningMeanStd:  (211,)
+Error executing job with overrides: ['task=ShadowHandGPT', 'wandb_activate=False', 'wandb_entity=', 'wandb_project=', 'headless=True', 'capture_video=False', 'force_render=False', 'max_iterations=100']
+Traceback (most recent call last):
+  File "/home/rtx4090/hnu/changyuandao/idea/IsaacGymEnvs/isaacgymenvs/train.py", line 203, in launch_rlg_hydra
+    statistics = runner.run({
+  File "/home/rtx4090/hnu/changyuandao/idea/rl_games/rl_games/torch_runner.py", line 201, in run
+    self.run_train(args)
+  File "/home/rtx4090/hnu/changyuandao/idea/rl_games/rl_games/torch_runner.py", line 172, in run_train
+    agent.train()
+  File "/home/rtx4090/hnu/changyuandao/idea/rl_games/rl_games/common/a2c_common.py", line 1370, in train
+    step_time, play_time, update_time, sum_time, a_losses, c_losses, b_losses, entropies, kls, last_lr, lr_mul = self.train_epoch()
+  File "/home/rtx4090/hnu/changyuandao/idea/rl_games/rl_games/common/a2c_common.py", line 1226, in train_epoch
+    batch_dict = self.play_steps()
+  File "/home/rtx4090/hnu/changyuandao/idea/rl_games/rl_games/common/a2c_common.py", line 791, in play_steps
+    self.obs, rewards, self.dones, infos = self.env_step(res_dict['actions'])
+  File "/home/rtx4090/hnu/changyuandao/idea/rl_games/rl_games/common/a2c_common.py", line 555, in env_step
+    obs, rewards, dones, infos = self.vec_env.step(actions)
+  File "/home/rtx4090/hnu/changyuandao/idea/IsaacGymEnvs/isaacgymenvs/utils/rlgames_utils.py", line 265, in step
+    return  self.env.step(actions)
+  File "/home/rtx4090/hnu/changyuandao/idea/IsaacGymEnvs/isaacgymenvs/tasks/base/vec_task.py", line 389, in step
+    self.post_physics_step()
+  File "/home/rtx4090/hnu/changyuandao/idea/IsaacGymEnvs/isaacgymenvs/tasks/shadow_handgpt.py", line 653, in post_physics_step
+    self.compute_reward(self.actions)
+  File "/home/rtx4090/hnu/changyuandao/idea/IsaacGymEnvs/isaacgymenvs/tasks/shadow_handgpt.py", line 370, in compute_reward
+    self.rew_buf[:], self.rew_dict = quat_mul(self.q1, self.q2)
+AttributeError: 'ShadowHandGPT' object has no attribute 'q1'
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.

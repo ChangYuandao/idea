@@ -1,0 +1,103 @@
+Importing module 'gym_38' (/home/rtx4090/hnu/changyuandao/thirdParty/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)
+Setting GYM_USD_PLUG_INFO_PATH to /home/rtx4090/hnu/changyuandao/thirdParty/isaacgym/python/isaacgym/_bindings/linux-x86_64/usd/plugInfo.json
+PyTorch version 2.4.1+cu121
+Device count 2
+/home/rtx4090/hnu/changyuandao/thirdParty/isaacgym/python/isaacgym/_bindings/src/gymtorch
+Using /home/rtx4090/.cache/torch_extensions/py38_cu121 as PyTorch extensions root...
+Emitting ninja build file /home/rtx4090/.cache/torch_extensions/py38_cu121/gymtorch/build.ninja...
+Building extension module gymtorch...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+ninja: no work to do.
+Loading extension module gymtorch...
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+2025-10-27 11:00:29,985 - INFO - logger - logger initialized
+<unknown>:3: DeprecationWarning: invalid escape sequence \*
+Error: FBX library failed to load - importing FBX data will not succeed. Message: No module named 'fbx'
+FBX tools must be installed from https://help.autodesk.com/view/FBX/2020/ENU/?guid=FBX_Developer_Help_scripting_with_python_fbx_installing_python_fbx_html
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/networkx/classes/graph.py:23: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working
+  from collections import Mapping
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/networkx/classes/reportviews.py:95: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working
+  from collections import Mapping, Set, Iterable
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/networkx/readwrite/graphml.py:346: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  (np.int, "int"), (np.int8, "int"),
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/networkx/drawing/nx_pydot.py:27: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import parse_version
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/pkg_resources/__init__.py:3154: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/pkg_resources/__init__.py:3154: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/home/rtx4090/hnu/changyuandao/idea/IsaacGymEnvs/isaacgymenvs/train.py:75: UserWarning: 
+The version_base parameter is not specified.
+Please specify a compatability version level, or None.
+Will assume defaults for version 1.1
+  @hydra.main(config_name="config", config_path="./cfg")
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/hydra/_internal/defaults_list.py:415: UserWarning: In config: Invalid overriding of hydra/job_logging:
+Default list overrides requires 'override' keyword.
+See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/defaults_list_override for more information.
+
+  deprecation_warning(msg)
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/hydra/_internal/hydra.py:119: UserWarning: Future Hydra versions will no longer change working directory at job runtime by default.
+See https://hydra.cc/docs/1.2/upgrades/1.1_to_1.2/changes_to_job_working_dir/ for more information.
+  ret = run_job(
+Setting seed: 3
+Network Directory: /home/rtx4090/hnu/changyuandao/idea/method/outputs/test/2025-10-27_10-58-42/policy-2025-10-27_11-00-30/runs/ShadowHandGPT-2025-10-27_11-00-31/nn
+Tensorboard Directory: /home/rtx4090/hnu/changyuandao/idea/method/outputs/test/2025-10-27_10-58-42/policy-2025-10-27_11-00-30/runs/ShadowHandGPT-2025-10-27_11-00-31/summaries
+self.seed = 3
+Started to train
+Exact experiment name requested from command line: ShadowHandGPT-2025-10-27_11-00-31
+Obs type: full_state
+/home/rtx4090/hnu/anaconda3/envs/cyd_rlgpu/lib/python3.8/site-packages/gym/spaces/box.py:84: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
+[Warning] [carb.gym.plugin] useGpu is set, forcing single scene (0 subscenes)
+Not connected to PVD
++++ Using GPU PhysX
+Physics Engine: PhysX
+Physics Device: cuda:0
+GPU Pipeline: enabled
+/home/rtx4090/hnu/changyuandao/idea/IsaacGymEnvs/isaacgymenvs/tasks/shadow_handgpt.py:211: DeprecationWarning: an integer is required (got type isaacgym._bindings.linux-x86_64.gym_38.DofDriveMode).  Implicit conversion to integers using __int__ is deprecated, and may be removed in a future version of Python.
+  asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
+JointSpec type free not yet supported!
+Box(-1.0, 1.0, (20,), float32) Box(-inf, inf, (211,), float32)
+WARNING: seq_len is deprecated, use seq_length instead
+seq_length: 4
+current training device: cuda:0
+build mlp: 211
+RunningMeanStd:  (1,)
+RunningMeanStd:  (211,)
+fps step: 59866 fps step and policy inference: 28687 fps total: 17546 epoch: 1/30 frames: 0
+fps step: 165511 fps step and policy inference: 161660 fps total: 142581 epoch: 2/30 frames: 131072
+fps step: 200160 fps step and policy inference: 193595 fps total: 165717 epoch: 3/30 frames: 262144
+fps step: 203546 fps step and policy inference: 197142 fps total: 172229 epoch: 4/30 frames: 393216
+fps step: 194208 fps step and policy inference: 188146 fps total: 164173 epoch: 5/30 frames: 524288
+fps step: 207409 fps step and policy inference: 200861 fps total: 174741 epoch: 6/30 frames: 655360
+fps step: 217869 fps step and policy inference: 210982 fps total: 182545 epoch: 7/30 frames: 786432
+fps step: 213730 fps step and policy inference: 207080 fps total: 179709 epoch: 8/30 frames: 917504
+fps step: 228950 fps step and policy inference: 221755 fps total: 190367 epoch: 9/30 frames: 1048576
+fps step: 230497 fps step and policy inference: 223176 fps total: 188566 epoch: 10/30 frames: 1179648
+fps step: 213510 fps step and policy inference: 206233 fps total: 176743 epoch: 11/30 frames: 1310720
+fps step: 215262 fps step and policy inference: 208035 fps total: 179085 epoch: 12/30 frames: 1441792
+fps step: 212849 fps step and policy inference: 205794 fps total: 177427 epoch: 13/30 frames: 1572864
+fps step: 214972 fps step and policy inference: 207789 fps total: 177252 epoch: 14/30 frames: 1703936
+fps step: 208284 fps step and policy inference: 201908 fps total: 172813 epoch: 15/30 frames: 1835008
+fps step: 211402 fps step and policy inference: 204529 fps total: 174828 epoch: 16/30 frames: 1966080
+fps step: 208043 fps step and policy inference: 201367 fps total: 173204 epoch: 17/30 frames: 2097152
+fps step: 206467 fps step and policy inference: 199953 fps total: 172716 epoch: 18/30 frames: 2228224
+fps step: 202465 fps step and policy inference: 196085 fps total: 168472 epoch: 19/30 frames: 2359296
+fps step: 205274 fps step and policy inference: 198777 fps total: 172138 epoch: 20/30 frames: 2490368
+fps step: 209847 fps step and policy inference: 203159 fps total: 174431 epoch: 21/30 frames: 2621440
+fps step: 210499 fps step and policy inference: 203390 fps total: 173667 epoch: 22/30 frames: 2752512
+fps step: 202718 fps step and policy inference: 196364 fps total: 169491 epoch: 23/30 frames: 2883584
+fps step: 207181 fps step and policy inference: 200374 fps total: 172550 epoch: 24/30 frames: 3014656
+fps step: 204098 fps step and policy inference: 197666 fps total: 169631 epoch: 25/30 frames: 3145728
+fps step: 204323 fps step and policy inference: 198032 fps total: 170778 epoch: 26/30 frames: 3276800
+fps step: 200650 fps step and policy inference: 194710 fps total: 168316 epoch: 27/30 frames: 3407872
+fps step: 209981 fps step and policy inference: 203025 fps total: 176140 epoch: 28/30 frames: 3538944
+fps step: 209066 fps step and policy inference: 202318 fps total: 175680 epoch: 29/30 frames: 3670016
+fps step: 209207 fps step and policy inference: 202780 fps total: 176029 epoch: 30/30 frames: 3801088
+=> saving checkpoint 'runs/ShadowHandGPT-2025-10-27_11-00-31/nn/last_ShadowHandGPT_ep_30_rew__6.36_.pth'
+MAX EPOCHS NUM!
