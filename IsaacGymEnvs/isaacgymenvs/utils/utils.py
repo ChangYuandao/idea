@@ -79,6 +79,15 @@ def flatten_dict(d, prefix='', separator='.'):
 
 def set_np_formatting():
     """ formats numpy print """
+    # NumPy 内置函数，用于控制数组打印时的格式
+    # edgeitems=30：在打印大数组时，前后各显示 30 个元素
+    # infstr='inf'：正无穷大显示为 'inf'
+    # linewidth=4000：单行最大字符数，超出换行。4000 表示几乎不换行
+    # nanstr='nan'：NaN 值显示为 'nan'
+    # precision=2：浮点数保留小数点后 2 位
+    # suppress=False：是否禁止科学计数法
+    # threshold=10000：大于 10000 元素时才会使用省略号 ...
+    # formatter=None：可以自定义打印函数，默认 None
     np.set_printoptions(edgeitems=30, infstr='inf',
                         linewidth=4000, nanstr='nan', precision=2,
                         suppress=False, threshold=10000, formatter=None)
@@ -95,19 +104,26 @@ def set_seed(seed, torch_deterministic=False, rank=0):
 
     print("Setting seed: {}".format(seed))
 
+    # Python 标准库 random 模块的随机数种子
     random.seed(seed)
+    # Numpy 随机数种子
     np.random.seed(seed)
+    # Pytorch CPU 随机数种子
     torch.manual_seed(seed)
+    # Python 哈希随机数种子
     os.environ['PYTHONHASHSEED'] = str(seed)
+    # 当前 GPU 随机种子
     torch.cuda.manual_seed(seed)
+    # 所有 GPU 随机种子
     torch.cuda.manual_seed_all(seed)
 
+    # 固定算法，可复现，但是会比较慢
     if torch_deterministic:
-        # refer to https://docs.nvidia.com/cuda/cublas/index.html#cublasApi_reproducibility
         os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'
         torch.backends.cudnn.benchmark = False
         torch.backends.cudnn.deterministic = True
         torch.use_deterministic_algorithms(True)
+    # 非确定性算法，速度更快
     else:
         torch.backends.cudnn.benchmark = True
         torch.backends.cudnn.deterministic = False

@@ -1,11 +1,19 @@
 # @package _global_
 hydra:
     launcher:
+        # 每个任务（training run）分配 20 个 CPU 核
         cpus_per_task: 20
+        # 每个节点（node）使用 2 个 GPU
         gpus_per_node: 2
+        # 每个节点只启动 1 个任务（不并行多个 job）
         tasks_per_node: 1
+        # 每个任务的最长运行时间为 600 分钟（10 小时）
         timeout_min: 600
+        # 每个任务最多分配 256 GB 内存
         mem_gb: 256
+        # 脚本名字 train
         name: ${hydra.job.name}
+        # 指定要实例化的 Python 类（这里是 LocalLauncher ）
         _target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.LocalLauncher
+        # 存放任务的 submitit 内部元数据（日志、PID、状态文件等）
         submitit_folder: ${hydra.sweep.dir}/.submitit/%j

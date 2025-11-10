@@ -1,8 +1,15 @@
 # @package _global_
 hydra:
+  # run 表示定义单次运行的输出目录
   run:
+    # ./outputs/ 所有输出都存放在 outputs 文件夹下
+    # ${hydra.job.name} 当前运行作业的名字（通常由配置或脚本名决定）
+    # ${now:%Y-%m-%d}_${now:%H-%M-%S} 当前时间戳（年月日_时分秒），确保每次运行目录唯一
     dir: ./outputs/${hydra.job.name}/${now:%Y-%m-%d}_${now:%H-%M-%S}
+    # 每个 run 的子目录
+    # ${hydra.job.num} 作业编号（通常从 0 开始）
     subdir: ${hydra.job.num}_${hydra.job.override_dirname}
+  # sweep 表示定义超参数搜索的输出目录
   sweep:
     dir: ./outputs/${hydra.job.name}/${now:%Y-%m-%d}_${now:%H-%M-%S}
     subdir: ${hydra.job.num}_${hydra.job.override_dirname}

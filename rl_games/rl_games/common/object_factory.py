@@ -1,3 +1,6 @@
+# 动态创建对象（algos、players、models 等）
+# 注册对象构造器（builder），然后根据名称创建实例
+
 class ObjectFactory:
     """General-purpose class to instantiate some other base class from rl_games. Usual use case it to instantiate algos, players etc.
 
@@ -5,12 +8,14 @@ class ObjectFactory:
 
     """
 
+    # 初始化一个私有字典 _builders 用于存储
     def __init__(self):
         """Initialise a dictionary of builders with keys as `str` and values as functions.
 
         """
         self._builders = {}
 
+    # 向 _builders 字典注册一个对象构造器
     def register_builder(self, name, builder):
         """Register a passed builder by adding to the builders dict.
 
@@ -23,9 +28,14 @@ class ObjectFactory:
         """
         self._builders[name] = builder
 
+    # 直接用一个字典覆盖已有的 _builders
+    # 适用于一次性注册多个构造器
     def set_builders(self, builders):
         self._builders = builders
-        
+    
+    # 据 name 查找对应的构造器
+    # 调用构造器并传入任意关键字参数 **kwargs
+    # 返回对象实例
     def create(self, name, **kwargs):
         """Create the requested object by calling a registered builder function.
 

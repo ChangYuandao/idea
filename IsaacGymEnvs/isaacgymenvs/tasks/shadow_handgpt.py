@@ -367,7 +367,7 @@ class ShadowHandGPT(VecTask):
         self.goal_object_indices = to_torch(self.goal_object_indices, dtype=torch.long, device=self.device)
 
     def compute_reward(self, actions):
-        self.rew_buf[:], self.rew_dict = compute_reward(self.object_rot, self.goal_rot, self.object_angvel)
+        self.rew_buf[:], self.rew_dict = compute_reward(self.object_rot, self.goal_rot)
         self.extras['gpt_reward'] = self.rew_buf.mean()
         for rew_state in self.rew_dict: self.extras[rew_state] = self.rew_dict[rew_state].mean()
         self.rew_buf[:] = compute_bonus(
@@ -763,39 +763,37 @@ import math
 import torch
 from torch import Tensor
 @torch.jit.script
-def compute_reward(object_rot: torch.Tensor, goal_rot: torch.Tensor, object_angvel: torch.Tensor) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
-    # Normalize quaternions
-    object_rot_norm = object_rot / torch.norm(object_rot, dim=-1, keepdim=True)
-    goal_rot_norm = goal_rot / torch.norm(goal_rot, dim=-1, keepdim=True)
+def compute_reward(object_rot: torch.Tensor, goal_rot: torch.Tensor) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+    # Compute the difference between current object orientation and goal orientation
+    # Using quaternion conjugate multiplication to get relative rotation
+    quat_diff = quat_mul(object_rot, quat_conjugate(goal_rot))
     
-    # Compute rotation error as the angle between current and goal orientations
-    # Using quaternion dot product: cos(theta/2) = |q1 · q2|
-    quat_dot = torch.abs(torch.sum(object_rot_norm * goal_rot_norm, dim=-1))
+    # Extract the angle from the quaternion (w component)
+    # The w component of a unit quaternion is cos(theta/2) where theta is the rotation angle
+    cos_half_angle = quat_diff[:, 0]  # w component
+    
     # Clamp to avoid numerical issues
-    quat_dot = torch.clamp(quat_dot, -1.0 + 1e-8, 1.0 - 1e-8)
-    # Convert to angular error (radians)
-    rot_error = 2.0 * torch.acos(quat_dot)
+    cos_half_angle = torch.clamp(cos_half_angle, -1.0, 1.0)
     
-    # Normalize rotation error to [0, 1] range
-    normalized_rot_error = rot_error / torch.pi
+    # Convert to actual angle difference (in radians)
+    angle_diff = 2.0 * torch.acos(torch.abs(cos_half_angle))
     
-    # Orientation reward: exponential decay based on rotation error
+    # Normalize angle difference to [0, 1] range where 0 is perfect alignment
+    normalized_angle_diff = angle_diff / torch.pi
+    
+    # Create orientation reward: higher when angle difference is smaller
+    # Using exponential to make the reward more sensitive near the target
     orientation_temperature = 5.0
-    orientation_reward = torch.exp(-orientation_temperature * normalized_rot_error)
+    orientation_reward = torch.exp(-orientation_temperature * normalized_angle_diff)
     
-    # Angular velocity penalty to encourage stable grasping
-    angvel_magnitude = torch.norm(object_angvel, dim=-1)
-    angvel_temperature = 0.5
-    angvel_penalty = torch.exp(-angvel_temperature * angvel_magnitude)
+    # Total reward is just the orientation reward since that's the main objective
+    reward = orientation_reward
     
-    # Combine rewards
-    total_reward = orientation_reward * angvel_penalty
-    
+    # Return reward components for debugging/analysis
     reward_components = {
         "orientation_reward": orientation_reward,
-        "angvel_penalty": angvel_penalty,
-        "rot_error": rot_error,
-        "normalized_rot_error": normalized_rot_error
+        "angle_diff_degrees": angle_diff * 180.0 / torch.pi,
+        "normalized_angle_diff": normalized_angle_diff
     }
     
-    return total_reward, reward_components
+    return reward, reward_components

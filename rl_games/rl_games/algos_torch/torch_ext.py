@@ -7,6 +7,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.optim.optimizer import Optimizer
 
+import pickle
+from collections import OrderedDict
+import contextlib
 
 numpy_to_torch_dtype_dict = {
     np.dtype('bool')       : torch.bool,
@@ -75,14 +78,33 @@ def safe_filesystem_op(func, *args, **kwargs):
 def safe_save(state, filename):
     return safe_filesystem_op(torch.save, state, filename)
 
+# def safe_load(filename):
+#     with torch.serialization.safe_globals({
+#         "numpy.core.multiarray.scalar": np.core.multiarray.scalar,
+#         "numpy.dtype": np.dtype,
+#         "numpy.dtypes.Float32DType": lambda: np.dtype("float32")
+#     }):
+#         # Disable weights_only to avoid the unpickler bug
+#         checkpoint = torch.load(filename, weights_only=False)
+#     return checkpoint
+
 def safe_load(filename):
-    with torch.serialization.safe_globals({
-        "numpy.core.multiarray.scalar": np.core.multiarray.scalar,
-        "numpy.dtype": np.dtype,
-        "numpy.dtypes.Float32DType": lambda: np.dtype("float32")
-    }):
-        # Disable weights_only to avoid the unpickler bug
-        checkpoint = torch.load(filename, weights_only=False)
+    # Gracefully handle PyTorch 2.x and 1.x differences
+    if hasattr(torch.serialization, "safe_globals"):
+        # For PyTorch 2.2–2.3
+        with torch.serialization.safe_globals({
+            "numpy.core.multiarray.scalar": np.core.multiarray.scalar,
+            "numpy.dtype": np.dtype,
+            "OrderedDict": OrderedDict,
+        }):
+            checkpoint = torch.load(filename, map_location='cpu')
+    else:
+        # For PyTorch <2.2 or >=2.4
+        try:
+            checkpoint = torch.load(filename, map_location='cpu')
+        except Exception:
+            with open(filename, 'rb') as f:
+                checkpoint = pickle.load(f)
     return checkpoint
 
 def save_checkpoint(filename, state):

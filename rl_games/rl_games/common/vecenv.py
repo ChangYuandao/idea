@@ -271,7 +271,14 @@ def register(config_name, func):
     vecenv_config[config_name] = func
 
 def create_vec_env(config_name, num_actors, **kwargs):
+    # 从全局的 configurations 字典中，取出指定环境配置（config_name）对应的向量化环境类型（vecenv_type）
+    # 例如 isaacgym 的环境的注册大多是 configurations["rlgpu"]["vecenv_type"]，返回的 vec_env_name 是 RLGPU
     vec_env_name = configurations[config_name]['vecenv_type']
+    
+    # 根据 vec_env_name 从 vecenv_config 中查找对应的构建函数或类
+    # 并调用它来创建实际的向量化环境对象
+    # 传入的参数包括：config_name（在 isaacgym 环境下是 rlgpu）；num_actors 在 RLGPUEnv 类中貌似没用到
+    # 返回的是一个 RLGPUEnv 类
     return vecenv_config[vec_env_name](config_name, num_actors, **kwargs)
 
 register('RAY', lambda config_name, num_actors, **kwargs: RayVecEnv(config_name, num_actors, **kwargs))

@@ -16,13 +16,19 @@ from rl_games.algos_torch import players
 from rl_games.common.algo_observer import DefaultAlgoObserver
 from rl_games.algos_torch import sac_agent
 
+
 # Limit tensor printouts to 3 decimal places globally
 torch.set_printoptions(precision=3, sci_mode=False)
 
 
 def _restore(agent, args):
+    # 只有在 args 中存在有效的 checkpoint 路径时，才进行恢复
     if 'checkpoint' in args and args['checkpoint'] is not None and args['checkpoint'] !='':
+        # 当前处于训练模式 (args['train'] 为 True)
+        # 并且用户要求只加载 Critic 网络 (load_critic_only 为 True)
         if args['train'] and args.get('load_critic_only', False):
+            # 检查 agent 是否有属性 has_central_value
+            # 如果没有，说明该 agent 不支持只加载 Critic
             if not getattr(agent, 'has_central_value', False):
                 raise ValueError('Loading critic only works only for asymmetric actor critic')
             agent.restore_central_value_function(args['checkpoint'])
@@ -30,6 +36,7 @@ def _restore(agent, args):
         agent.restore(args['checkpoint'])
 
 def _override_sigma(agent, args):
+    # 只有当 args 中存在有效的 sigma 参数时，才尝试修改网络中的 sigma
     if 'sigma' in args and args['sigma'] is not None:
         net = agent.model.a2c_network
         if hasattr(net, 'sigma') and hasattr(net, 'fixed_sigma'):
@@ -40,6 +47,10 @@ def _override_sigma(agent, args):
                 print('Cannot set new sigma because fixed_sigma is False')
 
 
+# 根据配置创建 Agent（算法实例）或 Player（推理实例）
+# 管理训练循环与日志
+# 处理多 GPU 配置和随机种
+# 统一接口：run_train()、run_play()、run()
 class Runner:
     """Runs training/inference (playing) procedures as per a given configuration.
 
@@ -63,25 +74,28 @@ class Runner:
         self.algo_factory.register_builder('a2c_continuous', lambda **kwargs : a2c_continuous.A2CAgent(**kwargs))
         self.algo_factory.register_builder('a2c_discrete', lambda **kwargs : a2c_discrete.DiscreteA2CAgent(**kwargs)) 
         self.algo_factory.register_builder('sac', lambda **kwargs: sac_agent.SACAgent(**kwargs))
-        #self.algo_factory.register_builder('dqn', lambda **kwargs : dqnagent.DQNAgent(**kwargs))
+
 
         self.player_factory = object_factory.ObjectFactory()
         self.player_factory.register_builder('a2c_continuous', lambda **kwargs : players.PpoPlayerContinuous(**kwargs))
         self.player_factory.register_builder('a2c_discrete', lambda **kwargs : players.PpoPlayerDiscrete(**kwargs))
         self.player_factory.register_builder('sac', lambda **kwargs : players.SACPlayer(**kwargs))
-        #self.player_factory.register_builder('dqn', lambda **kwargs : players.DQNPlayer(**kwargs))
+        
+        # 收集轨迹
+        self.player_factory.register_builder('a2c_continuous_traj_collector', lambda **kwargs : players.TrajectoryCollector(**kwargs))
 
         self.algo_observer = algo_observer if algo_observer else DefaultAlgoObserver()
 
-        # Enable TensorFloat32 (TF32) for faster matrix multiplications on NVIDIA GPUs
-        # For maximum perfromance
+        # 启用 TensorFloat32 (TF32) 提高矩阵乘法性能
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.allow_tf32 = True
+        # cudnn.benchmark = True 让 cuDNN 自动选择最优卷积算法
         torch.backends.cudnn.benchmark = True
 
     def reset(self):
         pass
-
+    
+    # 主要作用是从传入的字典 params 初始化 Runner 的内部状态， params 是训练文件的配置
     def load_config(self, params):
         """Loads passed config params.
 
@@ -97,7 +111,7 @@ class Runner:
         self.local_rank = 0
         self.global_rank = 0
         self.world_size = 1
-
+        # 尝试获取 key 'multi_gpu' 对应的值，不存在则为 False
         if params["config"].get('multi_gpu', False):
             # local rank of the GPU in a node
             self.local_rank = int(os.getenv("LOCAL_RANK", "0"))
@@ -123,10 +137,12 @@ class Runner:
             np.random.seed(self.seed)
             random.seed(self.seed)
 
-            # deal with environment specific seed if applicable
+            # 检查 env_config 字段是否则 config 下
             if 'env_config' in params['config']:
+                # 如果环境配置没有指定 seed，就使用全局 seed
                 if not 'seed' in params['config']['env_config']:
                     params['config']['env_config']['seed'] = self.seed
+                # 多 GPU 情况下微调 seed
                 else:
                     if params["config"].get('multi_gpu', False):
                         params['config']['env_config']['seed'] += self.seed
@@ -139,8 +155,11 @@ class Runner:
         self.params = params
 
     def load(self, yaml_config):
+        # 深拷贝 YAML 配置，防止修改原始字典
         config = deepcopy(yaml_config)
+        # 保存默认参数 self.default_config
         self.default_config = deepcopy(config['params'])
+        # 调用 load_config 初始化 Runner 内部状态
         self.load_config(params=self.default_config)
 
     def run_train(self, args):
@@ -183,6 +202,21 @@ class Runner:
         _restore(player, args)
         _override_sigma(player, args)
         player.run()
+    
+    def run_collect(self, args):
+        """Run the trajectory collection procedure from the algorithm passed in.
+
+        Args:
+            args (:obj:`dict`): Playing specific args passed in as a dict obtained from a yaml file or some other config format.
+
+        """
+        print('Started to collect trajectories')
+        collecter = self.player_factory.create('a2c_continuous_traj_collector', params=self.params)
+        _restore(collecter, args)
+        _override_sigma(collecter, args)
+        collecter.restore('/home/rtx4090/hnu/changyuandao/idea/IsaacGymEnvs/isaacgymenvs/ckpt/Ant.pth')
+        collecter.run()
+        
 
     def create_player(self):
         return self.player_factory.create(self.algo_name, params=self.params)
@@ -201,5 +235,7 @@ class Runner:
             self.run_train(args)
         elif args['play']:
             self.run_play(args)
+        elif args['collect']:
+            self.run_collect(args)
         else:
             self.run_train(args)

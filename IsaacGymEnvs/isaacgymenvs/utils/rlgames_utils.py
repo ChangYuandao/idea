@@ -28,7 +28,7 @@
 import os
 from collections import deque
 from typing import Callable, Dict, Tuple, Any
-
+import isaacgym
 import os
 import gym
 import numpy as np
@@ -96,17 +96,13 @@ def get_rlgames_env_creator(
         """
         Creates the task from configurations and wraps it using RL-games wrappers if required.
         """
+        
+        # 若启用了多 GPU（例如使用 Horovod 分布式训练），每个进程通过环境变量 LOCAL_RANK 获取 GPU ID
+        # 否则使用用户指定的 sim_device 与 rl_device
         if multi_gpu:
-            # import horovod.torch as hvd
-
-            # hvd.init()
-
-            # rank = hvd.rank()
 
             rank = int(os.getenv("LOCAL_RANK", "0"))
-
-            # set_seed(seed + rank)
-
+            
             print("Horovod rank: ", rank)
 
             _sim_device = f'cuda:{rank}'
@@ -123,8 +119,10 @@ def get_rlgames_env_creator(
             import importlib
             module_name = f"isaacgymenvs.tasks.{task_config['env']['env_name'].lower()}"
             module = importlib.import_module(module_name)
+            # 创建对应的任务类
             task_caller = getattr(module, task_name)
         except:
+            print("Could not import task from file, trying from isaacgym_task_map")
             task_caller = isaacgym_task_map[task_name]
         
         env = task_caller(
@@ -152,18 +150,28 @@ class RLGPUAlgoObserver(AlgoObserver):
         self.algo = None
         self.writer = None
 
+        # ep_infos 存储单个 episode 的信息
         self.ep_infos = []
+        # 存储平铺的直接日志数据
         self.direct_info = {}
-
+        # episode_cumulative 累积每个环境的 episode 信息
         self.episode_cumulative = dict()
+        # episode_cumulative_avg 存储最近若干 episode 的平均值
         self.episode_cumulative_avg = dict()
+        # new_finished_episodes 标记是否有新完成的 episode
         self.new_finished_episodes = False
 
+    # 接受参数 algo
+    # 将算法对象和 TensorBoard writer 保存到 observer 实例
+    # 后续可以直接使用 self.algo 获取算法属性，self.writer 写日志
     def after_init(self, algo):
         self.algo = algo
         self.writer = self.algo.writer
 
+    # infos：环境返回的信息，期望是字典类型
+    # done_indices：当前 batch 中完成 episode 的索引（通常是张量或列表）
     def process_infos(self, infos, done_indices):
+        # 确保 infos 是字典，否则无法使用 key 访问
         assert isinstance(infos, dict), 'RLGPUAlgoObserver expects dict info'
         if not isinstance(infos, dict):
             return
@@ -172,11 +180,15 @@ class RLGPUAlgoObserver(AlgoObserver):
             self.ep_infos.append(infos['episode'])
 
         if 'episode_cumulative' in infos:
+            # 累积每个环境的 episode 信息（例如奖励总和）
             for key, value in infos['episode_cumulative'].items():
                 if key not in self.episode_cumulative:
                     self.episode_cumulative[key] = torch.zeros_like(value)
                 self.episode_cumulative[key] += value
 
+            # 对每个完成 episode 的环境
+            # 将累积值记录到最近 N 个 episode 平均值队列中
+            # 重置该环境的累积值为 0
             for done_idx in done_indices:
                 self.new_finished_episodes = True
                 done_idx = done_idx.item()
@@ -188,43 +200,47 @@ class RLGPUAlgoObserver(AlgoObserver):
                     self.episode_cumulative_avg[key].append(self.episode_cumulative[key][done_idx].item())
                     self.episode_cumulative[key][done_idx] = 0
 
-        # turn nested infos into summary keys (i.e. infos['scalars']['lr'] -> infos['scalars/lr']
-        if len(infos) > 0 and isinstance(infos, dict):  # allow direct logging from env
+        # 将可直接记录的标量信息收集到 direct_info 中，以便写入日志
+        if len(infos) > 0 and isinstance(infos, dict):  
             infos_flat = flatten_dict(infos, prefix='', separator='/')
             self.direct_info = {}
             for k, v in infos_flat.items():
-                # only log scalars
                 if isinstance(v, float) or isinstance(v, int) or (isinstance(v, torch.Tensor) and len(v.shape) == 0):
                     self.direct_info[k] = v
 
+    # frame：当前训练帧或步数
+    # epoch_num：当前训练 epoch
+    # total_time：训练累计时间（本函数中未使用）
     def after_print_stats(self, frame, epoch_num, total_time):
+        # 处理单个 episode 的信息
         if self.ep_infos:
+            # 每个 ep_info 是一个字典，ep_infos[0] 获取第一个字典以获取所有 key
             for key in self.ep_infos[0]:
+                # 创建一个空的 Tensor，用于收集所有环境的该 key 值
                 infotensor = torch.tensor([], device=self.algo.device)
                 for ep_info in self.ep_infos:
-                    # handle scalar and zero dimensional tensor infos
+                    # 确保是张量，将标量或列表转换为 1D Tensor
                     if not isinstance(ep_info[key], torch.Tensor):
                         ep_info[key] = torch.Tensor([ep_info[key]])
+                    # unsqueeze(0) 将 0 维张量变为 1D 张量，方便后续拼接
                     if len(ep_info[key].shape) == 0:
                         ep_info[key] = ep_info[key].unsqueeze(0)
+                    # 沿维度 0 拼接所有环境的值
                     infotensor = torch.cat((infotensor, ep_info[key].to(self.algo.device)))
                 value = torch.mean(infotensor)
                 self.writer.add_scalar('Episode/' + key, value, epoch_num)
+            # 清空列表
             self.ep_infos.clear()
-        
-        # log these if and only if we have new finished episodes
+        # 处理累积 episode 信息
         if self.new_finished_episodes:
             for key in self.episode_cumulative_avg:
                 self.writer.add_scalar(f'episode_cumulative/{key}', np.mean(self.episode_cumulative_avg[key]), frame)
                 self.writer.add_scalar(f'episode_cumulative_min/{key}_min', np.min(self.episode_cumulative_avg[key]), frame)
                 self.writer.add_scalar(f'episode_cumulative_max/{key}_max', np.max(self.episode_cumulative_avg[key]), frame)
             self.new_finished_episodes = False
-
+        # 直接写标量信息
         for k, v in self.direct_info.items():
             self.writer.add_scalar(f'{k}', v, epoch_num)
-            # self.writer.add_scalar(f'{k}/frame', v, frame)
-            # self.writer.add_scalar(f'{k}/iter', v, epoch_num)
-            # self.writer.add_scalar(f'{k}/time', v, total_time)
 
 
 class MultiObserver(AlgoObserver):
@@ -257,37 +273,64 @@ class MultiObserver(AlgoObserver):
         self._call_multi('after_print_stats', frame, epoch_num, total_time)
 
 
+"""
+这段代码定义了一个强化学习环境包装类 RLGPUEnv，用于在 GPU 加速的强化学习框架中管理单个或多个环境实例
+它继承自 vecenv.IVecEnv，表明它是一个“向量化环境”（VecEnv）接口的实现类，可以被上层并行环境管理器统一调度
+"""
 class RLGPUEnv(vecenv.IVecEnv):
+    
+    # config_name：环境配置名称，默认是 rlgpu
+    # num_actors：并行执行的环境数量（在本类中未直接使用，可能用于兼容接口）
+    # **kwargs：其他关键字参数，传递给环境创建函数
+    # self.env 是是一个 Isaac Gym 矢量化任务环境对象（如 Ant）
     def __init__(self, config_name, num_actors, **kwargs):
         self.env = env_configurations.configurations[config_name]['env_creator'](**kwargs)
 
+    # actions：环境动作
+    # self.env.step(actions) 调用对应的类（例如 Ant）的 step(actions) 方法
     def step(self, actions):
         return  self.env.step(actions)
 
+    # self.env.reset() 调用对应的类（例如 Ant）的 reset() 方法
     def reset(self):
         return self.env.reset()
     
+    # 重置完成的环境
+    # self.env.reset_done() 调用对应的类（例如 Ant）的 reset_done() 方法
     def reset_done(self):
         return self.env.reset_done()
-
+    
+    # 获取环境中智能体的数量
+    # 实际上找不到该函数，怀疑不存在
     def get_number_of_agents(self):
         return self.env.get_number_of_agents()
 
+    # 构建一个字典 info，用于收集环境的基本信息（空间结构等）
     def get_env_info(self):
         info = {}
+        
+        # self.env.action_space 获取动作空间，实际上是调用 action_space() 函数，但是因为该函数被 @property 装饰器修饰，所以可以当作属性调用，在 Env 类里定义，Ant 任务的动作空间是 Box(-1, 1, (8,), float32)
         info['action_space'] = self.env.action_space
+        
+        # self.env.observation_space 获取观测空间，在 Env 类里定义，Ant 任务的观测空间是 Box(-inf, inf, (60,), float32)
         info['observation_space'] = self.env.observation_space
+        
+        # 如果环境支持 AMP（Adversarial Motion Priors），则保存其专用的观测空间，当前任务中用不到
         if hasattr(self.env, "amp_observation_space"):
             info['amp_observation_space'] = self.env.amp_observation_space
 
+        # 对于 Ant 任务来说，num_states 是 0，因此不会进入该分支
         if self.env.num_states > 0:
             info['state_space'] = self.env.state_space
             print(info['action_space'], info['observation_space'], info['state_space'])
         else:
             print(info['action_space'], info['observation_space'])
 
+        # 对于 Ant 任务，info 只包含 action_space 和 observation_space 两个键值对
         return info
 
+    # 向环境传递训练过程信息
+    
     def set_train_info(self, env_frames, *args_, **kwargs_):
         """
         Send the information in the direction algo->environment.
@@ -295,6 +338,7 @@ class RLGPUEnv(vecenv.IVecEnv):
         for implementing curriculums and things such as that.
         """
         if hasattr(self.env, 'set_train_info'):
+            # 保存当前训练总帧数到 total_train_env_frames 变量中
             self.env.set_train_info(env_frames, *args_, **kwargs_)
 
     def get_env_state(self):
@@ -302,12 +346,14 @@ class RLGPUEnv(vecenv.IVecEnv):
         Return serializable environment state to be saved to checkpoint.
         Can be used for stateful training sessions, i.e. with adaptive curriculums.
         """
+        # Ant 和 Shadow_Hand 任务虽然有该函数，但是默认返回 None
         if hasattr(self.env, 'get_env_state'):
             return self.env.get_env_state()
         else:
             return None
 
     def set_env_state(self, env_state):
+        # Ant 和 Shadow_Hand 任务虽然有该函数，但是默认不做任何操作
         if hasattr(self.env, 'set_env_state'):
             self.env.set_env_state(env_state)
 

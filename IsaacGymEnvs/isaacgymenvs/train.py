@@ -28,10 +28,10 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-import logging
 import os
 import datetime
 
+# isaacgym 需要在 torch 之前引入，否则会报错
 import isaacgym
 
 import hydra
@@ -39,14 +39,13 @@ from hydra.utils import to_absolute_path
 from isaacgymenvs.tasks import isaacgym_task_map
 from omegaconf import DictConfig, OmegaConf
 import gym
-import sys 
 import shutil
 from pathlib import Path
 
 from isaacgymenvs.utils.reformat import omegaconf_to_dict, print_dict
 from isaacgymenvs.utils.utils import set_np_formatting, set_seed
 
-# ROOT_DIR = os.getcwd()
+
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 def preprocess_train_config(cfg, config_dict):
@@ -57,6 +56,7 @@ def preprocess_train_config(cfg, config_dict):
     """
 
     train_cfg = config_dict['params']['config']
+    # 如果不存在 full_experiment_name 字段，则不会报错，返回 None
     train_cfg['full_experiment_name'] = cfg.get('full_experiment_name')
 
     try:
@@ -71,7 +71,7 @@ def preprocess_train_config(cfg, config_dict):
 
     return config_dict
 
-
+# 配置文件在项目根目录的 ./cfg 文件加，默认加载文件是 config.yaml 配置文件， hydra 运行的时候会将配置内容打包为 DictConfig 传入函数
 @hydra.main(config_name="config", config_path="./cfg")
 def launch_rlg_hydra(cfg: DictConfig):
 
@@ -86,27 +86,32 @@ def launch_rlg_hydra(cfg: DictConfig):
     from isaacgymenvs.learning import amp_network_builder
     import isaacgymenvs
 
-
+    # 获取当前时间并将其格式化为字符串
     time_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    
+    # cfg.wandb_name 在配置文件中定义，表示 wandb 项目的名称，默认为任务名例如 Ant
     run_name = f"{cfg.wandb_name}_{time_str}"
 
-    # ensure checkpoints can be specified as relative paths
     if cfg.checkpoint:
         cfg.checkpoint = to_absolute_path(cfg.checkpoint)
 
+    # 将配置转换为普通字典以便打印
     cfg_dict = omegaconf_to_dict(cfg)
-    # print_dict(cfg_dict)
 
-    # set numpy formatting for printing only
+    # 设置 numpy 的打印格式
     set_np_formatting()
-
-    # sets seed. if seed is -1 will pick a random one
+    
+    # LOCAL_RANK 表示当前进程在本机 GPU 的编号，不存在的时候默认是 0
     rank = int(os.getenv("LOCAL_RANK", "0"))
     cfg.seed += rank
     cfg.seed = set_seed(cfg.seed, torch_deterministic=cfg.torch_deterministic)
     cfg.train.params.config.multi_gpu = cfg.multi_gpu
 
 
+    """
+    create_isaacgym_env() 返回的是一个 Isaac Gym 矢量化任务环境对象（如 Ant）
+    它继承自 VecTask，在 GPU 上并行模拟多个 Ant 机器人，并兼容 Gym 接口
+    """
     def create_isaacgym_env(**kwargs):
         envs = isaacgymenvs.make(
             cfg.seed, 
@@ -124,6 +129,7 @@ def launch_rlg_hydra(cfg: DictConfig):
         )
         if cfg.capture_video:
             envs.is_vector_env = True
+            # 从第 0 step 就可能开始录制
             if cfg.test:
                 envs = gym.wrappers.RecordVideo(
                     envs,
@@ -131,6 +137,7 @@ def launch_rlg_hydra(cfg: DictConfig):
                     step_trigger=lambda step: (step % cfg.capture_video_freq == 0),
                     video_length=cfg.capture_video_len,
                 )
+            # 跳过第 0 step，从第 1 step 开始录制，避免录制环境刚 reset 的“空白帧”
             else:
                 envs = gym.wrappers.RecordVideo(
                     envs,
@@ -140,14 +147,16 @@ def launch_rlg_hydra(cfg: DictConfig):
                 )
         return envs
 
+    # 注册环境
     env_configurations.register('rlgpu', {
         'vecenv_type': 'RLGPU',
         'env_creator': lambda **kwargs: create_isaacgym_env(**kwargs),
     })
     
-    # Save the environment code!
+
     try:
         output_file = f"{ROOT_DIR}/tasks/{cfg.task.env.env_name.lower()}.py"
+        # copy 到当前的工作输出环境
         shutil.copy(output_file, f"env.py")
     except:
         import re
@@ -158,12 +167,14 @@ def launch_rlg_hydra(cfg: DictConfig):
 
         shutil.copy(output_file, f"env.py")
 
+    # RLGPUEnv 包装了 Isaac Gym 相关任务，最重要的是包装了返回信息， info 包含 action_space 和 observation_space 环境信息
     vecenv.register('RLGPU', lambda config_name, num_actors, **kwargs: RLGPUEnv(config_name, num_actors, **kwargs))
 
     rlg_config_dict = omegaconf_to_dict(cfg.train)
+    # 修改 train 的配置
     rlg_config_dict = preprocess_train_config(cfg, rlg_config_dict)
 
-    # register new AMP network builder and agent
+
     def build_runner(algo_observer):
         runner = Runner(algo_observer)
         runner.algo_factory.register_builder('amp_continuous', lambda **kwargs : amp_continuous.AMPAgent(**kwargs))
@@ -173,29 +184,28 @@ def launch_rlg_hydra(cfg: DictConfig):
 
         return runner
 
+    # 实例化一个类，放在列表里
     observers = [RLGPUAlgoObserver()]
 
     if cfg.wandb_activate and rank ==0 :
-
         import wandb
-        
-        # initialize wandb only once per horovod run (or always for non-horovod runs)
         wandb_observer = WandbAlgoObserver(cfg)
         observers.append(wandb_observer)
 
-    # dump config dict
+  
     exp_date = cfg.train.params.config.name + '-{date:%Y-%m-%d_%H-%M-%S}'.format(date=datetime.datetime.now())
+    # 'runs' 是根目录，exp_date 是子目录名
     experiment_dir = os.path.join('runs', exp_date)
     print("Network Directory:", Path.cwd() / experiment_dir / "nn")
     print("Tensorboard Directory:", Path.cwd() / experiment_dir / "summaries")
-
+    # 递归创建目录，如果上级目录不存在也会创建；如果目录已存在，不会报错
     os.makedirs(experiment_dir, exist_ok=True)
+    # 将 Hydra 配置对象 cfg 转为 YAML 字符串写入到路径下的 config.yaml 文件中
     with open(os.path.join(experiment_dir, 'config.yaml'), 'w') as f:
         f.write(OmegaConf.to_yaml(cfg))
     rlg_config_dict['params']['config']['full_experiment_name'] = exp_date
 
-    # convert CLI arguments into dictionary
-    # create runner and set the settings
+  
     runner = build_runner(MultiObserver(observers))
     runner.load(rlg_config_dict)
     runner.reset()

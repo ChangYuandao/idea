@@ -24,19 +24,22 @@ def make(
     force_render: bool = True,
     cfg: DictConfig = None
 ): 
+    # 动态导入模块（只在调用时导入）
+    # 用法上与普通 import 一样，但作用域仅限函数内
+    # 常见于：延迟加载（Lazy Import），减少初始化时间
     from isaacgymenvs.utils.rlgames_utils import get_rlgames_env_creator
-    # create hydra config if no config passed in
+    
+    # 如果用户没有传配置，就自动加载 Hydra 的配置
     if cfg is None:
-        # reset current hydra config if already parsed (but not passed in here)
         if HydraConfig.initialized():
             task = HydraConfig.get().runtime.choices['task']
             hydra.core.global_hydra.GlobalHydra.instance().clear()
-
+        # 这是 Hydra 的上下文管理器语法，用于动态加载配置文件
         with initialize(config_path="./cfg"):
+            # 根据指定任务名（如 "Ant", "Humanoid", "Cartpole"）创建对应任务配置
             cfg = compose(config_name="config", overrides=[f"task={task}"])
             cfg_dict = omegaconf_to_dict(cfg.task)
             cfg_dict['env']['numEnvs'] = num_envs
-    # reuse existing config
     else:
         cfg_dict = omegaconf_to_dict(cfg.task)
 

@@ -1,5 +1,8 @@
 # @package _global_
 hydra:
+  # 默认 Hydra 会给每次运行创建子目录
+  # null 表示不创建额外子目录，直接在 dir 指定的目录中输出
   output_subdir: null
   run:
+    # 定义单次运行的输出目录
     dir: ./policy-${now:%Y-%m-%d}_${now:%H-%M-%S}

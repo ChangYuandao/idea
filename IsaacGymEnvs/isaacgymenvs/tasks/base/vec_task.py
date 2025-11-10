@@ -104,12 +104,14 @@ class Env(ABC):
         self.num_observations = config["env"].get("numObservations", 0)
         self.num_states = config["env"].get("numStates", 0)
 
+        # 观测空间，默认是一个 num_observations 维的连续空间，范围是 [-inf, inf]
         self.obs_space = spaces.Box(np.ones(self.num_obs) * -np.Inf, np.ones(self.num_obs) * np.Inf)
         self.state_space = spaces.Box(np.ones(self.num_states) * -np.Inf, np.ones(self.num_states) * np.Inf)
 
         self.num_actions = config["env"]["numActions"]
         self.control_freq_inv = config["env"].get("controlFrequencyInv", 1)
 
+        # 动作空间，默认是一个 num_actions 维的连续空间，范围是 [-1, 1]
         self.act_space = spaces.Box(np.ones(self.num_actions) * -1., np.ones(self.num_actions) * 1.)
 
         self.clip_obs = config["env"].get("clipObservations", np.Inf)
@@ -190,8 +192,9 @@ class Env(ABC):
         Most common use case: tell the environment how far along we are in the training process. This is useful
         for implementing curriculums and things such as that.
         """
+        # 保存当前训练总帧数到实例变量中    
         self.total_train_env_frames = env_frames
-        # print(f'env_frames updated to {self.total_train_env_frames}')
+
 
     def get_env_state(self):
         """

@@ -29,6 +29,7 @@
 from omegaconf import DictConfig, OmegaConf
 from typing import Dict
 
+# 将 OmegaConf 的 DictConfig 对象 转换为 Python 原生字典
 def omegaconf_to_dict(d: DictConfig)->Dict:
     """Converts an omegaconf DictConfig to a python Dict, respecting variable interpolation."""
     ret = {}
@@ -39,6 +40,10 @@ def omegaconf_to_dict(d: DictConfig)->Dict:
             ret[k] = v
     return ret
 
+# val：要打印的对象（通常是字典，但也可以是其他类型）
+# nesting：缩进控制，默认值 -4（在第一次递归时会加 4 变为 0）
+# start：布尔值，表示是否是最外层调用，默认 True
+# 作用：递归输出嵌套字典的内容，带缩进结构
 def print_dict(val, nesting: int = -4, start: bool = True):
     """Outputs a nested dictionory."""
     if type(val) == dict:
@@ -52,4 +57,4 @@ def print_dict(val, nesting: int = -4, start: bool = True):
     else:
         print(val)
 
-# EOF
+

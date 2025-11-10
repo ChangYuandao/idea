@@ -456,23 +456,29 @@ configurations = {
 }
 
 def get_env_info(env):
+    
+    # 初始化一个字典，用于存储环境信息
     result_shapes = {}
+    
+    # 保存环境的 observation space（观测空间），通常是 spaces.Box 类型，对于 Ant 任务，维度是 (60,)
     result_shapes['observation_space'] = env.observation_space
+    
+    # 保存环境的 action space（动作空间），通常是 spaces.Box 类型，对于 Ant 任务，维度是 (8,)
     result_shapes['action_space'] = env.action_space
+    
+    # 默认情况下，智能体数量为 1
     result_shapes['agents'] = 1
+    
+    # 默认情况下，value size 为 1
     result_shapes['value_size'] = 1
+    
+    # Ant 任务默认是没有该函数的
     if hasattr(env, "get_number_of_agents"):
         result_shapes['agents'] = env.get_number_of_agents()
-    '''
-    if isinstance(result_shapes['observation_space'], gym.spaces.dict.Dict):
-        result_shapes['observation_space'] = observation_space['observations']
-
-    if isinstance(result_shapes['observation_space'], dict):
-        result_shapes['observation_space'] = observation_space['observations']
-        result_shapes['state_space'] = observation_space['states']
-    '''
+    # Ant 任务默认是没有该属性的
     if hasattr(env, "value_size"):
         result_shapes['value_size'] = env.value_size
+    
     print(result_shapes)
     return result_shapes
 

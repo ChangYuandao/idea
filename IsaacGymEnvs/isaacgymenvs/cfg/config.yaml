@@ -1,10 +1,18 @@
+
+# defaults 定义“默认要加载的其他配置文件”以及加载顺序，- key: value 表示字典项
+# - _self_ 表示加载当前配置文件
+# - task: Ant 表示加载 cfg/task/Ant.yaml 配置文件
+# - train: ${task}PPO 表示加载 cfg/train/AntPPO.yaml 配置文件
+# - hydra/job_logging: disabled 表示禁用 hydra 的日志记录功能
+# - override hydra/launcher: local 表示使用本地 launcher 启动子进程，而非当前进程
+# - override hydra/output: local 表示将输出保存到本地
 defaults:
   - _self_
   - task: Ant
   - train: ${task}PPO
   - hydra/job_logging: disabled
-  - override hydra/launcher:  local
-  - override hydra/output:  local
+  - override hydra/launcher: local
+  - override hydra/output: local
 
 # Task name - used to pick the class to load
 task_name: ${task.name}
@@ -43,7 +51,9 @@ num_subscenes: 4 # Splits the simulation into N physics scenes and runs each one
 
 # RLGames Arguments
 # test - if set, run policy in inference mode (requires setting checkpoint to load)
-test: False
+test: True
+
+collect: True
 # used to set checkpoint path
 checkpoint: ''
 # set sigma when restoring network
@@ -54,8 +64,7 @@ multi_gpu: False
 wandb_activate: False
 wandb_group: ''
 wandb_name: ${train.params.config.name}
-# wandb_entity: ''
-# wandb_project: 'isaacgymenvs'
+
 wandb_entity: 'jma2020'
 wandb_project: 'isaac_gpt'
 wandb_tags: []
@@ -66,19 +75,6 @@ capture_video_freq: 5000
 capture_video_len: 200
 force_render: False
 
-# disables rendering
-# headless: False
 headless: True 
 
-# set default task and default training config based on task
-# defaults:
-#   - task: Ant
-#   - train: ${task}PPO
-#   - hydra/job_logging: disabled
-
-# set the directory where the output files get saved
-# hydra:
-#   output_subdir: null
-#   run:
-#     dir: .
 
