@@ -1,33 +1,3 @@
-# train.py
-# Script to train policies in Isaac Gym
-#
-# Copyright (c) 2018-2023, NVIDIA Corporation
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice, this
-#    list of conditions and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its
-#    contributors may be used to endorse or promote products derived from
-#    this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os
 import datetime
 
@@ -192,10 +162,10 @@ def launch_rlg_hydra(cfg: DictConfig):
         wandb_observer = WandbAlgoObserver(cfg)
         observers.append(wandb_observer)
 
-  
-    exp_date = cfg.train.params.config.name + '-{date:%Y-%m-%d_%H-%M-%S}'.format(date=datetime.datetime.now())
-    # 'runs' 是根目录，exp_date 是子目录名
-    experiment_dir = os.path.join('runs', exp_date)
+
+    exp_name = cfg.train.params.config.name.lower()
+    # 'runs' 是根目录，exp_name 是子目录名
+    experiment_dir = os.path.join('runs', exp_name)
     print("Network Directory:", Path.cwd() / experiment_dir / "nn")
     print("Tensorboard Directory:", Path.cwd() / experiment_dir / "summaries")
     # 递归创建目录，如果上级目录不存在也会创建；如果目录已存在，不会报错
@@ -203,7 +173,7 @@ def launch_rlg_hydra(cfg: DictConfig):
     # 将 Hydra 配置对象 cfg 转为 YAML 字符串写入到路径下的 config.yaml 文件中
     with open(os.path.join(experiment_dir, 'config.yaml'), 'w') as f:
         f.write(OmegaConf.to_yaml(cfg))
-    rlg_config_dict['params']['config']['full_experiment_name'] = exp_date
+    rlg_config_dict['params']['config']['full_experiment_name'] = exp_name
 
   
     runner = build_runner(MultiObserver(observers))

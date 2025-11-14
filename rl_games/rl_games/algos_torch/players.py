@@ -181,29 +181,52 @@ class PpoPlayerContinuous(BasePlayer):
         # 如果模型包含 RNN 结构，则初始化 RNN 状态
         self.init_rnn()
 
+    
 
-class TrajectoryCollector(PpoPlayerContinuous):
+class AntTrajectoryCollector(PpoPlayerContinuous):
     """
     轨迹收集器，继承自PpoPlayerContinuous
     在运行时收集固定数量的轨迹，每个轨迹对应一个完整的episode
+    只收集指定的状态信息字段
     """
     
     def __init__(self, params):
         super().__init__(params)
         
+        # 轨迹收集配置
+        collector_config = params.get('collector_config', {})
         
-        # 需要收集的轨迹数量
-        self.num_trajectories = 5
-        
-        # 保存目录
-        self.save_dir = Path('./trajectories')
+        self.num_trajectories = collector_config.get('num_trajectories', 5)
+        save_dir_str = collector_config.get('save_dir', './trajectories')
+        self.save_filename = collector_config.get('save_filename', 'trajectories')
+
+        # 确保使用绝对路径
+        self.save_dir = Path(save_dir_str).resolve()
         self.save_dir.mkdir(parents=True, exist_ok=True)
         
-        # 保存文件名
-        self.save_filename = 'trajectories'
-        
-        # 是否保存观察（观察可能很大）
-        self.save_observations = True
+        # 需要收集的字段列表
+        self.required_fields = [
+            'potentials',
+            'prev_potentials',
+            'up_vec',
+            'heading_vec',
+            'root_states',
+            'targets',
+            'inv_start_rot',
+            'dof_pos',
+            'dof_vel',
+            'dof_limits_lower',
+            'dof_limits_upper',
+            'dof_vel_scale',
+            'vec_sensor_tensor',
+            'actions',
+            'dt',
+            'contact_force_scale',
+            'basis_vec0',
+            'basis_vec1',
+            'up_axis_idx',
+            'rewards'
+        ]
         
         # 已收集的轨迹列表
         self.collected_trajectories = []
@@ -211,137 +234,88 @@ class TrajectoryCollector(PpoPlayerContinuous):
         # 当前episode的轨迹缓存
         self.current_trajectory = None
         
+        self.max_steps = 10
+        
         print(f"[TrajectoryCollector] Will collect {self.num_trajectories} trajectories")
         print(f"[TrajectoryCollector] Save directory: {self.save_dir}")
+        print(f"[TrajectoryCollector] Required fields: {len(self.required_fields)} fields")
     
     def init_trajectory(self):
         """初始化一条新轨迹"""
-        self.current_trajectory = {
-            'observations': [],   # 观察序列
-            'actions': [],        # 动作序列
-            'rewards': [],        # 奖励序列
-            'mus': [],           # 策略均值序列
-            'dones': [],         # done标志序列
-            'infos': [],         # 环境info序列
-        }
+        self.current_trajectory = {field: [] for field in self.required_fields}
     
-    def add_step(self, obs, action, mu, reward, done, info):
+    def add_step(self, state_info):
         """
         添加一个时间步的数据到当前轨迹
         
         Args:
-            obs: 观察
-            action: 执行的动作
-            mu: 策略均值
-            reward: 奖励
-            done: 是否结束
-            info: 环境信息
+            state_info: 包含所需字段的字典
         """
         if self.current_trajectory is None:
             self.init_trajectory()
         
-        # 保存观察（转换为numpy以节省内存）
-        if self.save_observations:
-            if isinstance(obs, torch.Tensor):
-                obs_np = obs.cpu().numpy()
-            elif isinstance(obs, dict):
-                obs_np = {k: v.cpu().numpy() if isinstance(v, torch.Tensor) else v 
-                         for k, v in obs.items()}
+        # 遍历所有需要的字段
+        for field in self.required_fields:
+            if field in state_info:
+                value = state_info[field]
+                
+                # 转换tensor为numpy
+                if isinstance(value, torch.Tensor):
+                    value_np = value.cpu().numpy()
+                else:
+                    value_np = value
+                
+                self.current_trajectory[field].append(value_np)
             else:
-                obs_np = obs
-            self.current_trajectory['observations'].append(obs_np)
-
-        # 保存动作
-        if isinstance(action, torch.Tensor):
-            action_np = action.cpu().numpy()
-        else:
-            action_np = action
-        self.current_trajectory['actions'].append(action_np)
-
-        # 保存策略均值
-        if isinstance(mu, torch.Tensor):
-            mu_np = mu.cpu().numpy()
-        else:
-            mu_np = mu
-        self.current_trajectory['mus'].append(mu_np)
-        
-        # 保存奖励
-        if isinstance(reward, torch.Tensor):
-            reward_np = reward.cpu().numpy()
-        else:
-            reward_np = reward
-        self.current_trajectory['rewards'].append(reward_np)
-
-        
-        # 保存done
-        if isinstance(done, torch.Tensor):
-            done_np = done.cpu().numpy()
-        else:
-            done_np = done
-        self.current_trajectory['dones'].append(done_np)
-
-        
-        # 保存info（只保存可序列化的部分）
-        if info is not None:
-            serializable_info = self._make_serializable(info)
-            self.current_trajectory['infos'].append(serializable_info)
-
-    
-    def _make_serializable(self, obj):
-        """将对象转换为可序列化的格式"""
-        if isinstance(obj, dict):
-            return {k: self._make_serializable(v) for k, v in obj.items()}
-        elif isinstance(obj, (list, tuple)):
-            return [self._make_serializable(item) for item in obj]
-        elif isinstance(obj, torch.Tensor):
-            return obj.cpu().numpy()
-        elif isinstance(obj, np.ndarray):
-            return obj
-        elif isinstance(obj, (int, float, str, bool, type(None))):
-            return obj
-        else:
-            return str(obj)
+                # 如果字段不存在，记录警告（仅第一次）
+                if len(self.current_trajectory[field]) == 0:
+                    print(f"[TrajectoryCollector] Warning: field '{field}' not found in state_info")
+                self.current_trajectory[field].append(None)
     
     def finish_trajectory(self):
         """完成当前轨迹的收集"""
-        if self.current_trajectory is not None and len(self.current_trajectory['actions']) > 0:
-            # 将列表转换为numpy数组（更高效）
-            processed_trajectory = {}
-            for key, value_list in self.current_trajectory.items():
-                if key == 'infos':
-                    # info保持为列表
-                    processed_trajectory[key] = value_list
-                elif key == 'observations' and isinstance(value_list[0], dict):
-                    # 字典类型的观察保持为列表
-                    processed_trajectory[key] = value_list
-                else:
-                    try:
-                        processed_trajectory[key] = np.array(value_list)
-                    except:
-                        processed_trajectory[key] = value_list
+        if self.current_trajectory is None or len(self.current_trajectory['actions']) == 0:
+            return
+        
+        # 将列表转换为numpy数组
+        processed_trajectory = {}
+        for field, value_list in self.current_trajectory.items():
+            # 过滤掉None值
+            valid_values = [v for v in value_list if v is not None]
             
-            # 添加统计信息
+            if len(valid_values) > 0:
+                try:
+                    # 尝试转换为numpy数组
+                    processed_trajectory[field] = np.array(valid_values)
+                except:
+                    # 如果无法转换（例如shape不一致），保持为列表
+                    processed_trajectory[field] = valid_values
+        
+        # 添加统计信息
+        if 'rewards' in processed_trajectory:
             processed_trajectory['total_reward'] = np.sum(processed_trajectory['rewards'])
-            processed_trajectory['length'] = len(processed_trajectory['actions'])
-            
-            self.collected_trajectories.append(processed_trajectory)
-            
-            print(f"[TrajectoryCollector] Trajectory {len(self.collected_trajectories)} collected: "
-                  f"length={processed_trajectory['length']}, "
-                  f"total_reward={processed_trajectory['total_reward']:.2f}")
-            
-            self.current_trajectory = None
+        processed_trajectory['length'] = len(processed_trajectory['actions']) if 'actions' in processed_trajectory else 0
+        
+        self.collected_trajectories.append(processed_trajectory)
+        
+        total_reward = processed_trajectory.get('total_reward', 0)
+        length = processed_trajectory['length']
+        
+        print(f"[TrajectoryCollector] Trajectory {len(self.collected_trajectories)} collected: "
+              f"length={length}, total_reward={total_reward:.2f}")
+        
+        self.current_trajectory = None
     
     def save_trajectories(self):
         """保存所有收集的轨迹到文件"""
         if len(self.collected_trajectories) == 0:
             print("[TrajectoryCollector] No trajectories to save.")
             return
-        
-        # 生成文件名
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{self.save_filename}_{timestamp}.pkl"
-        filepath = self.save_dir / filename
+        
+        # 计算统计信息
+        total_rewards = [t.get('total_reward', 0) for t in self.collected_trajectories]
+        lengths = [t['length'] for t in self.collected_trajectories]
         
         # 准备保存的数据
         save_data = {
@@ -351,27 +325,82 @@ class TrajectoryCollector(PpoPlayerContinuous):
                 'timestamp': timestamp,
                 'num_trajectories': len(self.collected_trajectories),
                 'action_space_shape': self.actions_num,
-                'obs_shape': self.obs_shape,
-                'total_steps': sum(t['length'] for t in self.collected_trajectories),
-                'total_rewards': [t['total_reward'] for t in self.collected_trajectories],
-                'avg_reward': np.mean([t['total_reward'] for t in self.collected_trajectories]),
-                'avg_length': np.mean([t['length'] for t in self.collected_trajectories]),
+                'total_steps': sum(lengths),
+                'total_rewards': total_rewards,
+                'avg_reward': np.mean(total_rewards),
+                'avg_length': np.mean(lengths),
+                'min_reward': np.min(total_rewards),
+                'max_reward': np.max(total_rewards),
+                'collected_fields': self.required_fields,
             }
         }
         
+        save_path = self.save_dir / self.save_filename
         # 保存为pickle文件
-        with open(filepath, 'wb') as f:
+        with open(save_path, 'wb') as f:
             pickle.dump(save_data, f)
-        
-        print(f"\n[TrajectoryCollector] Successfully saved {len(self.collected_trajectories)} trajectories to {filepath}")
+
+        print(f"\n[TrajectoryCollector] Successfully saved {len(self.collected_trajectories)} trajectories to {save_path}")
         print(f"[TrajectoryCollector] Average reward: {save_data['metadata']['avg_reward']:.2f}")
         print(f"[TrajectoryCollector] Average length: {save_data['metadata']['avg_length']:.1f}")
+        print(f"[TrajectoryCollector] Reward range: [{save_data['metadata']['min_reward']:.2f}, {save_data['metadata']['max_reward']:.2f}]")
+
+        return save_path
+    
+    def get_state_info_from_env(self, action, reward):
+        """
+        从环境中提取所需的状态信息
         
-        return filepath
+        Args:
+            action: 当前执行的动作
+            reward: 当前步的奖励
+            
+        Returns:
+            state_info: 包含所需字段的字典
+        """
+        state_info = {}
+        
+        # 从环境中获取状态信息
+        # 假设环境有这些属性，需要根据实际环境调整
+        env = self.env
+        
+        # 尝试获取各个字段
+        field_mappings = {
+            'potentials': 'potentials',
+            'prev_potentials': 'prev_potentials',
+            'up_vec': 'up_vec',
+            'heading_vec': 'heading_vec',
+            'root_states': 'root_states',
+            'targets': 'targets',
+            'inv_start_rot': 'inv_start_rot',
+            'dof_pos': 'dof_pos',
+            'dof_vel': 'dof_vel',
+            'dof_limits_lower': 'dof_limits_lower',
+            'dof_limits_upper': 'dof_limits_upper',
+            'dof_vel_scale': 'dof_vel_scale',
+            'vec_sensor_tensor': 'vec_sensor_tensor',
+            'dt': 'dt',
+            'contact_force_scale': 'contact_force_scale',
+            'basis_vec0': 'basis_vec0',
+            'basis_vec1': 'basis_vec1',
+            'up_axis_idx': 'up_axis_idx',
+        }
+        
+        for field, attr_name in field_mappings.items():
+            if hasattr(env, attr_name):
+                state_info[field] = getattr(env, attr_name)
+            elif hasattr(env, 'task') and hasattr(env.task, attr_name):
+                state_info[field] = getattr(env.task, attr_name)
+        
+        # 添加action和reward
+        state_info['actions'] = action
+        state_info['rewards'] = reward
+        
+        return state_info
     
     def get_action(self, obs, is_deterministic=False):
         """
-        重写get_action方法，返回动作的同时记录mu（策略均值）
+        重写get_action方法，保持原有功能
         """
         if self.has_batch_dimension == False:
             obs_input = unsqueeze_obs(obs)
@@ -402,9 +431,6 @@ class TrajectoryCollector(PpoPlayerContinuous):
         if self.has_batch_dimension == False:
             current_action = torch.squeeze(current_action.detach())
         
-        # 保存mu供后续使用
-        self._last_mu = mu.detach()
-        
         if self.clip_actions:
             return rescale_actions(self.actions_low, self.actions_high, 
                                  torch.clamp(current_action, -1.0, 1.0))
@@ -425,7 +451,7 @@ class TrajectoryCollector(PpoPlayerContinuous):
         self.wait_for_checkpoint()
         need_init_rnn = self.is_rnn
         
-
+        print(f"\n[TrajectoryCollector] Starting trajectory collection...")
         
         # 收集指定数量的轨迹
         while len(self.collected_trajectories) < self.num_trajectories:
@@ -452,14 +478,14 @@ class TrajectoryCollector(PpoPlayerContinuous):
                 else:
                     action = self.get_action(obs, is_deterministic)
                 
-                # 保存当前步的mu
-                mu = self._last_mu
-                
                 # 执行动作
                 next_obs, reward, done, info = self.env_step(self.env, action)
                 
+                # 从环境中提取状态信息
+                state_info = self.get_state_info_from_env(action, reward)
+                
                 # 添加到轨迹
-                self.add_step(obs, action, mu, reward, done, info)
+                self.add_step(state_info)
                 
                 episode_reward += reward.item() if isinstance(reward, torch.Tensor) else reward
                 episode_steps += 1
@@ -509,20 +535,6 @@ class TrajectoryCollector(PpoPlayerContinuous):
         
         return save_data
 
-
-# 辅助函数
-def unsqueeze_obs(obs):
-    """为观察添加batch维度"""
-    if isinstance(obs, dict):
-        return {k: v.unsqueeze(0) if isinstance(v, torch.Tensor) else v 
-                for k, v in obs.items()}
-    else:
-        return obs.unsqueeze(0) if isinstance(obs, torch.Tensor) else obs
-
-
-def rescale_actions(low, high, action):
-    """将[-1, 1]范围的动作重新缩放到[low, high]"""
-    return low + (action + 1.0) * 0.5 * (high - low)
 
 
 # 辅助函数

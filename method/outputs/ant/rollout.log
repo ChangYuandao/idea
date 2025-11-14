@@ -1,0 +1,125 @@
+Importing module 'gym_38' (/home/changyuandao/changyuandao/experimentEnv/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)
+Setting GYM_USD_PLUG_INFO_PATH to /home/changyuandao/changyuandao/experimentEnv/isaacgym/python/isaacgym/_bindings/linux-x86_64/usd/plugInfo.json
+PyTorch version 2.4.1+cu121
+Device count 1
+/home/changyuandao/changyuandao/experimentEnv/isaacgym/python/isaacgym/_bindings/src/gymtorch
+Using /home/changyuandao/.cache/torch_extensions/py38_cu121 as PyTorch extensions root...
+Emitting ninja build file /home/changyuandao/.cache/torch_extensions/py38_cu121/gymtorch/build.ninja...
+Building extension module gymtorch...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+ninja: no work to do.
+Loading extension module gymtorch...
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+2025-11-14 18:38:27,127 - INFO - logger - logger initialized
+<unknown>:3: DeprecationWarning: invalid escape sequence \*
+Error: FBX library failed to load - importing FBX data will not succeed. Message: No module named 'fbx'
+FBX tools must be installed from https://help.autodesk.com/view/FBX/2020/ENU/?guid=FBX_Developer_Help_scripting_with_python_fbx_installing_python_fbx_html
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/networkx/classes/graph.py:23: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working
+  from collections import Mapping
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/networkx/classes/reportviews.py:95: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working
+  from collections import Mapping, Set, Iterable
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/networkx/readwrite/graphml.py:346: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  (np.int, "int"), (np.int8, "int"),
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/networkx/drawing/nx_pydot.py:27: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import parse_version
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/pkg_resources/__init__.py:3154: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/pkg_resources/__init__.py:3154: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/rollout.py:55: UserWarning: 
+The version_base parameter is not specified.
+Please specify a compatability version level, or None.
+Will assume defaults for version 1.1
+  @hydra.main(config_name="config", config_path="./cfg")
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/hydra/_internal/defaults_list.py:415: UserWarning: In config: Invalid overriding of hydra/job_logging:
+Default list overrides requires 'override' keyword.
+See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/defaults_list_override for more information.
+
+  deprecation_warning(msg)
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/hydra/_internal/hydra.py:119: UserWarning: Future Hydra versions will no longer change working directory at job runtime by default.
+See https://hydra.cc/docs/1.2/upgrades/1.1_to_1.2/changes_to_job_working_dir/ for more information.
+  ret = run_job(
+Setting seed: 42
+save_dir: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant
+[Rollout] Collector config set: save_dir=/home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant
+Network Directory: /home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/outputs/rollout/2025-11-14_18-38-27/runs/Ant-2025-11-14_18-38-28/nn
+Tensorboard Directory: /home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/outputs/rollout/2025-11-14_18-38-27/runs/Ant-2025-11-14_18-38-28/summaries
+self.seed = 42
+Started to collect trajectories
+[BasePlayer] Creating regular env:  rlgpu
+Could not import task from file, trying from isaacgym_task_map
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/gym/spaces/box.py:84: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
+[Warning] [carb.gym.plugin] useGpu is set, forcing single scene (0 subscenes)
+Not connected to PVD
++++ Using GPU PhysX
+Physics Engine: PhysX
+Physics Device: cuda:0
+GPU Pipeline: enabled
+num envs 1 env spacing 5
+/home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/tasks/ant.py:272: DeprecationWarning: an integer is required (got type isaacgym._bindings.linux-x86_64.gym_38.DofDriveMode).  Implicit conversion to integers using __int__ is deprecated, and may be removed in a future version of Python.
+  asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
+{'observation_space': Box(-inf, inf, (60,), float32), 'action_space': Box(-1.0, 1.0, (8,), float32), 'agents': 1, 'value_size': 1}
+build mlp: 60
+RunningMeanStd:  (1,)
+RunningMeanStd:  (60,)
+[TrajectoryCollector] Will collect 10 trajectories
+[TrajectoryCollector] Save directory: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant
+[TrajectoryCollector] Required fields: 20 fields
+=> loading checkpoint '/home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/EXPLORER_0/runs/antgpt/nn/AntGPT.pth'
+/home/changyuandao/changyuandao/paperProject/idea/rl_games/rl_games/algos_torch/torch_ext.py:104: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(filename, map_location='cpu')
+
+[TrajectoryCollector] Starting trajectory collection...
+self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=10, reward=13.05
+[TrajectoryCollector] Trajectory 1 collected: length=10, total_reward=13.05
+self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=10, reward=29.33
+[TrajectoryCollector] Trajectory 2 collected: length=10, total_reward=29.33
+self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=10, reward=30.34
+[TrajectoryCollector] Trajectory 3 collected: length=10, total_reward=30.34
+self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=10, reward=36.19
+[TrajectoryCollector] Trajectory 4 collected: length=10, total_reward=36.19
+self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=10, reward=51.95
+[TrajectoryCollector] Trajectory 5 collected: length=10, total_reward=51.95
+self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=10, reward=49.21
+[TrajectoryCollector] Trajectory 6 collected: length=10, total_reward=49.21
+self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=10, reward=55.26
+[TrajectoryCollector] Trajectory 7 collected: length=10, total_reward=55.26
+self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=10, reward=61.80
+[TrajectoryCollector] Trajectory 8 collected: length=10, total_reward=61.80
+self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=10, reward=63.59
+[TrajectoryCollector] Trajectory 9 collected: length=10, total_reward=63.59
+self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=10, reward=66.91
+[TrajectoryCollector] Trajectory 10 collected: length=10, total_reward=66.91
+
+[TrajectoryCollector] Successfully saved 10 trajectories to /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/iter0_trajectories.pkl
+[TrajectoryCollector] Average reward: 45.76
+[TrajectoryCollector] Average length: 10.0
+[TrajectoryCollector] Reward range: [13.05, 66.91]
+
+[TrajectoryCollector] Collection complete! Total trajectories: 10

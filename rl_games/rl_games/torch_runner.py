@@ -81,8 +81,8 @@ class Runner:
         self.player_factory.register_builder('a2c_discrete', lambda **kwargs : players.PpoPlayerDiscrete(**kwargs))
         self.player_factory.register_builder('sac', lambda **kwargs : players.SACPlayer(**kwargs))
         
-        # 收集轨迹
-        self.player_factory.register_builder('a2c_continuous_traj_collector', lambda **kwargs : players.TrajectoryCollector(**kwargs))
+        # Ant 任务收集轨迹
+        self.player_factory.register_builder('ant_trajectory_collector', lambda **kwargs : players.AntTrajectoryCollector(**kwargs))
 
         self.algo_observer = algo_observer if algo_observer else DefaultAlgoObserver()
 
@@ -211,10 +211,9 @@ class Runner:
 
         """
         print('Started to collect trajectories')
-        collecter = self.player_factory.create('a2c_continuous_traj_collector', params=self.params)
+        collecter = self.player_factory.create('ant_trajectory_collector', params=self.params)
         _restore(collecter, args)
         _override_sigma(collecter, args)
-        collecter.restore('/home/rtx4090/hnu/changyuandao/idea/IsaacGymEnvs/isaacgymenvs/ckpt/Ant.pth')
         collecter.run()
         
 

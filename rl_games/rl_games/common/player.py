@@ -333,6 +333,9 @@ class BasePlayer(object):
         # 执行环境步骤，传入动作，返回观测（obs），奖励（rewards），结束标志（dones），以及额外信息（infos）
         obs, rewards, dones, infos = env.step(actions)
         
+        
+        
+        
         # 如果观测数据的类型是 np.float64，将其转换为 np.float32（避免在训练中出现数据类型不一致的错误）
         if hasattr(obs, 'dtype') and obs.dtype == np.float64:
             obs = np.float32(obs)

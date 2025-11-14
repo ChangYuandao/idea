@@ -1,0 +1,85 @@
+[2025-11-14 18:37:03,812][root][INFO] - Eureka Root Dir: /home/changyuandao/changyuandao/paperProject/idea/method
+[2025-11-14 18:37:03,812][root][INFO] - IsaacGymEnvs Root Dir: /home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs
+[2025-11-14 18:37:03,812][root][INFO] - Workspace: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant
+[2025-11-14 18:37:03,812][root][INFO] - Project Root: /home/changyuandao/changyuandao/paperProject/idea/method
+[2025-11-14 18:37:03,887][root][INFO] - Using LLM: qwen3-coder-plus
+[2025-11-14 18:37:03,888][root][INFO] - Task: Ant
+[2025-11-14 18:37:03,888][root][INFO] - Task Description: to make the ant run forward as fast as possible
+[2025-11-14 18:37:03,888][root][INFO] - Env Parent: isaac
+[2025-11-14 18:37:03,901][root][INFO] - === Iteration 0 ===
+[2025-11-14 18:37:03,901][root][INFO] - Role: EXPLORER
+[2025-11-14 18:37:03,901][root][INFO] - Generating 1 samples with qwen3-coder-plus
+[2025-11-14 18:37:09,994][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-11-14 18:37:10,007][root][INFO] - Iteration 0: Prompt Tokens: 1235, Completion Tokens: 319, Total Tokens: 1554
+[2025-11-14 18:37:10,007][root][INFO] - Role: CONSERVATOR
+[2025-11-14 18:37:10,007][root][INFO] - Generating 1 samples with qwen3-coder-plus
+[2025-11-14 18:37:16,068][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-11-14 18:37:16,070][root][INFO] - Iteration 0: Prompt Tokens: 1224, Completion Tokens: 371, Total Tokens: 1595
+[2025-11-14 18:37:16,070][root][INFO] - Role: INTEGRATOR
+[2025-11-14 18:37:16,070][root][INFO] - Generating 1 samples with qwen3-coder-plus
+[2025-11-14 18:37:24,525][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-11-14 18:37:24,527][root][INFO] - Iteration 0: Prompt Tokens: 1230, Completion Tokens: 505, Total Tokens: 1735
+[2025-11-14 18:37:24,528][root][INFO] - Iteration 0: role_EXPLORER Processing Code Run 0
+[2025-11-14 18:37:33,520][root][INFO] - Iteration 0: Code Run 0 successfully training!
+[2025-11-14 18:37:33,520][root][INFO] - Iteration 0: role_CONSERVATOR Processing Code Run 0
+[2025-11-14 18:37:39,670][root][INFO] - Iteration 0: Code Run 0 execution error!
+[2025-11-14 18:37:39,670][root][INFO] - Iteration 0: role_INTEGRATOR Processing Code Run 0
+[2025-11-14 18:37:49,097][root][INFO] - Iteration 0: Code Run 0 successfully training!
+[2025-11-14 18:37:49,097][root][INFO] - Role: EXPLORER - Processing RL Results
+[2025-11-14 18:38:10,299][tensorboard][INFO] - No path found after /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/EXPLORER_0/runs/antgpt/summaries/events.out.tfevents.1763116648.changyuandao-020318
+[2025-11-14 18:38:10,301][root][INFO] - Role: CONSERVATOR - Processing RL Results
+[2025-11-14 18:38:10,301][root][INFO] - Role: INTEGRATOR - Processing RL Results
+[2025-11-14 18:38:25,683][tensorboard][INFO] - No path found after /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/INTEGRATOR_0/runs/antgpt/summaries/events.out.tfevents.1763116663.changyuandao-020318
+[2025-11-14 18:38:25,685][root][INFO] - Selecting the best reward function across all roles...
+[2025-11-14 18:38:25,685][root][INFO] - [EXPLORER] Best sample 0: Success=4.201908111572266, Corr=0.9992580968901258
+[2025-11-14 18:38:25,685][root][INFO] - [CONSERVATOR] Best sample 0: Success=-10000.0, Corr=-10000.0
+[2025-11-14 18:38:25,685][root][INFO] - [INTEGRATOR] Best sample 0: Success=1.9103975296020508, Corr=0.9977837305135455
+[2025-11-14 18:38:25,685][root][INFO] - Iteration 0 - 🏆 Global Best Reward Function from Role [EXPLORER] - Response ID: 0, 
+[2025-11-14 18:38:25,685][root][INFO] - 📄 Best reward function file: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
+[2025-11-14 18:38:25,686][root][INFO] - Found reward expression: speed_reward-0.1*vertical_velocity_penaltyreward_components={"speed_reward":speed_reward,"vertical_velocity_penalty":vertical_velocity_penalty}
+[2025-11-14 18:38:25,686][root][INFO] - Found weighted term: -0.1 * vertical_velocity_penalty
+[2025-11-14 18:38:25,686][root][INFO] - Found implicit term: 1.0 * speed_reward
+[2025-11-14 18:38:25,686][root][INFO] - 
+=== Extracted 2 parameters ===
+[2025-11-14 18:38:25,686][root][INFO] -   vertical_velocity_penalty_weight: -0.1 (range: [0.0, 2.0])
+[2025-11-14 18:38:25,686][root][INFO] -   speed_reward_weight: 1.0 (range: [0.0, 2.0])
+[2025-11-14 18:38:25,686][root][INFO] - Extracted 2 parameters:
+[2025-11-14 18:38:25,686][root][INFO] -   vertical_velocity_penalty_weight: -0.1000 (range: [0.0, 2.0])
+[2025-11-14 18:38:25,686][root][INFO] -   speed_reward_weight: 1.0000 (range: [0.0, 2.0])
+[2025-11-14 18:38:25,694][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
+[2025-11-14 18:38:25,694][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
+[2025-11-14 18:38:25,694][root][INFO] - Starting Preference Learning for Iteration 0
+[2025-11-14 18:38:25,694][root][INFO] - Checkpoint path: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/EXPLORER_0/runs/antgpt/nn/AntGPT.pth
+[2025-11-14 18:38:25,694][root][INFO] - Step 1: Collecting trajectories...
+[2025-11-14 18:38:25,695][root][INFO] - Collecting 10 trajectories from checkpoint: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/EXPLORER_0/runs/antgpt/nn/AntGPT.pth
+[2025-11-14 18:38:25,695][root][INFO] - Output directory: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant
+[2025-11-14 18:38:25,705][root][INFO] - Rollout process started (PID: 1077441)
+[2025-11-14 18:38:25,705][root][INFO] - Log file: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/rollout.log
+[2025-11-14 18:38:35,715][root][INFO] - ✅ Trajectory collection completed successfully
+[2025-11-14 18:38:35,716][root][INFO] - ✅ Trajectory file found: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/iter0_trajectories.pkl
+[2025-11-14 18:38:35,716][root][INFO] - File size: 49.84 KB
+[2025-11-14 18:38:35,716][root][INFO] - Step 2: Loading trajectories...
+[2025-11-14 18:38:35,718][root][INFO] - Step 3: Generating preference pairs...
+[2025-11-14 18:38:35,719][root][INFO] - Step 4: Updating reward function parameters...
+[2025-11-14 18:38:35,726][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
+[2025-11-14 18:38:35,726][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
+[2025-11-14 18:38:35,775][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
+[2025-11-14 18:38:35,775][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
+[2025-11-14 18:38:36,173][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
+[2025-11-14 18:38:36,173][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
+[2025-11-14 18:38:36,801][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
+[2025-11-14 18:38:36,801][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
+[2025-11-14 18:38:37,702][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
+[2025-11-14 18:38:37,702][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
+[2025-11-14 18:38:38,873][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
+[2025-11-14 18:38:38,874][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
+[2025-11-14 18:38:40,333][root][INFO] - Step 5: Updating reward function code...
+[2025-11-14 18:38:40,334][root][INFO] - Updating reward function with new parameters...
+[2025-11-14 18:38:40,334][root][INFO] -   Updated vertical_velocity_penalty_weight: 0.943992 * vertical_velocity_penalty
+[2025-11-14 18:38:40,334][root][INFO] -   Updated speed_reward_weight: 0.936711 * speed_reward
+[2025-11-14 18:38:40,334][root][INFO] - Updated reward function saved to: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_updated_reward.py
+[2025-11-14 18:38:40,334][root][INFO] - ✅ Preference learning completed!
+[2025-11-14 18:38:40,334][root][INFO] - Updated reward function saved to: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_updated_reward.py
+[2025-11-14 18:38:40,334][root][INFO] - 
+================================================================================
+
