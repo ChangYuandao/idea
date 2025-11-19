@@ -1,0 +1,97 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract key information for efficiency evaluation
+        # Root states: [pos_x, pos_y, pos_z, quat_w, quat_x, quat_y, quat_z, vel_x, vel_y, vel_z, ang_vel_x, ang_vel_y, ang_vel_z]
+        root_states_a = state_a_info['root_states'][:, 3:]  # All root state information
+        root_states_b = state_b_info['root_states'][:, 3:]
+        
+        # DOF velocities for joint energy calculation
+        dof_vel_a = state_a_info['dof_vel'][:, 3:]  # Shape: [batch, num_dofs]
+        dof_vel_b = state_b_info['dof_vel'][:, 3:]
+        
+        # Contact forces (sensor_force_torques scaled by contact_force_scale)
+        contact_forces_a = state_a_info['vec_sensor_tensor'][:, 3:] * state_a_info['contact_force_scale']
+        contact_forces_b = state_b_info['vec_sensor_tensor'][:, 3:] * state_b_info['contact_force_scale']
+        
+        # Actions taken
+        actions_a = state_a_info['actions'][:, 3:]
+        actions_b = state_b_info['actions'][:, 3:]
+        
+        # Calculate joint velocity magnitudes (energy-related metric)
+        joint_vel_energy_a = np.sum(dof_vel_a ** 2, axis=1)  # Sum of squared velocities
+        joint_vel_energy_b = np.sum(dof_vel_b ** 2, axis=1)
+        
+        # Calculate contact force magnitudes (energy loss through contact)
+        contact_magnitude_a = np.linalg.norm(contact_forces_a.reshape(contact_forces_a.shape[0], -1), axis=1)
+        contact_magnitude_b = np.linalg.norm(contact_forces_b.reshape(contact_forces_b.shape[0], -1), axis=1)
+        
+        # Calculate action magnitudes (control effort)
+        action_magnitude_a = np.linalg.norm(actions_a, axis=1)
+        action_magnitude_b = np.linalg.norm(actions_b, axis=1)
+        
+        # Calculate angular velocity magnitudes (rotational energy)
+        ang_vel_a = root_states_a[:, 7:10]  # Angular velocity components
+        ang_vel_b = root_states_b[:, 7:10]
+        ang_vel_mag_a = np.linalg.norm(ang_vel_a, axis=1)
+        ang_vel_mag_b = np.linalg.norm(ang_vel_b, axis=1)
+        
+        # Efficiency metrics: lower values indicate better efficiency
+        # 1. Joint velocity energy (lower is more efficient)
+        # 2. Contact force magnitude (lower indicates less energy loss through contact)
+        # 3. Action magnitude (lower indicates less control effort)
+        # 4. Angular velocity magnitude (lower indicates less rotational energy waste)
+        
+        # Count how many efficiency metrics trajectory A outperforms B on
+        a_better_count = 0
+        total_metrics = 4
+        
+        # Joint velocity energy - A better if lower
+        if np.mean(joint_vel_energy_a) <= np.mean(joint_vel_energy_b):
+            a_better_count += 1
+            
+        # Contact force magnitude - A better if lower  
+        if np.mean(contact_magnitude_a) <= np.mean(contact_magnitude_b):
+            a_better_count += 1
+            
+        # Action magnitude - A better if lower
+        if np.mean(action_magnitude_a) <= np.mean(action_magnitude_b):
+            a_better_count += 1
+            
+        # Angular velocity magnitude - A better if lower
+        if np.mean(ang_vel_mag_a) <= np.mean(ang_vel_mag_b):
+            a_better_count += 1
+        
+        # For A to be definitively better, it must outperform B on ALL metrics
+        if a_better_count == total_metrics:
+            label_list.append(1)
+        # For B to be definitively better, A must be worse on ALL metrics
+        elif a_better_count == 0:
+            label_list.append(-1)
+        # Otherwise, no clear winner
+        else:
+            label_list.append(0)
+
+    return label_list

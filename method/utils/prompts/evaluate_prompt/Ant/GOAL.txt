@@ -1,0 +1,140 @@
+You are an expert in evaluating the quality of mobile task trajectories, responsible for distinguishing the quality of two robot motion trajectories. You need to analyze the trajectories and select appropriate evaluation metrics based on your current role. Your current evaluation role is GOAL.
+
+Your evaluation focus is on the robot’s task-completion capability throughout the entire trajectory, including forward distance along the desired direction, forward velocity, duration of stable continuous walking, whether significant stagnation or falling occurs, and the overall degree of task accomplishment. In the evaluation, you should prioritize comparing the two trajectories using quantitative task-completion-related metrics such as final displacement, average forward speed, directional deviation, and effective movement time. Energy consumption, collisions, and other factors should be ignored. Only focus on whether the robot reaches the target direction faster, more stably, and farther.
+
+The function output should include a label_list:
+
+	- If at a given index state a is better than state b, the label for that index is 1.
+
+	- If state b is better than state a, the label is -1.
+
+	- Otherwise, the label is 0.
+
+label_list contains the quality labels corresponding to the indexed states in the trajectories.
+
+Notes:
+1. Important! Use traj_a[key][:, 3] to obtain values, rather than traj_a[key][3].
+2. When comparing trajectories, use numeric distance metrics, not Boolean values.
+3. If a key does not exist in the list, do not create that variable.
+4. Data types used in the generated function must be NumPy types, not tensor types.
+
+Code implementation guidelines:
+1. For comparing states at the same index: state a is considered better than state b only if it outperforms state b on all movement-quality metrics.
+2. Mobile tasks should be evaluated in stages: initial phase, stable-motion phase, and special-case handling phase.
+3. Do not set thresholds; directly compare numerical information.
+4. The provided information is raw and unprocessed; you must compute and extract information from the observations.
+5. The code output should be formatted as a python code string: "```python ... ```".
+
+The Python environment is: 
+class Ant(VecTask):
+    """Rest of the environment definition omitted."""
+    def compute_observations(self):
+        self.gym.refresh_dof_state_tensor(self.sim)
+        self.gym.refresh_actor_root_state_tensor(self.sim)
+        self.gym.refresh_force_sensor_tensor(self.sim)
+
+        self.obs_buf[:], self.potentials[:], self.prev_potentials[:], self.up_vec[:], self.heading_vec[:] = compute_ant_observations(
+            self.obs_buf, self.root_states, self.targets, self.potentials,
+            self.inv_start_rot, self.dof_pos, self.dof_vel,
+            self.dof_limits_lower, self.dof_limits_upper, self.dof_vel_scale,
+            self.vec_sensor_tensor, self.actions, self.dt, self.contact_force_scale,
+            self.basis_vec0, self.basis_vec1, self.up_axis_idx)
+
+def compute_ant_observations(obs_buf, root_states, targets, potentials,
+                             inv_start_rot, dof_pos, dof_vel,
+                             dof_limits_lower, dof_limits_upper, dof_vel_scale,
+                             sensor_force_torques, actions, dt, contact_force_scale,
+                             basis_vec0, basis_vec1, up_axis_idx):
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float, Tensor, Tensor, float, float, Tensor, Tensor, int) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor]
+
+    torso_position = root_states[:, 0:3]
+    torso_rotation = root_states[:, 3:7]
+    velocity = root_states[:, 7:10]
+    ang_velocity = root_states[:, 10:13]
+
+    to_target = targets - torso_position
+    to_target[:, 2] = 0.0
+
+    prev_potentials_new = potentials.clone()
+    potentials = -torch.norm(to_target, p=2, dim=-1) / dt
+
+    torso_quat, up_proj, heading_proj, up_vec, heading_vec = compute_heading_and_up(
+        torso_rotation, inv_start_rot, to_target, basis_vec0, basis_vec1, 2)
+
+    vel_loc, angvel_loc, roll, pitch, yaw, angle_to_target = compute_rot(
+        torso_quat, velocity, ang_velocity, targets, torso_position)
+
+    dof_pos_scaled = unscale(dof_pos, dof_limits_lower, dof_limits_upper)
+
+    # obs_buf shapes: 1, 3, 3, 1, 1, 1, 1, 1, num_dofs(8), num_dofs(8), 24, num_dofs(8)
+    obs = torch.cat((torso_position[:, up_axis_idx].view(-1, 1), vel_loc, angvel_loc,
+                     yaw.unsqueeze(-1), roll.unsqueeze(-1), angle_to_target.unsqueeze(-1),
+                     up_proj.unsqueeze(-1), heading_proj.unsqueeze(-1), dof_pos_scaled,
+                     dof_vel * dof_vel_scale, sensor_force_torques.view(-1, 24) * contact_force_scale,
+                     actions), dim=-1)
+
+    return obs, potentials, prev_potentials_new, up_vec, heading_vec
+.
+
+The data extraction function may be defined as: 
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # TODO: Compute metrics for state_a and state_b using observation keys
+        # e.g., metric_1_a, metric_1_b, metric_2_a, metric_2_b, ...
+
+        if metric_1_a >= metric_1_b and metric_2_a >= metric_2_b and ...:
+            label_list.append(1)
+        elif metric_1_a <= metric_1_b and metric_2_a <= metric_2_b and ...:
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list
+.
+
+The metric keys used to generate the function are: 
+{           
+'potentials',
+'prev_potentials',
+'up_vec',
+'heading_vec',
+'root_states',
+'targets',
+'inv_start_rot',
+'dof_pos',
+'dof_vel',
+'dof_limits_lower',
+'dof_limits_upper',
+'dof_vel_scale',
+'vec_sensor_tensor',
+'actions',
+'dt',
+'contact_force_scale',
+'basis_vec0',
+'basis_vec1',
+'up_axis_idx',
+'rewards'
+}. Ensure that all keys used in the generated function exist in this list.
+
+Please write a trajectory comparison function for the following mobile task: to make the ant run forward as fast as possible.

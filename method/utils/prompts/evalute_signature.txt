@@ -1,0 +1,34 @@
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # TODO: Compute metrics for state_a and state_b using observation keys
+        # e.g., metric_1_a, metric_1_b, metric_2_a, metric_2_b, ...
+
+        if metric_1_a >= metric_1_b and metric_2_a >= metric_2_b and ...:
+            label_list.append(1)
+        elif metric_1_a <= metric_1_b and metric_2_a <= metric_2_b and ...:
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list

@@ -1,0 +1,122 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract root states for both trajectories
+        root_states_a = state_a_info['root_states']
+        root_states_b = state_b_info['root_states']
+        
+        # Extract position, rotation, velocity, and angular velocity
+        # root_states format: [x, y, z, qw, qx, qy, qz, vx, vy, vz, ang_vx, ang_vy, ang_vz]
+        pos_a = root_states_a[0, :3]
+        rot_a = root_states_a[0, 3:7]
+        vel_a = root_states_a[0, 7:10]
+        ang_vel_a = root_states_a[0, 10:13]
+        
+        pos_b = root_states_b[0, :3]
+        rot_b = root_states_b[0, 3:7]
+        vel_b = root_states_b[0, 7:10]
+        ang_vel_b = root_states_b[0, 10:13]
+        
+        # Calculate up vector projections (stability metric)
+        up_vec_a = state_a_info['up_vec'][0, :]
+        up_vec_b = state_b_info['up_vec'][0, :]
+        
+        # Calculate torso height (stability indicator)
+        height_a = pos_a[2]  # z-axis is up in Ant environment
+        height_b = pos_b[2]
+        
+        # Calculate angular velocity magnitude (stability indicator)
+        ang_vel_mag_a = np.linalg.norm(ang_vel_a)
+        ang_vel_mag_b = np.linalg.norm(ang_vel_b)
+        
+        # Extract joint velocities (for abnormal movement detection)
+        dof_vel_a = state_a_info['dof_vel'][0, :]
+        dof_vel_b = state_b_info['dof_vel'][0, :]
+        
+        joint_vel_mag_a = np.linalg.norm(dof_vel_a)
+        joint_vel_mag_b = np.linalg.norm(dof_vel_b)
+        
+        # Calculate contact forces (for ground impact assessment)
+        if 'vec_sensor_tensor' in state_a_info and state_a_info['vec_sensor_tensor'].size > 0:
+            contact_forces_a = state_a_info['vec_sensor_tensor'][0, :].reshape(-1, 6)  # Assuming 4 legs with force/torque sensors
+            contact_forces_b = state_b_info['vec_sensor_tensor'][0, :].reshape(-1, 6)
+            
+            # Sum of absolute force magnitudes (lower is better for safety)
+            total_force_a = np.sum(np.linalg.norm(contact_forces_a[:, :3], axis=1))
+            total_force_b = np.sum(np.linalg.norm(contact_forces_b[:, :3], axis=1))
+        else:
+            total_force_a = 0
+            total_force_b = 0
+        
+        # Calculate deviation from upright posture (up_vec should be close to [0,0,1])
+        up_proj_a = up_vec_a[2]  # This is the projection of up vector onto world z-axis
+        up_proj_b = up_vec_b[2]
+        
+        # More upright posture is better (closer to 1.0)
+        stability_a = up_proj_a
+        stability_b = up_proj_b
+        
+        # Calculate velocity in forward direction (for forward movement assessment)
+        heading_vec_a = state_a_info['heading_vec'][0, :]
+        heading_vec_b = state_b_info['heading_vec'][0, :]
+        
+        forward_vel_a = np.dot(vel_a, heading_vec_a)
+        forward_vel_b = np.dot(vel_b, heading_vec_b)
+        
+        # Metrics comparison for safety evaluation
+        # Higher stability (upright posture), lower angular velocity, lower joint velocities, lower contact forces are safer
+        stability_metric_a = stability_a
+        stability_metric_b = stability_b
+        
+        angular_velocity_metric_a = -ang_vel_mag_a  # Negative because lower angular velocity is better
+        angular_velocity_metric_b = -ang_vel_mag_b
+        
+        joint_velocity_metric_a = -joint_vel_mag_a  # Negative because lower joint velocities are better
+        joint_velocity_metric_b = -joint_vel_mag_b
+        
+        contact_force_metric_a = -total_force_a  # Negative because lower contact forces are better
+        contact_force_metric_b = -total_force_b
+        
+        height_stability_a = height_a  # Higher consistent height is better
+        height_stability_b = height_b
+        
+        # Compare metrics for safety
+        # A is safer if it has better stability, lower angular velocity, lower joint velocities, lower contact forces, and more consistent height
+        if (stability_metric_a >= stability_metric_b and 
+            angular_velocity_metric_a >= angular_velocity_metric_b and 
+            joint_velocity_metric_a >= joint_velocity_metric_b and 
+            contact_force_metric_a >= contact_force_metric_b and
+            height_stability_a >= height_stability_b):
+            label_list.append(1)
+        elif (stability_metric_a <= stability_metric_b and 
+              angular_velocity_metric_a <= angular_velocity_metric_b and 
+              joint_velocity_metric_a <= joint_velocity_metric_b and 
+              contact_force_metric_a <= contact_force_metric_b and
+              height_stability_a <= height_stability_b):
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list

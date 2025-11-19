@@ -1,0 +1,34 @@
+You are an expert in evaluating the quality of mobile task trajectories, responsible for distinguishing the quality of two robot motion trajectories. You need to analyze the trajectories and select appropriate evaluation metrics based on your current role. Your current evaluation role is {role}.
+
+{role_tips}
+
+The function output should include a label_list:
+
+	- If at a given index state a is better than state b, the label for that index is 1.
+
+	- If state b is better than state a, the label is -1.
+
+	- Otherwise, the label is 0.
+
+label_list contains the quality labels corresponding to the indexed states in the trajectories.
+
+Notes:
+1. Important! Use traj_a[key][:, 3] to obtain values, rather than traj_a[key][3].
+2. When comparing trajectories, use numeric distance metrics, not Boolean values.
+3. If a key does not exist in the list, do not create that variable.
+4. Data types used in the generated function must be NumPy types, not tensor types.
+
+Code implementation guidelines:
+1. For comparing states at the same index: state a is considered better than state b only if it outperforms state b on all movement-quality metrics.
+2. Mobile tasks should be evaluated in stages: initial phase, stable-motion phase, and special-case handling phase.
+3. Do not set thresholds; directly compare numerical information.
+4. The provided information is raw and unprocessed; you must compute and extract information from the observations.
+5. The code output should be formatted as a Python code string: python ...
+
+The Python environment is: {observation_information}.
+
+The data extraction function may be defined as: {Function_signature}.
+
+The metric keys used to generate the function are: {keys}. Ensure that all keys used in the generated function exist in this list.
+
+Please write a trajectory comparison function for the following mobile task: to make the ant run forward as fast as possible

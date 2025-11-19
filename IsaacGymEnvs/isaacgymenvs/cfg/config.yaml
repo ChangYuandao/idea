@@ -8,8 +8,8 @@
 # - override hydra/output: local 表示将输出保存到本地
 defaults:
   - _self_
-  - task: Ant
-  - train: ${task}PPO
+  - task: AntGPT
+  - train: AntGPTPPO
   - hydra/job_logging: disabled
   - override hydra/launcher: local
   - override hydra/output: local
@@ -51,11 +51,12 @@ num_subscenes: 4 # Splits the simulation into N physics scenes and runs each one
 
 # RLGames Arguments
 # test - if set, run policy in inference mode (requires setting checkpoint to load)
-test: False
-
+test: True
+headless: False 
+force_render: True
 collect: True
 # used to set checkpoint path
-checkpoint: ''
+checkpoint: '/home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/outputs/train/2025-11-19_19-26-51/runs/antgpt/nn/AntGPT.pth'
 # set sigma when restoring network
 sigma: ''
 # set to True to use multi-gpu horovod training
@@ -73,9 +74,9 @@ wandb_logcode_dir: ''
 capture_video: False
 capture_video_freq: 5000
 capture_video_len: 200
-force_render: False
 
-headless: True 
+
+
 
 
 # collector 

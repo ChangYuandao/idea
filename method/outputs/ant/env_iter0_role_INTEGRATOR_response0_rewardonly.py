@@ -8,35 +8,35 @@ def compute_reward(root_states: torch.Tensor, targets: torch.Tensor, potentials:
     torso_position = root_states[:, 0:3]
     velocity = root_states[:, 7:10]
     
-    # Calculate forward velocity reward (encourage movement in forward direction)
-    # Assuming forward is along the x-axis (common convention)
-    forward_velocity = velocity[:, 0]  # x-component of velocity
+    # Compute distance to target (potential progress reward)
+    to_target = targets - torso_position
+    to_target[:, 2] = 0.0  # Ignore height difference
+    current_potential = -torch.norm(to_target, p=2.0, dim=-1) / dt
+    potential_diff = current_potential - prev_potentials
+    
+    # Forward velocity reward (encourage movement in forward direction)
+    forward_velocity = velocity[:, 0]  # Assuming x-axis is forward direction
     forward_velocity_reward = forward_velocity
     
-    # Progress reward based on potential change (distance covered towards target)
-    progress_reward = (potentials - prev_potentials) / dt
-    
-    # Energy efficiency penalty (penalize large actions to encourage efficient movement)
+    # Energy efficiency penalty (prevent excessive action usage)
     action_penalty_temp = 0.1
-    action_penalty = torch.exp(-action_penalty_temp * torch.sum(actions**2, dim=-1)) - 1.0
+    action_penalty = -torch.sum(actions ** 2, dim=-1) * action_penalty_temp
     
-    # Stability reward (keep the ant upright, penalize falling)
-    # Assuming z-axis is up, encourage torso height to stay around nominal height (typically 0.75 for Ant)
-    torso_height = torso_position[:, 2]
-    target_height = 0.75
-    height_deviation = torch.abs(torso_height - target_height)
-    stability_temp = 2.0
-    stability_reward = torch.exp(-stability_temp * height_deviation)
+    # Height stability reward (keep torso at reasonable height)
+    target_height = 0.5
+    height_deviation = torch.abs(torso_position[:, 2] - target_height)
+    height_reward_temp = 1.0
+    height_reward = -height_deviation * height_reward_temp
     
-    # Combine rewards
-    total_reward = forward_velocity_reward + progress_reward + action_penalty + stability_reward
+    # Total reward composition
+    total_reward = potential_diff + forward_velocity_reward + action_penalty + height_reward
     
     # Return individual components for analysis
     reward_components = {
-        "forward_velocity_reward": forward_velocity_reward,
-        "progress_reward": progress_reward,
+        "potential_diff": potential_diff,
+        "forward_velocity": forward_velocity_reward,
         "action_penalty": action_penalty,
-        "stability_reward": stability_reward
+        "height_reward": height_reward
     }
     
     return total_reward, reward_components

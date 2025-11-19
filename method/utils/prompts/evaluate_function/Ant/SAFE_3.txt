@@ -1,0 +1,94 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract root states for both trajectories
+        # root_states: [pos_x, pos_y, pos_z, quat_x, quat_y, quat_z, quat_w, lin_vel_x, lin_vel_y, lin_vel_z, ang_vel_x, ang_vel_y, ang_vel_z]
+        root_states_a = state_a_info['root_states']
+        root_states_b = state_b_info['root_states']
+        
+        # Extract DOF positions and velocities
+        dof_pos_a = state_a_info['dof_pos']
+        dof_vel_a = state_a_info['dof_vel']
+        dof_pos_b = state_b_info['dof_pos']
+        dof_vel_b = state_b_info['dof_vel']
+        
+        # Extract up vector to assess posture stability
+        up_vec_a = state_a_info['up_vec']
+        up_vec_b = state_b_info['up_vec']
+        
+        # Extract contact forces (from vec_sensor_tensor)
+        contact_forces_a = state_a_info['vec_sensor_tensor']
+        contact_forces_b = state_b_info['vec_sensor_tensor']
+        
+        # Compute torso height (z position) - higher is generally more stable if reasonable
+        torso_height_a = root_states_a[:, 2]
+        torso_height_b = root_states_b[:, 2]
+        
+        # Compute uprightness - dot product of up vector with reference up vector (0,0,1)
+        # For ant, up_vec should be close to (0,0,1) when upright
+        up_ref = np.array([0, 0, 1])
+        uprightness_a = np.dot(up_vec_a, up_ref)
+        uprightness_b = np.dot(up_vec_b, up_ref)
+        
+        # Compute root angular velocity magnitude - lower is more stable
+        ang_vel_a = root_states_a[:, 10:13]
+        ang_vel_b = root_states_b[:, 10:13]
+        ang_vel_mag_a = np.linalg.norm(ang_vel_a, axis=1)
+        ang_vel_mag_b = np.linalg.norm(ang_vel_b, axis=1)
+        
+        # Compute joint velocities - lower velocities generally indicate smoother motion
+        joint_vel_mag_a = np.linalg.norm(dof_vel_a, axis=1)
+        joint_vel_mag_b = np.linalg.norm(dof_vel_b, axis=1)
+        
+        # Compute contact force magnitudes - lower impact forces indicate less collision
+        contact_force_mag_a = np.linalg.norm(contact_forces_a, axis=1)
+        contact_force_mag_b = np.linalg.norm(contact_forces_b, axis=1)
+        
+        # Evaluate stability metrics - higher uprightness and torso height are better
+        # Lower angular velocity and contact forces are better
+        # For SAFE evaluation, prioritize stability over speed
+        
+        # Criteria for trajectory A being better (more stable):
+        # 1. More upright (higher uprightness)
+        # 2. Lower angular velocity
+        # 3. Lower contact forces (less impact)
+        # 4. Lower joint velocities (smoother motion)
+        
+        # Check if A is better than B on all safety metrics
+        if (uprightness_a >= uprightness_b and 
+            ang_vel_mag_a <= ang_vel_mag_b and 
+            contact_force_mag_a <= contact_force_mag_b and
+            joint_vel_mag_a <= joint_vel_mag_b):
+            label_list.append(1)
+        # Check if B is better than A on all safety metrics
+        elif (uprightness_a <= uprightness_b and 
+              ang_vel_mag_a >= ang_vel_mag_b and 
+              contact_force_mag_a >= contact_force_mag_b and
+              joint_vel_mag_a >= joint_vel_mag_b):
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list

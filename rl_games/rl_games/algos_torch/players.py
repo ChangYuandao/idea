@@ -234,7 +234,7 @@ class AntTrajectoryCollector(PpoPlayerContinuous):
         # 当前episode的轨迹缓存
         self.current_trajectory = None
         
-        self.max_steps = 10
+        self.max_steps = 200
         
         print(f"[TrajectoryCollector] Will collect {self.num_trajectories} trajectories")
         print(f"[TrajectoryCollector] Save directory: {self.save_dir}")
@@ -311,27 +311,13 @@ class AntTrajectoryCollector(PpoPlayerContinuous):
         if len(self.collected_trajectories) == 0:
             print("[TrajectoryCollector] No trajectories to save.")
             return
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
-        # 计算统计信息
-        total_rewards = [t.get('total_reward', 0) for t in self.collected_trajectories]
-        lengths = [t['length'] for t in self.collected_trajectories]
-        
-        # 准备保存的数据
+        # 保存为字典格式，包含轨迹和元数据
         save_data = {
             'trajectories': self.collected_trajectories,
-            'num_trajectories': len(self.collected_trajectories),
             'metadata': {
-                'timestamp': timestamp,
                 'num_trajectories': len(self.collected_trajectories),
-                'action_space_shape': self.actions_num,
-                'total_steps': sum(lengths),
-                'total_rewards': total_rewards,
-                'avg_reward': np.mean(total_rewards),
-                'avg_length': np.mean(lengths),
-                'min_reward': np.min(total_rewards),
-                'max_reward': np.max(total_rewards),
-                'collected_fields': self.required_fields,
+                'timestamp': datetime.now().isoformat()
             }
         }
         
@@ -340,10 +326,10 @@ class AntTrajectoryCollector(PpoPlayerContinuous):
         with open(save_path, 'wb') as f:
             pickle.dump(save_data, f)
 
+
+        
         print(f"\n[TrajectoryCollector] Successfully saved {len(self.collected_trajectories)} trajectories to {save_path}")
-        print(f"[TrajectoryCollector] Average reward: {save_data['metadata']['avg_reward']:.2f}")
-        print(f"[TrajectoryCollector] Average length: {save_data['metadata']['avg_length']:.1f}")
-        print(f"[TrajectoryCollector] Reward range: [{save_data['metadata']['min_reward']:.2f}, {save_data['metadata']['max_reward']:.2f}]")
+
 
         return save_path
     
@@ -515,25 +501,7 @@ class AntTrajectoryCollector(PpoPlayerContinuous):
         
         print(f"\n[TrajectoryCollector] Collection complete! Total trajectories: {len(self.collected_trajectories)}")
     
-    @staticmethod
-    def load_trajectories(filepath):
-        """
-        加载已保存的轨迹文件
-        
-        Args:
-            filepath: 轨迹文件路径
-            
-        Returns:
-            save_data: 包含轨迹和元数据的字典
-        """
-        with open(filepath, 'rb') as f:
-            save_data = pickle.load(f)
-        
-        print(f"[TrajectoryCollector] Loaded {save_data['num_trajectories']} trajectories from {filepath}")
-        print(f"[TrajectoryCollector] Average reward: {save_data['metadata']['avg_reward']:.2f}")
-        print(f"[TrajectoryCollector] Average length: {save_data['metadata']['avg_length']:.1f}")
-        
-        return save_data
+
 
 
 

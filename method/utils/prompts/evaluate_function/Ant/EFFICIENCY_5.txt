@@ -1,0 +1,87 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract relevant data for efficiency evaluation
+        # Joint velocity metrics (energy efficiency related)
+        dof_vel_a = state_a_info['dof_vel'][:, 3] if state_a_info['dof_vel'].ndim > 1 else state_a_info['dof_vel']
+        dof_vel_b = state_b_info['dof_vel'][:, 3] if state_b_info['dof_vel'].ndim > 1 else state_b_info['dof_vel']
+        
+        # Contact force metrics (energy efficiency related)
+        vec_sensor_tensor_a = state_a_info['vec_sensor_tensor'][:, 3] if state_a_info['vec_sensor_tensor'].ndim > 1 else state_a_info['vec_sensor_tensor']
+        vec_sensor_tensor_b = state_b_info['vec_sensor_tensor'][:, 3] if state_b_info['vec_sensor_tensor'].ndim > 1 else state_b_info['vec_sensor_tensor']
+        
+        # Root state for velocity (forward motion efficiency)
+        root_states_a = state_a_info['root_states'][:, 3] if state_a_info['root_states'].ndim > 1 else state_a_info['root_states']
+        root_states_b = state_b_info['root_states'][:, 3] if state_b_info['root_states'].ndim > 1 else state_b_info['root_states']
+        
+        # Extract linear velocity (indices 7:10) for efficiency in forward motion
+        if len(root_states_a) >= 10:
+            lin_vel_a = root_states_a[7:10]  # x, y, z linear velocity
+        else:
+            lin_vel_a = np.array([0.0, 0.0, 0.0])  # Default if not enough elements
+            
+        if len(root_states_b) >= 10:
+            lin_vel_b = root_states_b[7:10]  # x, y, z linear velocity
+        else:
+            lin_vel_b = np.array([0.0, 0.0, 0.0])  # Default if not enough elements
+        
+        # Calculate joint velocity magnitudes (lower is more energy efficient)
+        joint_vel_mag_a = np.sum(np.abs(dof_vel_a))
+        joint_vel_mag_b = np.sum(np.abs(dof_vel_b))
+        
+        # Calculate contact force magnitudes (lower indicates less energy wasted on friction/slip)
+        contact_force_mag_a = np.sum(np.abs(vec_sensor_tensor_a))
+        contact_force_mag_b = np.sum(np.abs(vec_sensor_tensor_b))
+        
+        # Calculate forward velocity (higher forward velocity per energy expenditure is better)
+        forward_vel_a = np.abs(lin_vel_a[0]) if len(lin_vel_a) > 0 else 0.0  # x-axis is forward direction
+        forward_vel_b = np.abs(lin_vel_b[0]) if len(lin_vel_b) > 0 else 0.0
+        
+        # Define efficiency metrics - lower values indicate better energy efficiency
+        # Inverse of forward velocity can indicate energy per unit displacement (lower is better)
+        if forward_vel_a > 0:
+            energy_per_displacement_a = joint_vel_mag_a / forward_vel_a
+        else:
+            energy_per_displacement_a = joint_vel_mag_a  # If no forward motion, just consider joint velocities
+            
+        if forward_vel_b > 0:
+            energy_per_displacement_b = joint_vel_mag_b / forward_vel_b
+        else:
+            energy_per_displacement_b = joint_vel_mag_b  # If no forward motion, just consider joint velocities
+
+        # Compare energy efficiency metrics
+        # Trajectory A is better if it has lower joint velocities, lower contact forces, and higher forward efficiency
+        if (joint_vel_mag_a <= joint_vel_mag_b and 
+            contact_force_mag_a <= contact_force_mag_b and
+            energy_per_displacement_a <= energy_per_displacement_b):
+            label_list.append(1)  # A is more efficient
+        elif (joint_vel_mag_a >= joint_vel_mag_b and 
+              contact_force_mag_a >= contact_force_mag_b and
+              energy_per_displacement_a >= energy_per_displacement_b):
+            label_list.append(-1)  # B is more efficient
+        else:
+            label_list.append(0)  # No clear efficiency advantage
+
+    return label_list

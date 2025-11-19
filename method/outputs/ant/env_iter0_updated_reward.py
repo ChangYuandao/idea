@@ -3,38 +3,40 @@ import math
 import torch
 from torch import Tensor
 @torch.jit.script
-def compute_reward(root_states: torch.Tensor, targets: torch.Tensor, dt: float) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
-    # Extract relevant information from root_states
+def compute_reward(root_states: torch.Tensor, targets: torch.Tensor, potentials: torch.Tensor, prev_potentials: torch.Tensor, actions: torch.Tensor, dt: float) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+    # Extract relevant information
     torso_position = root_states[:, 0:3]
     velocity = root_states[:, 7:10]
     
-    # Calculate direction to target (forward direction)
+    # Compute distance to target (potential progress reward)
     to_target = targets - torso_position
-    to_target[:, 2] = 0.0  # Zero out z-component for horizontal movement
+    to_target[:, 2] = 0.0  # Ignore height difference
+    current_potential = -torch.norm(to_target, p=2.0, dim=-1) / dt
+    potential_diff = current_potential - prev_potentials
     
-    # Normalize the direction to target
-    to_target_normalized = torch.nn.functional.normalize(to_target, p=2.0, dim=-1)
+    # Forward velocity reward (encourage movement in forward direction)
+    forward_velocity = velocity[:, 0]  # Assuming x-axis is forward direction
+    forward_velocity_reward = forward_velocity
     
-    # Calculate forward velocity (dot product of velocity and direction to target)
-    forward_velocity = torch.sum(velocity * to_target_normalized, dim=-1)
+    # Energy efficiency penalty (prevent excessive action usage)
+    action_penalty_temp = 0.224450
+    action_penalty = -torch.sum(actions ** 2, dim=-1) * action_penalty_temp
     
-    # Reward for forward speed
-    speed_reward = forward_velocity
+    # Height stability reward (keep torso at reasonable height)
+    target_height = 0.5
+    height_deviation = torch.abs(torso_position[:, 2] - target_height)
+    height_reward_temp = 0.225233
+    height_reward = -height_deviation * height_reward_temp
     
-    # Penalty for moving sideways or upwards
-    vertical_velocity_penalty = torch.abs(velocity[:, 2])
+    # Total reward composition
+    total_reward = potential_diff + 0.995251 * forward_velocity_reward + 1.161059 * action_penalty + 1.033114 * height_reward
     
-    # Energy efficiency reward (penalize large actions)
-    # Note: This would require action information which is not available in the current signature
-    # For now, we'll omit this component
-    
-    # Combine rewards
-    total_reward = 0.936711 * speed_reward - 0.943992 * vertical_velocity_penalty
-    
-    # Create reward components dictionary
+    # Return individual components for analysis
     reward_components = {
-        "speed_reward": speed_reward,
-        "vertical_velocity_penalty": vertical_velocity_penalty
+        "potential_diff": potential_diff,
+        "forward_velocity": forward_velocity_reward,
+        "action_penalty": action_penalty,
+        "height_reward": height_reward
     }
     
     return total_reward, reward_components

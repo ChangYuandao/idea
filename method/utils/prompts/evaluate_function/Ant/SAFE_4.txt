@@ -1,0 +1,130 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract root states for both trajectories
+        root_states_a = state_a_info['root_states']  # [pos_x, pos_y, pos_z, quat_w, quat_x, quat_y, quat_z, vel_x, vel_y, vel_z, ang_vel_x, ang_vel_y, ang_vel_z]
+        root_states_b = state_b_info['root_states']
+        
+        # Extract DOF positions and velocities
+        dof_pos_a = state_a_info['dof_pos']
+        dof_vel_a = state_a_info['dof_vel']
+        dof_pos_b = state_b_info['dof_pos']
+        dof_vel_b = state_b_info['dof_vel']
+        
+        # Extract contact forces (sensor forces)
+        contact_force_scale_a = state_a_info['contact_force_scale']
+        contact_force_scale_b = state_b_info['contact_force_scale']
+        sensor_force_torques_a = state_a_info['vec_sensor_tensor']
+        sensor_force_torques_b = state_b_info['vec_sensor_tensor']
+        
+        # Extract up vector to assess posture stability
+        up_vec_a = state_a_info['up_vec']
+        up_vec_b = state_b_info['up_vec']
+        
+        # Calculate postural stability: measure how close the up vector is to the reference up direction (z-axis for up_axis_idx=2)
+        # The up_vec should be close to [0, 0, 1] for an upright posture
+        up_proj_a = up_vec_a[:, 2]  # Dot product of up vector with reference up vector [0, 0, 1]
+        up_proj_b = up_vec_b[:, 2]
+        
+        # Calculate root angular velocity magnitude (lower is better for stability)
+        ang_vel_a = root_states_a[:, 10:13]  # Angular velocity [wx, wy, wz]
+        ang_vel_b = root_states_b[:, 10:13]
+        ang_vel_mag_a = np.linalg.norm(ang_vel_a, axis=1)
+        ang_vel_mag_b = np.linalg.norm(ang_vel_b, axis=1)
+        
+        # Calculate DOF velocity magnitudes (abnormal joint movements)
+        dof_vel_mag_a = np.linalg.norm(dof_vel_a, axis=1)
+        dof_vel_mag_b = np.linalg.norm(dof_vel_b, axis=1)
+        
+        # Calculate contact force magnitudes (ground impacts)
+        contact_forces_a = sensor_force_torques_a * contact_force_scale_a
+        contact_forces_b = sensor_force_torques_b * contact_force_scale_b
+        contact_force_magnitude_a = np.linalg.norm(contact_forces_a.reshape(-1, 8, 3), axis=2).mean(axis=1)  # Average across 8 sensors
+        contact_force_magnitude_b = np.linalg.norm(contact_forces_b.reshape(-1, 8, 3), axis=2).mean(axis=1)
+        
+        # Calculate roll and pitch from quaternion (from root_states)
+        # Extract quaternion components
+        quat_a = root_states_a[:, 3:7]  # [w, x, y, z]
+        quat_b = root_states_b[:, 3:7]
+        
+        # Calculate roll and pitch angles from quaternion
+        # Roll (x-axis rotation)
+        sinr_a = 2.0 * (quat_a[:, 0] * quat_a[:, 1] + quat_a[:, 2] * quat_a[:, 3])
+        cosr_a = 1.0 - 2.0 * (quat_a[:, 1] * quat_a[:, 1] + quat_a[:, 2] * quat_a[:, 2])
+        roll_a = np.arctan2(sinr_a, cosr_a)
+        
+        sinr_b = 2.0 * (quat_b[:, 0] * quat_b[:, 1] + quat_b[:, 2] * quat_b[:, 3])
+        cosr_b = 1.0 - 2.0 * (quat_b[:, 1] * quat_b[:, 1] + quat_b[:, 2] * quat_b[:, 2])
+        roll_b = np.arctan2(sinr_b, cosr_b)
+        
+        # Pitch (y-axis rotation)
+        sinp_a = 2.0 * (quat_a[:, 0] * quat_a[:, 2] - quat_b[:, 3] * quat_a[:, 1])
+        pitch_a = np.arcsin(sinp_a)
+        
+        sinp_b = 2.0 * (quat_b[:, 0] * quat_b[:, 2] - quat_b[:, 3] * quat_b[:, 1])
+        pitch_b = np.arcsin(sinp_b)
+        
+        # Calculate roll magnitude (lower is better)
+        roll_mag_a = np.abs(roll_a)
+        roll_mag_b = np.abs(roll_b)
+        
+        # Calculate pitch magnitude (lower is better)
+        pitch_mag_a = np.abs(pitch_a)
+        pitch_mag_b = np.abs(pitch_b)
+        
+        # Compare metrics for safety/stability
+        # Higher up projection is better (more upright)
+        # Lower angular velocity magnitude is better (more stable)
+        # Lower DOF velocity magnitude is better (smoother movements)
+        # Lower contact force is better (less impact)
+        # Lower roll and pitch magnitudes are better (less tilting)
+        
+        # State A is better if it has higher up projection, lower angular velocity, lower DOF velocity, 
+        # lower contact forces, and lower roll/pitch angles
+        up_proj_better = up_proj_a >= up_proj_b
+        ang_vel_better = ang_vel_mag_a <= ang_vel_mag_b
+        dof_vel_better = dof_vel_mag_a <= dof_vel_mag_b
+        contact_force_better = contact_force_magnitude_a <= contact_force_magnitude_b
+        roll_better = roll_mag_a <= roll_mag_b
+        pitch_better = pitch_mag_a <= pitch_mag_b
+        
+        if up_proj_better and ang_vel_better and dof_vel_better and contact_force_better and roll_better and pitch_better:
+            label_list.append(1)
+        elif not up_proj_better and not ang_vel_better and not dof_vel_better and not contact_force_better and not roll_better and not pitch_better:
+            label_list.append(-1)
+        else:
+            # Partially better - check if A is definitively better on most metrics
+            better_metrics_count_a = sum([up_proj_a >= up_proj_b, ang_vel_mag_a <= ang_vel_mag_b, 
+                                         dof_vel_mag_a <= dof_vel_mag_b, contact_force_magnitude_a <= contact_force_magnitude_b,
+                                         roll_mag_a <= roll_mag_b, pitch_mag_a <= pitch_mag_b])
+            
+            if better_metrics_count_a >= 4:  # A wins on majority of safety metrics
+                label_list.append(1)
+            elif 6 - better_metrics_count_a >= 4:  # B wins on majority of safety metrics
+                label_list.append(-1)
+            else:
+                label_list.append(0)
+
+    return label_list

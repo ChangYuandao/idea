@@ -1,0 +1,96 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract relevant information for efficiency evaluation
+        # Joint velocities (energy consumption is related to velocity squared)
+        dof_vel_a = state_a_info['dof_vel'][:, 3] if 'dof_vel' in state_a_info else np.array([])
+        dof_vel_b = state_b_info['dof_vel'][:, 3] if 'dof_vel' in state_b_info else np.array([])
+
+        # Contact forces (energy wasted through unnecessary contact)
+        contact_forces_a = state_a_info['vec_sensor_tensor'][:, 3] if 'vec_sensor_tensor' in state_a_info else np.array([])
+        contact_forces_b = state_b_info['vec_sensor_tensor'][:, 3] if 'vec_sensor_tensor' in state_b_info else np.array([])
+
+        # Root velocity (forward motion efficiency)
+        root_states_a = state_a_info['root_states'][:, 3] if 'root_states' in state_a_info else np.array([])
+        root_states_b = state_b_info['root_states'][:, 3] if 'root_states' in state_b_info else np.array([])
+        
+        # Extract linear velocity (indices 7:10 in root_states)
+        if len(root_states_a) >= 10:
+            lin_vel_a = root_states_a[7:10]  # x, y, z linear velocity
+            forward_vel_a = lin_vel_a[0]  # x-direction is forward
+        else:
+            forward_vel_a = 0.0
+            
+        if len(root_states_b) >= 10:
+            lin_vel_b = root_states_b[7:10]
+            forward_vel_b = lin_vel_b[0]
+        else:
+            forward_vel_b = 0.0
+
+        # Calculate energy-related metrics
+        # Lower joint velocities indicate less energy consumption
+        joint_vel_energy_a = np.sum(dof_vel_a ** 2) if len(dof_vel_a) > 0 else 0.0
+        joint_vel_energy_b = np.sum(dof_vel_b ** 2) if len(dof_vel_b) > 0 else 0.0
+
+        # Contact forces - lower magnitude indicates less energy wasted on friction/slip
+        contact_magnitude_a = np.sum(np.abs(contact_forces_a)) if len(contact_forces_a) > 0 else 0.0
+        contact_magnitude_b = np.sum(np.abs(contact_forces_b)) if len(contact_forces_b) > 0 else 0.0
+
+        # Efficiency: forward velocity per energy expenditure
+        # Higher forward velocity with lower energy consumption is more efficient
+        total_energy_a = joint_vel_energy_a + contact_magnitude_a
+        total_energy_b = joint_vel_energy_b + contact_magnitude_b
+
+        # Calculate efficiency (forward velocity / energy expenditure)
+        # Avoid division by zero
+        efficiency_a = abs(forward_vel_a) / (1 + total_energy_a)
+        efficiency_b = abs(forward_vel_b) / (1 + total_energy_b)
+
+        # Additional metric: energy per unit forward displacement
+        # We focus on energy efficiency, so lower energy for same or better forward progress is better
+        if abs(forward_vel_a) >= abs(forward_vel_b):
+            # If A is moving forward at least as fast as B
+            if total_energy_a <= total_energy_b:
+                # A is more efficient
+                label_list.append(1)
+            else:
+                # B is using less energy but A is moving faster - consider net efficiency
+                if efficiency_a >= efficiency_b:
+                    label_list.append(1)
+                else:
+                    label_list.append(-1)
+        else:
+            # If B is moving forward faster than A
+            if total_energy_b <= total_energy_a:
+                # B is more efficient
+                label_list.append(-1)
+            else:
+                # A is using less energy but B is moving faster - consider net efficiency
+                if efficiency_b >= efficiency_a:
+                    label_list.append(-1)
+                else:
+                    label_list.append(1)
+
+    return label_list

@@ -1,85 +1,260 @@
-[2025-11-14 18:37:03,812][root][INFO] - Eureka Root Dir: /home/changyuandao/changyuandao/paperProject/idea/method
-[2025-11-14 18:37:03,812][root][INFO] - IsaacGymEnvs Root Dir: /home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs
-[2025-11-14 18:37:03,812][root][INFO] - Workspace: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant
-[2025-11-14 18:37:03,812][root][INFO] - Project Root: /home/changyuandao/changyuandao/paperProject/idea/method
-[2025-11-14 18:37:03,887][root][INFO] - Using LLM: qwen3-coder-plus
-[2025-11-14 18:37:03,888][root][INFO] - Task: Ant
-[2025-11-14 18:37:03,888][root][INFO] - Task Description: to make the ant run forward as fast as possible
-[2025-11-14 18:37:03,888][root][INFO] - Env Parent: isaac
-[2025-11-14 18:37:03,901][root][INFO] - === Iteration 0 ===
-[2025-11-14 18:37:03,901][root][INFO] - Role: EXPLORER
-[2025-11-14 18:37:03,901][root][INFO] - Generating 1 samples with qwen3-coder-plus
-[2025-11-14 18:37:09,994][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
-[2025-11-14 18:37:10,007][root][INFO] - Iteration 0: Prompt Tokens: 1235, Completion Tokens: 319, Total Tokens: 1554
-[2025-11-14 18:37:10,007][root][INFO] - Role: CONSERVATOR
-[2025-11-14 18:37:10,007][root][INFO] - Generating 1 samples with qwen3-coder-plus
-[2025-11-14 18:37:16,068][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
-[2025-11-14 18:37:16,070][root][INFO] - Iteration 0: Prompt Tokens: 1224, Completion Tokens: 371, Total Tokens: 1595
-[2025-11-14 18:37:16,070][root][INFO] - Role: INTEGRATOR
-[2025-11-14 18:37:16,070][root][INFO] - Generating 1 samples with qwen3-coder-plus
-[2025-11-14 18:37:24,525][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
-[2025-11-14 18:37:24,527][root][INFO] - Iteration 0: Prompt Tokens: 1230, Completion Tokens: 505, Total Tokens: 1735
-[2025-11-14 18:37:24,528][root][INFO] - Iteration 0: role_EXPLORER Processing Code Run 0
-[2025-11-14 18:37:33,520][root][INFO] - Iteration 0: Code Run 0 successfully training!
-[2025-11-14 18:37:33,520][root][INFO] - Iteration 0: role_CONSERVATOR Processing Code Run 0
-[2025-11-14 18:37:39,670][root][INFO] - Iteration 0: Code Run 0 execution error!
-[2025-11-14 18:37:39,670][root][INFO] - Iteration 0: role_INTEGRATOR Processing Code Run 0
-[2025-11-14 18:37:49,097][root][INFO] - Iteration 0: Code Run 0 successfully training!
-[2025-11-14 18:37:49,097][root][INFO] - Role: EXPLORER - Processing RL Results
-[2025-11-14 18:38:10,299][tensorboard][INFO] - No path found after /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/EXPLORER_0/runs/antgpt/summaries/events.out.tfevents.1763116648.changyuandao-020318
-[2025-11-14 18:38:10,301][root][INFO] - Role: CONSERVATOR - Processing RL Results
-[2025-11-14 18:38:10,301][root][INFO] - Role: INTEGRATOR - Processing RL Results
-[2025-11-14 18:38:25,683][tensorboard][INFO] - No path found after /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/INTEGRATOR_0/runs/antgpt/summaries/events.out.tfevents.1763116663.changyuandao-020318
-[2025-11-14 18:38:25,685][root][INFO] - Selecting the best reward function across all roles...
-[2025-11-14 18:38:25,685][root][INFO] - [EXPLORER] Best sample 0: Success=4.201908111572266, Corr=0.9992580968901258
-[2025-11-14 18:38:25,685][root][INFO] - [CONSERVATOR] Best sample 0: Success=-10000.0, Corr=-10000.0
-[2025-11-14 18:38:25,685][root][INFO] - [INTEGRATOR] Best sample 0: Success=1.9103975296020508, Corr=0.9977837305135455
-[2025-11-14 18:38:25,685][root][INFO] - Iteration 0 - 🏆 Global Best Reward Function from Role [EXPLORER] - Response ID: 0, 
-[2025-11-14 18:38:25,685][root][INFO] - 📄 Best reward function file: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
-[2025-11-14 18:38:25,686][root][INFO] - Found reward expression: speed_reward-0.1*vertical_velocity_penaltyreward_components={"speed_reward":speed_reward,"vertical_velocity_penalty":vertical_velocity_penalty}
-[2025-11-14 18:38:25,686][root][INFO] - Found weighted term: -0.1 * vertical_velocity_penalty
-[2025-11-14 18:38:25,686][root][INFO] - Found implicit term: 1.0 * speed_reward
-[2025-11-14 18:38:25,686][root][INFO] - 
-=== Extracted 2 parameters ===
-[2025-11-14 18:38:25,686][root][INFO] -   vertical_velocity_penalty_weight: -0.1 (range: [0.0, 2.0])
-[2025-11-14 18:38:25,686][root][INFO] -   speed_reward_weight: 1.0 (range: [0.0, 2.0])
-[2025-11-14 18:38:25,686][root][INFO] - Extracted 2 parameters:
-[2025-11-14 18:38:25,686][root][INFO] -   vertical_velocity_penalty_weight: -0.1000 (range: [0.0, 2.0])
-[2025-11-14 18:38:25,686][root][INFO] -   speed_reward_weight: 1.0000 (range: [0.0, 2.0])
-[2025-11-14 18:38:25,694][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
-[2025-11-14 18:38:25,694][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
-[2025-11-14 18:38:25,694][root][INFO] - Starting Preference Learning for Iteration 0
-[2025-11-14 18:38:25,694][root][INFO] - Checkpoint path: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/EXPLORER_0/runs/antgpt/nn/AntGPT.pth
-[2025-11-14 18:38:25,694][root][INFO] - Step 1: Collecting trajectories...
-[2025-11-14 18:38:25,695][root][INFO] - Collecting 10 trajectories from checkpoint: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/EXPLORER_0/runs/antgpt/nn/AntGPT.pth
-[2025-11-14 18:38:25,695][root][INFO] - Output directory: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant
-[2025-11-14 18:38:25,705][root][INFO] - Rollout process started (PID: 1077441)
-[2025-11-14 18:38:25,705][root][INFO] - Log file: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/rollout.log
-[2025-11-14 18:38:35,715][root][INFO] - ✅ Trajectory collection completed successfully
-[2025-11-14 18:38:35,716][root][INFO] - ✅ Trajectory file found: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/iter0_trajectories.pkl
-[2025-11-14 18:38:35,716][root][INFO] - File size: 49.84 KB
-[2025-11-14 18:38:35,716][root][INFO] - Step 2: Loading trajectories...
-[2025-11-14 18:38:35,718][root][INFO] - Step 3: Generating preference pairs...
-[2025-11-14 18:38:35,719][root][INFO] - Step 4: Updating reward function parameters...
-[2025-11-14 18:38:35,726][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
-[2025-11-14 18:38:35,726][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
-[2025-11-14 18:38:35,775][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
-[2025-11-14 18:38:35,775][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
-[2025-11-14 18:38:36,173][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
-[2025-11-14 18:38:36,173][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
-[2025-11-14 18:38:36,801][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
-[2025-11-14 18:38:36,801][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
-[2025-11-14 18:38:37,702][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
-[2025-11-14 18:38:37,702][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
-[2025-11-14 18:38:38,873][root][INFO] - Successfully loaded compute_reward from /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py
-[2025-11-14 18:38:38,874][root][INFO] - Function signature: compute_reward(root_states, targets, dt)
-[2025-11-14 18:38:40,333][root][INFO] - Step 5: Updating reward function code...
-[2025-11-14 18:38:40,334][root][INFO] - Updating reward function with new parameters...
-[2025-11-14 18:38:40,334][root][INFO] -   Updated vertical_velocity_penalty_weight: 0.943992 * vertical_velocity_penalty
-[2025-11-14 18:38:40,334][root][INFO] -   Updated speed_reward_weight: 0.936711 * speed_reward
-[2025-11-14 18:38:40,334][root][INFO] - Updated reward function saved to: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_updated_reward.py
-[2025-11-14 18:38:40,334][root][INFO] - ✅ Preference learning completed!
-[2025-11-14 18:38:40,334][root][INFO] - Updated reward function saved to: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_updated_reward.py
-[2025-11-14 18:38:40,334][root][INFO] - 
+[2025-11-19 19:13:50,789][root][INFO] - Eureka Root Dir: /home/changyuandao/changyuandao/paperProject/idea/method
+[2025-11-19 19:13:50,790][root][INFO] - IsaacGymEnvs Root Dir: /home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs
+[2025-11-19 19:13:50,790][root][INFO] - Workspace: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant
+[2025-11-19 19:13:50,790][root][INFO] - Project Root: /home/changyuandao/changyuandao/paperProject/idea/method
+[2025-11-19 19:13:50,875][root][INFO] - Using LLM: qwen3-coder-plus
+[2025-11-19 19:13:50,875][root][INFO] - Task: Ant
+[2025-11-19 19:13:50,875][root][INFO] - Task Description: to make the ant run forward as fast as possible
+[2025-11-19 19:13:50,875][root][INFO] - Env Parent: isaac
+[2025-11-19 19:13:50,889][root][INFO] - === Iteration 0 ===
+[2025-11-19 19:13:50,889][root][INFO] - Role: EXPLORER
+[2025-11-19 19:13:50,889][root][INFO] - Generating 1 samples with qwen3-coder-plus
+[2025-11-19 19:13:56,732][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-11-19 19:13:56,756][root][INFO] - Iteration 0: Prompt Tokens: 1287, Completion Tokens: 389, Total Tokens: 1676
+[2025-11-19 19:13:56,757][root][INFO] - Role: CONSERVATOR
+[2025-11-19 19:13:56,757][root][INFO] - Generating 1 samples with qwen3-coder-plus
+[2025-11-19 19:14:01,637][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-11-19 19:14:01,639][root][INFO] - Iteration 0: Prompt Tokens: 1276, Completion Tokens: 359, Total Tokens: 1635
+[2025-11-19 19:14:01,639][root][INFO] - Role: INTEGRATOR
+[2025-11-19 19:14:01,639][root][INFO] - Generating 1 samples with qwen3-coder-plus
+[2025-11-19 19:14:08,383][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-11-19 19:14:08,385][root][INFO] - Iteration 0: Prompt Tokens: 1282, Completion Tokens: 504, Total Tokens: 1786
+[2025-11-19 19:14:08,385][root][INFO] - Iteration 0: role_EXPLORER Processing Code Run 0
+[2025-11-19 19:14:17,526][root][INFO] - Iteration 0: Code Run 0 successfully training!
+[2025-11-19 19:14:17,526][root][INFO] - Iteration 0: role_CONSERVATOR Processing Code Run 0
+[2025-11-19 19:14:26,957][root][INFO] - Iteration 0: Code Run 0 successfully training!
+[2025-11-19 19:14:26,957][root][INFO] - Iteration 0: role_INTEGRATOR Processing Code Run 0
+[2025-11-19 19:14:36,860][root][INFO] - Iteration 0: Code Run 0 successfully training!
+[2025-11-19 19:14:36,861][root][INFO] - Role: EXPLORER - Processing RL Results
+[2025-11-19 19:15:17,339][tensorboard][INFO] - No path found after /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/EXPLORER_0/runs/antgpt/summaries/events.out.tfevents.1763550852.changyuandao-020318
+[2025-11-19 19:15:17,341][py.warnings][WARNING] - /home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/numpy/lib/function_base.py:2853: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+
+[2025-11-19 19:15:17,341][py.warnings][WARNING] - /home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/numpy/lib/function_base.py:2854: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[None, :]
+
+[2025-11-19 19:15:17,342][root][INFO] - Role: CONSERVATOR - Processing RL Results
+[2025-11-19 19:15:31,282][tensorboard][INFO] - No path found after /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/CONSERVATOR_0/runs/antgpt/summaries/events.out.tfevents.1763550861.changyuandao-020318
+[2025-11-19 19:15:31,283][root][INFO] - Role: INTEGRATOR - Processing RL Results
+[2025-11-19 19:15:38,012][tensorboard][INFO] - No path found after /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/INTEGRATOR_0/runs/antgpt/summaries/events.out.tfevents.1763550870.changyuandao-020318
+[2025-11-19 19:15:38,013][root][INFO] - Selecting the best reward function across all roles...
+[2025-11-19 19:15:38,013][root][INFO] - [EXPLORER] Best sample 0: Success=0.18847723960876464, Corr=nan
+[2025-11-19 19:15:38,013][root][INFO] - [CONSERVATOR] Best sample 0: Success=1.323093180656433, Corr=0.9977826927305079
+[2025-11-19 19:15:38,013][root][INFO] - [INTEGRATOR] Best sample 0: Success=1.7321424388885498, Corr=0.9991856062352885
+[2025-11-19 19:15:38,013][root][INFO] - Iteration 0 - 🏆 Global Best Reward Function from Role [INTEGRATOR] - Response ID: 0, 
+[2025-11-19 19:15:38,013][root][INFO] - 📄 Best reward function file: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_role_INTEGRATOR_response0_rewardonly.py
+[2025-11-19 19:15:38,014][root][INFO] - Found temp parameter: action_penalty_temp = 0.1
+[2025-11-19 19:15:38,014][root][INFO] - Found temp parameter: height_reward_temp = 1.0
+[2025-11-19 19:15:38,014][root][INFO] - Found reward expression: potential_diff+forward_velocity_reward+action_penalty+height_rewardreward_components={"potential_diff":potential_diff,"forward_velocity":forward_velocity_reward,"action_penalty":action_penalty,"height_reward":height_reward}
+[2025-11-19 19:15:38,015][root][INFO] - Found implicit term: 1.0 * forward_velocity_reward
+[2025-11-19 19:15:38,015][root][INFO] - Found implicit term: 1.0 * action_penalty
+[2025-11-19 19:15:38,015][root][INFO] - Found implicit term: 1.0 * height_reward
+[2025-11-19 19:15:38,015][root][INFO] - === Extracted 5 parameters ===
+[2025-11-19 19:15:38,015][root][INFO] -   action_penalty_temp: 0.1 (range: [0.01, 0.5])
+[2025-11-19 19:15:38,015][root][INFO] -   height_reward_temp: 1.0 (range: [0.01, 0.5])
+[2025-11-19 19:15:38,015][root][INFO] -   forward_velocity_reward_weight: 1.0 (range: [0.0, 2.0])
+[2025-11-19 19:15:38,015][root][INFO] -   action_penalty_weight: 1.0 (range: [0.0, 2.0])
+[2025-11-19 19:15:38,015][root][INFO] -   height_reward_weight: 1.0 (range: [0.0, 2.0])
+[2025-11-19 19:15:38,015][root][INFO] - Extracted 5 parameters:
+[2025-11-19 19:15:38,015][root][INFO] -   action_penalty_temp: 0.1000 (range: [0.01, 0.5])
+[2025-11-19 19:15:38,015][root][INFO] -   height_reward_temp: 1.0000 (range: [0.01, 0.5])
+[2025-11-19 19:15:38,015][root][INFO] -   forward_velocity_reward_weight: 1.0000 (range: [0.0, 2.0])
+[2025-11-19 19:15:38,015][root][INFO] -   action_penalty_weight: 1.0000 (range: [0.0, 2.0])
+[2025-11-19 19:15:38,015][root][INFO] -   height_reward_weight: 1.0000 (range: [0.0, 2.0])
+[2025-11-19 19:15:38,055][root][INFO] - Starting Preference Learning for Iteration 0
+[2025-11-19 19:15:38,055][root][INFO] - Checkpoint path: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/INTEGRATOR_0/runs/antgpt/nn/AntGPT.pth
+[2025-11-19 19:15:38,055][root][INFO] - Step 1: Collecting trajectories...
+[2025-11-19 19:15:38,056][root][INFO] - Collecting 10 trajectories from checkpoint: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/INTEGRATOR_0/runs/antgpt/nn/AntGPT.pth
+[2025-11-19 19:15:38,056][root][INFO] - Output directory: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant
+[2025-11-19 19:15:38,069][root][INFO] - Rollout process started (PID: 166265)
+[2025-11-19 19:15:38,069][root][INFO] - Log file: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/rollout.log
+[2025-11-19 19:15:58,086][root][INFO] - ✅ Trajectory collection completed successfully
+[2025-11-19 19:15:58,087][root][INFO] - ✅ Trajectory file found: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/iter0_trajectories.pkl
+[2025-11-19 19:15:58,087][root][INFO] - File size: 844.19 KB
+[2025-11-19 19:15:58,087][root][INFO] - Step 2: Loading trajectories...
+[2025-11-19 19:15:58,091][root][INFO] - Step 3: Generating preference pairs...
+[2025-11-19 19:15:58,091][root][INFO] - Using evaluation functions to generate preferences...
+[2025-11-19 19:15:58,091][root][INFO] - [Preference Buffer] Loading evaluation functions from /home/changyuandao/changyuandao/paperProject/idea/method/utils/prompts/evaluate_function/Ant
+[2025-11-19 19:15:58,094][root][INFO] - Loaded evaluation function: GOAL_1
+[2025-11-19 19:15:58,095][root][INFO] - Loaded evaluation function: GOAL_2
+[2025-11-19 19:15:58,096][root][INFO] - Loaded evaluation function: GOAL_3
+[2025-11-19 19:15:58,096][root][INFO] - Loaded evaluation function: GOAL_4
+[2025-11-19 19:15:58,097][root][INFO] - Loaded evaluation function: GOAL_5
+[2025-11-19 19:15:58,098][root][INFO] - Loaded evaluation function: SAFE_1
+[2025-11-19 19:15:58,099][root][INFO] - Loaded evaluation function: SAFE_2
+[2025-11-19 19:15:58,100][root][INFO] - Loaded evaluation function: SAFE_3
+[2025-11-19 19:15:58,101][root][INFO] - Loaded evaluation function: SAFE_4
+[2025-11-19 19:15:58,102][root][INFO] - Loaded evaluation function: SAFE_5
+[2025-11-19 19:15:58,103][root][INFO] - Loaded evaluation function: EFFICIENCY_1
+[2025-11-19 19:15:58,103][root][INFO] - Loaded evaluation function: EFFICIENCY_2
+[2025-11-19 19:15:58,104][root][INFO] - Loaded evaluation function: EFFICIENCY_3
+[2025-11-19 19:15:58,104][root][INFO] - Loaded evaluation function: EFFICIENCY_4
+[2025-11-19 19:15:58,105][root][INFO] - Loaded evaluation function: EFFICIENCY_5
+[2025-11-19 19:15:58,105][root][INFO] - [Preference Buffer] Loaded 15 evaluation functions
+[2025-11-19 19:15:58,105][root][INFO] -   GOAL: 5 functions
+[2025-11-19 19:15:58,105][root][INFO] -   SAFE: 5 functions
+[2025-11-19 19:15:58,105][root][INFO] -   EFFICIENCY: 5 functions
+[2025-11-19 19:15:58,105][root][INFO] - [Preference Buffer] Comparing 10 trajectories...
+[2025-11-19 19:15:58,169][root][INFO] -   Compared Trajectory 0 vs Trajectory 1: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:58,169][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:58,232][root][INFO] -   Compared Trajectory 0 vs Trajectory 2: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, -1, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:58,232][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:58,297][root][INFO] -   Compared Trajectory 0 vs Trajectory 3: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, -1, -1, -1, 0, -1, 0, -1, 0, 0, 0, -1, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:58,297][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:58,359][root][INFO] -   Compared Trajectory 0 vs Trajectory 4: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:58,359][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:58,422][root][INFO] -   Compared Trajectory 0 vs Trajectory 5: Labels = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1]
+[2025-11-19 19:15:58,422][root][INFO] -   ✅ Found 3 preference segment(s)
+[2025-11-19 19:15:58,422][root][INFO] -     Segment 1: Trajectory 0 > Trajectory 5, Steps [142:152] (10 steps)
+[2025-11-19 19:15:58,422][root][INFO] -     Segment 2: Trajectory 0 > Trajectory 5, Steps [154:159] (5 steps)
+[2025-11-19 19:15:58,422][root][INFO] -     Segment 3: Trajectory 0 > Trajectory 5, Steps [171:192] (21 steps)
+[2025-11-19 19:15:58,484][root][INFO] -   Compared Trajectory 0 vs Trajectory 6: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:58,484][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:58,547][root][INFO] -   Compared Trajectory 0 vs Trajectory 7: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, -1, -1, -1, -1, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0]
+[2025-11-19 19:15:58,547][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:58,610][root][INFO] -   Compared Trajectory 0 vs Trajectory 8: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0]
+[2025-11-19 19:15:58,610][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:58,673][root][INFO] -   Compared Trajectory 0 vs Trajectory 9: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0]
+[2025-11-19 19:15:58,673][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:58,736][root][INFO] -   Compared Trajectory 1 vs Trajectory 2: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 0, -1, 0, 0, -1, -1, 0, -1, -1, -1, -1, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:58,736][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:58,798][root][INFO] -   Compared Trajectory 1 vs Trajectory 3: Labels = [0, 0, -1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:58,798][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:15:58,798][root][INFO] -     Segment 1: Trajectory 3 > Trajectory 1, Steps [25:30] (5 steps)
+[2025-11-19 19:15:58,860][root][INFO] -   Compared Trajectory 1 vs Trajectory 4: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:58,860][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:58,922][root][INFO] -   Compared Trajectory 1 vs Trajectory 5: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1]
+[2025-11-19 19:15:58,923][root][INFO] -   ✅ Found 6 preference segment(s)
+[2025-11-19 19:15:58,923][root][INFO] -     Segment 1: Trajectory 1 > Trajectory 5, Steps [56:61] (5 steps)
+[2025-11-19 19:15:58,923][root][INFO] -     Segment 2: Trajectory 1 > Trajectory 5, Steps [76:89] (13 steps)
+[2025-11-19 19:15:58,923][root][INFO] -     Segment 3: Trajectory 1 > Trajectory 5, Steps [91:96] (5 steps)
+[2025-11-19 19:15:58,923][root][INFO] -     Segment 4: Trajectory 1 > Trajectory 5, Steps [117:123] (6 steps)
+[2025-11-19 19:15:58,923][root][INFO] -     Segment 5: Trajectory 1 > Trajectory 5, Steps [126:133] (7 steps)
+[2025-11-19 19:15:58,923][root][INFO] -     Segment 6: Trajectory 1 > Trajectory 5, Steps [175:182] (7 steps)
+[2025-11-19 19:15:58,985][root][INFO] -   Compared Trajectory 1 vs Trajectory 6: Labels = [1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0]
+[2025-11-19 19:15:58,985][root][INFO] -   ✅ Found 4 preference segment(s)
+[2025-11-19 19:15:58,985][root][INFO] -     Segment 1: Trajectory 1 > Trajectory 6, Steps [46:53] (7 steps)
+[2025-11-19 19:15:58,985][root][INFO] -     Segment 2: Trajectory 1 > Trajectory 6, Steps [55:61] (6 steps)
+[2025-11-19 19:15:58,985][root][INFO] -     Segment 3: Trajectory 1 > Trajectory 6, Steps [105:116] (11 steps)
+[2025-11-19 19:15:58,985][root][INFO] -     Segment 4: Trajectory 1 > Trajectory 6, Steps [190:196] (6 steps)
+[2025-11-19 19:15:59,048][root][INFO] -   Compared Trajectory 1 vs Trajectory 7: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:59,048][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:59,111][root][INFO] -   Compared Trajectory 1 vs Trajectory 8: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, -1, -1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, -1, -1, -1, -1, -1, -1, 0, 0]
+[2025-11-19 19:15:59,111][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:15:59,111][root][INFO] -     Segment 1: Trajectory 8 > Trajectory 1, Steps [192:198] (6 steps)
+[2025-11-19 19:15:59,174][root][INFO] -   Compared Trajectory 1 vs Trajectory 9: Labels = [0, -1, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, 0, 0, 0, -1, -1, 0, -1, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, -1, 0, -1, 0, 0, 0, -1, 0, -1, -1, -1, 0, -1]
+[2025-11-19 19:15:59,174][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:15:59,174][root][INFO] -     Segment 1: Trajectory 9 > Trajectory 1, Steps [157:163] (6 steps)
+[2025-11-19 19:15:59,237][root][INFO] -   Compared Trajectory 2 vs Trajectory 3: Labels = [0, -1, -1, 0, 0, -1, -1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, -1, -1, 0, -1, 0, 0, -1, 0, -1, 0, 0, 0, -1, -1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:59,237][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:15:59,237][root][INFO] -     Segment 1: Trajectory 3 > Trajectory 2, Steps [11:19] (8 steps)
+[2025-11-19 19:15:59,299][root][INFO] -   Compared Trajectory 2 vs Trajectory 4: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:59,299][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:59,359][root][INFO] -   Compared Trajectory 2 vs Trajectory 5: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1]
+[2025-11-19 19:15:59,359][root][INFO] -   ✅ Found 4 preference segment(s)
+[2025-11-19 19:15:59,359][root][INFO] -     Segment 1: Trajectory 2 > Trajectory 5, Steps [147:159] (12 steps)
+[2025-11-19 19:15:59,359][root][INFO] -     Segment 2: Trajectory 2 > Trajectory 5, Steps [165:182] (17 steps)
+[2025-11-19 19:15:59,359][root][INFO] -     Segment 3: Trajectory 2 > Trajectory 5, Steps [183:190] (7 steps)
+[2025-11-19 19:15:59,359][root][INFO] -     Segment 4: Trajectory 2 > Trajectory 5, Steps [195:200] (5 steps)
+[2025-11-19 19:15:59,420][root][INFO] -   Compared Trajectory 2 vs Trajectory 6: Labels = [1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:59,420][root][INFO] -   ✅ Found 6 preference segment(s)
+[2025-11-19 19:15:59,420][root][INFO] -     Segment 1: Trajectory 2 > Trajectory 6, Steps [21:28] (7 steps)
+[2025-11-19 19:15:59,420][root][INFO] -     Segment 2: Trajectory 2 > Trajectory 6, Steps [55:74] (19 steps)
+[2025-11-19 19:15:59,420][root][INFO] -     Segment 3: Trajectory 2 > Trajectory 6, Steps [100:105] (5 steps)
+[2025-11-19 19:15:59,420][root][INFO] -     Segment 4: Trajectory 2 > Trajectory 6, Steps [107:117] (10 steps)
+[2025-11-19 19:15:59,420][root][INFO] -     Segment 5: Trajectory 2 > Trajectory 6, Steps [150:157] (7 steps)
+[2025-11-19 19:15:59,420][root][INFO] -     Segment 6: Trajectory 2 > Trajectory 6, Steps [158:163] (5 steps)
+[2025-11-19 19:15:59,481][root][INFO] -   Compared Trajectory 2 vs Trajectory 7: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0]
+[2025-11-19 19:15:59,481][root][INFO] -   ✅ Found 2 preference segment(s)
+[2025-11-19 19:15:59,481][root][INFO] -     Segment 1: Trajectory 2 > Trajectory 7, Steps [132:139] (7 steps)
+[2025-11-19 19:15:59,481][root][INFO] -     Segment 2: Trajectory 2 > Trajectory 7, Steps [165:170] (5 steps)
+[2025-11-19 19:15:59,542][root][INFO] -   Compared Trajectory 2 vs Trajectory 8: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:59,542][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:59,603][root][INFO] -   Compared Trajectory 2 vs Trajectory 9: Labels = [-1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:59,603][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:15:59,603][root][INFO] -     Segment 1: Trajectory 9 > Trajectory 2, Steps [0:6] (6 steps)
+[2025-11-19 19:15:59,627][py.warnings][WARNING] - <string>:84: RuntimeWarning: invalid value encountered in arcsin
+
+[2025-11-19 19:15:59,664][root][INFO] -   Compared Trajectory 3 vs Trajectory 4: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:59,664][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:15:59,725][root][INFO] -   Compared Trajectory 3 vs Trajectory 5: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:59,725][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:15:59,725][root][INFO] -     Segment 1: Trajectory 3 > Trajectory 5, Steps [28:42] (14 steps)
+[2025-11-19 19:15:59,786][root][INFO] -   Compared Trajectory 3 vs Trajectory 6: Labels = [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:59,786][root][INFO] -   ✅ Found 3 preference segment(s)
+[2025-11-19 19:15:59,786][root][INFO] -     Segment 1: Trajectory 3 > Trajectory 6, Steps [5:14] (9 steps)
+[2025-11-19 19:15:59,786][root][INFO] -     Segment 2: Trajectory 3 > Trajectory 6, Steps [46:67] (21 steps)
+[2025-11-19 19:15:59,786][root][INFO] -     Segment 3: Trajectory 3 > Trajectory 6, Steps [84:91] (7 steps)
+[2025-11-19 19:15:59,847][root][INFO] -   Compared Trajectory 3 vs Trajectory 7: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:59,847][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:15:59,847][root][INFO] -     Segment 1: Trajectory 3 > Trajectory 7, Steps [33:41] (8 steps)
+[2025-11-19 19:15:59,908][root][INFO] -   Compared Trajectory 3 vs Trajectory 8: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:59,908][root][INFO] -   ✅ Found 3 preference segment(s)
+[2025-11-19 19:15:59,908][root][INFO] -     Segment 1: Trajectory 3 > Trajectory 8, Steps [48:54] (6 steps)
+[2025-11-19 19:15:59,908][root][INFO] -     Segment 2: Trajectory 3 > Trajectory 8, Steps [61:75] (14 steps)
+[2025-11-19 19:15:59,908][root][INFO] -     Segment 3: Trajectory 3 > Trajectory 8, Steps [80:91] (11 steps)
+[2025-11-19 19:15:59,969][root][INFO] -   Compared Trajectory 3 vs Trajectory 9: Labels = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:15:59,969][root][INFO] -   ✅ Found 3 preference segment(s)
+[2025-11-19 19:15:59,969][root][INFO] -     Segment 1: Trajectory 3 > Trajectory 9, Steps [23:29] (6 steps)
+[2025-11-19 19:15:59,969][root][INFO] -     Segment 2: Trajectory 3 > Trajectory 9, Steps [45:55] (10 steps)
+[2025-11-19 19:15:59,969][root][INFO] -     Segment 3: Trajectory 3 > Trajectory 9, Steps [131:139] (8 steps)
+[2025-11-19 19:16:00,030][root][INFO] -   Compared Trajectory 4 vs Trajectory 5: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:16:00,030][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:16:00,090][root][INFO] -   Compared Trajectory 4 vs Trajectory 6: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:16:00,091][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:16:00,152][root][INFO] -   Compared Trajectory 4 vs Trajectory 7: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:16:00,152][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:16:00,213][root][INFO] -   Compared Trajectory 4 vs Trajectory 8: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:16:00,213][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:16:00,274][root][INFO] -   Compared Trajectory 4 vs Trajectory 9: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:16:00,274][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:16:00,335][root][INFO] -   Compared Trajectory 5 vs Trajectory 6: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:16:00,335][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:16:00,335][root][INFO] -     Segment 1: Trajectory 6 > Trajectory 5, Steps [175:181] (6 steps)
+[2025-11-19 19:16:00,396][root][INFO] -   Compared Trajectory 5 vs Trajectory 7: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, -1, -1, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1]
+[2025-11-19 19:16:00,397][root][INFO] -   ✅ Found 3 preference segment(s)
+[2025-11-19 19:16:00,397][root][INFO] -     Segment 1: Trajectory 7 > Trajectory 5, Steps [76:81] (5 steps)
+[2025-11-19 19:16:00,397][root][INFO] -     Segment 2: Trajectory 7 > Trajectory 5, Steps [174:180] (6 steps)
+[2025-11-19 19:16:00,397][root][INFO] -     Segment 3: Trajectory 7 > Trajectory 5, Steps [195:200] (5 steps)
+[2025-11-19 19:16:00,457][root][INFO] -   Compared Trajectory 5 vs Trajectory 8: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0, 0, -1, -1, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1, -1, -1, 0, 0, 0]
+[2025-11-19 19:16:00,458][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:16:00,519][root][INFO] -   Compared Trajectory 5 vs Trajectory 9: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, -1, -1, 0, 0, 0, -1, 0, 0, -1, -1, -1, 0, 0, -1]
+[2025-11-19 19:16:00,519][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:16:00,519][root][INFO] -     Segment 1: Trajectory 9 > Trajectory 5, Steps [175:182] (7 steps)
+[2025-11-19 19:16:00,580][root][INFO] -   Compared Trajectory 6 vs Trajectory 7: Labels = [0, 0, 0, 0, 0, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, -1, 0, -1, -1, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, -1, -1, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:16:00,580][root][INFO] -   ✅ Found 2 preference segment(s)
+[2025-11-19 19:16:00,580][root][INFO] -     Segment 1: Trajectory 7 > Trajectory 6, Steps [5:10] (5 steps)
+[2025-11-19 19:16:00,580][root][INFO] -     Segment 2: Trajectory 7 > Trajectory 6, Steps [71:78] (7 steps)
+[2025-11-19 19:16:00,641][root][INFO] -   Compared Trajectory 6 vs Trajectory 8: Labels = [-1, 0, 0, -1, 0, -1, -1, 0, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, -1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, -1, -1, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0, -1, 0, -1, -1, 0, -1, 0, 0, 0, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 0]
+[2025-11-19 19:16:00,642][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:16:00,642][root][INFO] -     Segment 1: Trajectory 8 > Trajectory 6, Steps [174:179] (5 steps)
+[2025-11-19 19:16:00,703][root][INFO] -   Compared Trajectory 6 vs Trajectory 9: Labels = [0, 0, -1, 0, 0, 0, -1, -1, -1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0, -1, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, -1, 0, 0, -1, -1, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, -1, 0, -1, -1, 0, -1, 0, -1, 0, -1]
+[2025-11-19 19:16:00,703][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:16:00,703][root][INFO] -     Segment 1: Trajectory 9 > Trajectory 6, Steps [169:174] (5 steps)
+[2025-11-19 19:16:00,764][root][INFO] -   Compared Trajectory 7 vs Trajectory 8: Labels = [0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0]
+[2025-11-19 19:16:00,764][root][INFO] -   ⚠️ No strong preference detected
+[2025-11-19 19:16:00,824][root][INFO] -   Compared Trajectory 7 vs Trajectory 9: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, 0, -1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:16:00,825][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:16:00,825][root][INFO] -     Segment 1: Trajectory 9 > Trajectory 7, Steps [169:174] (5 steps)
+[2025-11-19 19:16:00,886][root][INFO] -   Compared Trajectory 8 vs Trajectory 9: Labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, -1, -1, 0, -1, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, -1, -1, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, 0, -1, -1, 0, 0, 0, -1, -1, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, -1, -1, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[2025-11-19 19:16:00,886][root][INFO] -   ✅ Found 1 preference segment(s)
+[2025-11-19 19:16:00,886][root][INFO] -     Segment 1: Trajectory 9 > Trajectory 8, Steps [97:102] (5 steps)
+[2025-11-19 19:16:00,886][root][INFO] - 
+[Preference Buffer] Summary:
+  - Trajectory comparisons: 45
+  - Total preference segments: 52
+  - Unique preference pairs: 52
+[2025-11-19 19:16:00,886][root][INFO] - Step 4: Updating reward function parameters...
+[2025-11-19 19:24:46,062][root][INFO] - Step 5: Updating reward function code...
+[2025-11-19 19:24:46,062][root][INFO] - Updating reward function with new parameters...
+[2025-11-19 19:24:46,062][root][INFO] -   Updated action_penalty_temp: 0.224450
+[2025-11-19 19:24:46,062][root][INFO] -   Updated height_reward_temp: 0.225233
+[2025-11-19 19:24:46,063][root][INFO] -   Updated forward_velocity_reward_weight: 0.995251 * forward_velocity_reward
+[2025-11-19 19:24:46,063][root][INFO] -   Updated action_penalty_weight: 1.161059 * action_penalty
+[2025-11-19 19:24:46,063][root][INFO] -   Updated height_reward_weight: 1.033114 * height_reward
+[2025-11-19 19:24:46,063][root][INFO] - Updated reward function saved to: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_updated_reward.py
+[2025-11-19 19:24:46,063][root][INFO] - ✅ Preference learning completed!
+[2025-11-19 19:24:46,063][root][INFO] - Updated reward function saved to: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/env_iter0_updated_reward.py
+[2025-11-19 19:24:46,063][root][INFO] - 
 ================================================================================
 

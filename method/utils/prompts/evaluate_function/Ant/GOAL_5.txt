@@ -1,0 +1,62 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract root states for both trajectories
+        root_states_a = state_a_info['root_states']  # Position and rotation info
+        root_states_b = state_b_info['root_states']  # Position and rotation info
+        
+        # Extract velocities (from index 7:10 in root_states)
+        velocity_a = root_states_a[:, 7:10]  # x, y, z velocity
+        velocity_b = root_states_b[:, 7:10]  # x, y, z velocity
+        
+        # Calculate forward velocity (x-direction velocity as forward)
+        forward_vel_a = velocity_a[:, 0]  # Assuming x is forward direction
+        forward_vel_b = velocity_b[:, 0]  # Assuming x is forward direction
+        
+        # Calculate overall speed
+        speed_a = np.linalg.norm(velocity_a, axis=1)
+        speed_b = np.linalg.norm(velocity_b, axis=1)
+        
+        # Extract positions (from index 0:3 in root_states)
+        position_a = root_states_a[:, 0:3]
+        position_b = root_states_b[:, 0:3]
+        
+        # Calculate forward displacement (x-axis displacement)
+        forward_pos_a = position_a[:, 0]
+        forward_pos_b = position_b[:, 0]
+        
+        # Compare metrics for forward movement task
+        # Higher forward velocity, higher overall speed, and greater forward displacement indicate better performance
+        
+        # Check if trajectory A is better than B in all metrics
+        if (forward_vel_a >= forward_vel_b).all() and (speed_a >= speed_b).all() and (forward_pos_a >= forward_pos_b).all():
+            label_list.append(1)
+        # Check if trajectory B is better than A in all metrics  
+        elif (forward_vel_a <= forward_vel_b).all() and (speed_a <= speed_b).all() and (forward_pos_a <= forward_pos_b).all():
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list

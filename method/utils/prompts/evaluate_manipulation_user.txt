@@ -1,0 +1,16 @@
+Task Type: Manipulation
+
+Python environment: {task obs code string}
+Task description: {task description}
+Task goals: {task goal}
+Observation keys: {keys}
+
+Instructions:
+1. Analyze the task and define metrics for comparison. Common metrics include:
+   - Distances between robot manipulators (hands/fingers) and target objects.
+   - Distances or orientations between objects and target positions.
+   - Phase-specific metrics (e.g., before grasp, after grasp, during placement).
+2. Treat each metric separately; do not combine unless explicitly defined.
+3. Decompose the task into phases for more accurate evaluation.
+4. Use only provided observation keys; do not create new keys.
+5. Output a Python function comparing two trajectories and returning the label list.

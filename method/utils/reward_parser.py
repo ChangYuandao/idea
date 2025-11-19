@@ -108,7 +108,7 @@ def extract_reward_parameters(reward_file_path: str) -> Tuple[Dict[str, Tuple[fl
         logging.info(f"Found implicit term: {sign_val} * {term}")
 
     # --- 6️⃣ 汇总 ---
-    logging.info(f"\n=== Extracted {len(hp_ranges)} parameters ===")
+    logging.info(f"=== Extracted {len(hp_ranges)} parameters ===")
     for pname, (low, high) in hp_ranges.items():
         logging.info(f"  {pname}: {initial_values[pname]} (range: [{low}, {high}])")
 

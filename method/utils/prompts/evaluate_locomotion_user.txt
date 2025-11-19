@@ -1,0 +1,19 @@
+Task Type: Mobile Locomotion
+
+Python environment: {task obs code string}
+Task description: {task description}
+Task goals: {task goal}
+Observation keys: {keys}
+
+Instructions:
+1. Analyze the task and define metrics for comparison. Common metrics include:
+   - Distance between robot center of mass (COM) and the goal.
+   - Orientation or heading error.
+   - Footstep stability or contact quality.
+   - Velocity or energy efficiency.
+2. Treat each metric separately; do not combine unless explicitly defined.
+3. Decompose the task into phases if necessary (e.g., moving towards goal, reaching goal).
+4. Use only provided observation keys; do not create new keys.
+5. Output a Python function comparing two trajectories and returning the label list.
+6. All data types used in the function are of numpy type, not tensor type.
+7. In addition, use traj a[key][:,3] to get values instead of traj a[key][3], use the numerical distance metrics to compare between trajectories instead of use bool value, as directly judging success metric (success a = dist a < 0.2) at the start of the trajectory will always return False, resulting in invalid comparison.

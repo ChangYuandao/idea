@@ -38,6 +38,7 @@ def compute_ant_observations(obs_buf, root_states, targets, potentials,
 
     dof_pos_scaled = unscale(dof_pos, dof_limits_lower, dof_limits_upper)
 
+    # obs_buf shapes: 1, 3, 3, 1, 1, 1, 1, 1, num_dofs(8), num_dofs(8), 24, num_dofs(8)
     obs = torch.cat((torso_position[:, up_axis_idx].view(-1, 1), vel_loc, angvel_loc,
                      yaw.unsqueeze(-1), roll.unsqueeze(-1), angle_to_target.unsqueeze(-1),
                      up_proj.unsqueeze(-1), heading_proj.unsqueeze(-1), dof_pos_scaled,

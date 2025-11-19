@@ -374,7 +374,7 @@ def main(cfg):
                             metric_cur_max = max(tensorboard_logs[metric])
                             metric_cur_mean = sum(tensorboard_logs[metric]) / len(tensorboard_logs[metric])
                             if "consecutive_successes" == metric:
-                                role_information[role]["successes"].append(metric_cur_max)
+                                role_information[role]["successes"].append(metric_cur_mean)
                             metric_cur_min = min(tensorboard_logs[metric])
                             if metric != "gt_reward" and metric != "gpt_reward":
                                 if metric != "consecutive_successes":
@@ -456,7 +456,8 @@ def main(cfg):
                         hp_ranges=hp_ranges,
                         initial_values=initial_values,
                         reward_file_path=str(best_reward_file),
-                        beta=1.0
+                        beta=1.0,
+                        task_name=task
                     )
                     
                     # 开始偏好学习
@@ -489,11 +490,22 @@ def main(cfg):
                             
                             # 7. 生成偏好对
                             logging.info("Step 3: Generating preference pairs...")
-                            num_pref_pairs = cfg.get('num_preference_pairs', 5)
-                            preferences = preference_learner.generate_random_preferences(
-                                trajectories, 
-                                n_pairs=num_pref_pairs
-                            )
+                            
+                            # 构建评估函数目录
+                            evaluate_dir = Path(EUREKA_ROOT_DIR) / "utils" / "prompts" / "evaluate_function" / task
+                            
+                            if evaluate_dir.exists():
+                                # 使用评估函数生成偏好对
+                                logging.info("Using evaluation functions to generate preferences...")
+                                preferences = preference_learner.generate_preference_buffer(
+                                    trajectories,
+                                    str(evaluate_dir),
+                                    min_consecutive=5
+                                )
+                            
+                            if len(preferences) == 0:
+                                logging.warning("⚠️ No preferences generated, skipping preference learning")
+                                continue
                             
                             # 8. 更新奖励函数参数
                             logging.info("Step 4: Updating reward function parameters...")

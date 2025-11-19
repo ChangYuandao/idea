@@ -132,8 +132,6 @@ class IsaacGymRewardFunction:
         # 获取 compute_reward 函数
         if hasattr(self.reward_module, 'compute_reward'):
             self.compute_reward_func = self.reward_module.compute_reward
-            logging.info(f"Successfully loaded compute_reward from {reward_file_path}")
-            logging.info(f"Function signature: compute_reward({', '.join(self.param_names)})")
         else:
             raise ValueError(f"compute_reward function not found in {reward_file_path}")
     
@@ -188,8 +186,6 @@ class IsaacGymRewardFunction:
             logging.error(f"Expected params: {self.param_names}")
             logging.error(f"Provided params: {list(func_args.keys())}")
             raise
-
-# ...existing code...
 
 
 class IsaacGymTrajectoryStep(aprel.basics.Trajectory):
@@ -307,7 +303,8 @@ class IsaacGymPreferenceLearning:
     def __init__(self, hp_ranges: Dict[str, Tuple[float, float]], 
                  initial_values: Dict[str, float],
                  reward_file_path: str,
-                 beta: float = 1.0):
+                 beta: float = 1.0,
+                 task_name: str = None):
         """
         初始化偏好学习
         
@@ -316,10 +313,12 @@ class IsaacGymPreferenceLearning:
             initial_values: 初始参数值字典
             reward_file_path: 奖励函数文件路径
             beta: 理性系数
+            task_name: 任务名称(用于加载评估函数)
         """
         self.hp_ranges = hp_ranges
         self.beta = beta
         self.reward_function = IsaacGymRewardFunction(reward_file_path)
+        self.task_name = task_name
         
         # 使用提供的初始值
         self.hps = initial_values.copy()
@@ -328,13 +327,328 @@ class IsaacGymPreferenceLearning:
         for k, v in self.hps.items():
             print(f"  {k}: {v:.4f} (range: {hp_ranges[k]})")
     
-    def normalize_hps(self, hps: Dict) -> Dict:
-        """归一化超参数到[0, 1]"""
-        normalized = {}
-        for k, v in hps.items():
-            min_v, max_v = self.hp_ranges[k]
-            normalized[k] = (v - min_v) / (max_v - min_v)
-        return normalized
+    def load_evaluation_functions(self, evaluate_dir: str) -> Dict[str, List]:
+        """
+        加载轨迹评估函数
+        
+        Args:
+            evaluate_dir: 评估函数目录路径
+        
+        Returns:
+            评估函数字典 {role: [func1, func2, ...]}
+        """
+        eval_funcs = {
+            "GOAL": [],
+            "SAFE": [],
+            "EFFICIENCY": []
+        }
+        
+        for role in eval_funcs.keys():
+            for i in range(1, 6):
+                func_file = Path(evaluate_dir) / f"{role}_{i}.txt"
+                if func_file.exists():
+                    try:
+                        # 读取函数代码
+                        with open(func_file, 'r') as f:
+                            func_code = f.read()
+                        
+                        # 动态执行函数定义
+                        local_namespace = {}
+                        exec(func_code, globals(), local_namespace)
+                        
+                        if 'trajectory_evaluate' in local_namespace:
+                            eval_funcs[role].append(local_namespace['trajectory_evaluate'])
+                            logging.info(f"Loaded evaluation function: {role}_{i}")
+                        else:
+                            logging.warning(f"Function 'trajectory_evaluate' not found in {func_file}")
+                    except Exception as e:
+                        logging.error(f"Failed to load {func_file}: {e}")
+                else:
+                    logging.warning(f"Evaluation function file not found: {func_file}")
+        
+        return eval_funcs
+    
+    def compare_trajectories(self, traj_a: Dict, traj_b: Dict, 
+                            eval_funcs: Dict[str, List]) -> List[int]:
+        """
+        使用多个评估函数比较两条轨迹
+        
+        Args:
+            traj_a: 轨迹A
+            traj_b: 轨迹B
+            eval_funcs: 评估函数字典 {role: [func1, func2, ...]}
+        
+        Returns:
+            最终的标签列表 (每个时间步: 1表示A优于B, -1表示A劣于B, 0表示无法区分)
+        """
+        # 存储所有评估结果
+        role_labels = {
+            "GOAL": [],
+            "SAFE": [],
+            "EFFICIENCY": []
+        }
+        
+        # 对每个角色的所有函数进行评估
+        for role, funcs in eval_funcs.items():
+            for func_idx, func in enumerate(funcs):
+                try:
+                    label_list = func(traj_a, traj_b)
+                    role_labels[role].append(np.array(label_list))
+                except Exception as e:
+                    import traceback
+                    logging.error(f"Error evaluating with {role} function {func_idx}: {e}")
+                    logging.error(f"Traceback: {traceback.format_exc()}")
+                    logging.error(f"Trajectory A keys: {list(traj_a.keys())}")
+                    logging.error(f"Trajectory B keys: {list(traj_b.keys())}")
+                    # 打印轨迹A的第一个状态的形状信息
+                    if len(traj_a) > 0:
+                        first_state_a = traj_a[list(traj_a.keys())[0]]
+                        logging.error(f"First state A type: {type(first_state_a)}")
+                        if isinstance(first_state_a, np.ndarray):
+                            logging.error(f"First state A shape: {first_state_a.shape}")
+                    # 如果评估失败,添加全0标签
+                    if len(role_labels[role]) > 0:
+                        role_labels[role].append(np.zeros_like(role_labels[role][0]))
+        
+        # 计算每个角色的平均得分
+        role_scores = {}
+        for role, labels in role_labels.items():
+            if len(labels) > 0:
+                # 取所有函数的平均值
+                role_scores[role] = np.mean(labels, axis=0)
+            else:
+                # 如果没有有效评估,返回0
+                trajectory_length = len(traj_a.get('states', traj_a.get('observations', [0])))
+                role_scores[role] = np.zeros(trajectory_length)
+        
+        # 加权计算最终得分 (GOAL=0.6, SAFE=0.3, EFFICIENCY=0.1)
+        weights = {
+            "GOAL": 0.6,
+            "SAFE": 0.3,
+            "EFFICIENCY": 0.1
+        }
+        
+        final_scores = (
+            weights["GOAL"] * role_scores["GOAL"] +
+            weights["SAFE"] * role_scores["SAFE"] +
+            weights["EFFICIENCY"] * role_scores["EFFICIENCY"]
+        )
+        
+        # 根据得分范围映射到 {-1, 0, 1}
+        final_labels = np.zeros_like(final_scores, dtype=int)
+        final_labels[final_scores <= -0.5] = -1
+        final_labels[final_scores >= 0.5] = 1
+        
+        return final_labels.tolist()
+    
+    def check_consecutive_preference(self, labels: List[int], 
+                                    min_consecutive: int = 5) -> Tuple[bool, List[Tuple[int, Tuple[int, int]]]]:
+        """
+        检查所有连续的偏好标签片段
+        
+        Args:
+            labels: 标签列表
+            min_consecutive: 最小连续步数
+        
+        Returns:
+            (是否有连续偏好, [(偏好值, (起始索引, 结束索引)), ...])
+            偏好值: 1表示A更好, -1表示B更好
+        """
+        if len(labels) < min_consecutive:
+            return False, []
+        
+        segments = []  # 存储所有有效片段: [(preference_value, (start, end)), ...]
+        
+        current_label = 0
+        current_start = -1
+        consecutive_count = 0
+        
+        for i, label in enumerate(labels):
+            if label == current_label and label != 0:
+                # 继续当前连续片段
+                consecutive_count += 1
+            else:
+                # 检查之前的片段是否满足要求
+                if consecutive_count >= min_consecutive and current_label != 0:
+                    segments.append((current_label, (current_start, i)))
+                
+                # 开始新的片段
+                if label != 0:
+                    current_label = label
+                    current_start = i
+                    consecutive_count = 1
+                else:
+                    current_label = 0
+                    current_start = -1
+                    consecutive_count = 0
+        
+        # 检查最后一个片段
+        if consecutive_count >= min_consecutive and current_label != 0:
+            segments.append((current_label, (current_start, len(labels))))
+        
+        has_preference = len(segments) > 0
+        
+        return has_preference, segments
+
+    def generate_preference_buffer(self, trajectories: List[Dict], 
+                                evaluate_dir: str,
+                                min_consecutive: int = 5) -> List[Tuple[int, int, int, Tuple[int, int], Tuple[int, int]]]:
+        """
+        生成偏好对缓冲区（支持多个片段）
+        
+        Args:
+            trajectories: 轨迹列表
+            evaluate_dir: 评估函数目录路径
+            min_consecutive: 最小连续偏好步数
+        
+        Returns:
+            偏好对列表 [(traj_a_idx, traj_b_idx, preference, segment_a, segment_b), ...]
+            preference: 0表示traj_a更好, 1表示traj_b更好
+            segment_a, segment_b: 轨迹片段范围 (start, end)
+        """
+        logging.info(f"[Preference Buffer] Loading evaluation functions from {evaluate_dir}")
+        
+        # 加载评估函数
+        eval_funcs = self.load_evaluation_functions(evaluate_dir)
+        
+        # 统计加载的函数数量
+        total_funcs = sum(len(funcs) for funcs in eval_funcs.values())
+        logging.info(f"[Preference Buffer] Loaded {total_funcs} evaluation functions")
+        for role, funcs in eval_funcs.items():
+            logging.info(f"  {role}: {len(funcs)} functions")
+        
+        preference_buffer = []
+        n_trajs = len(trajectories)
+        
+        logging.info(f"[Preference Buffer] Comparing {n_trajs} trajectories...")
+        
+        # 两两比较所有轨迹
+        comparison_count = 0
+        total_segments = 0
+        
+        for i in range(n_trajs):
+            for j in range(i + 1, n_trajs):
+                comparison_count += 1
+                
+                
+                # 截取轨迹到最小长度
+                traj_a = self.reconstruct_trajectory(trajectories[i])
+                traj_b = self.reconstruct_trajectory(trajectories[j])
+                min_length = min(len(traj_a), len(traj_b))
+                traj_a = traj_a[:min_length]
+                traj_b = traj_b[:min_length]
+                    
+                try:
+                    # 比较两条轨迹
+                    labels = self.compare_trajectories(traj_a, traj_b, eval_funcs)
+                    logging.info(f"  Compared Trajectory {i} vs Trajectory {j}: Labels = {labels}")
+                    
+                    # 检查是否有连续偏好（返回所有片段）
+                    has_preference, segments = self.check_consecutive_preference(
+                        labels, min_consecutive
+                    )
+                    
+                    if has_preference:
+                        logging.info(f"  ✅ Found {len(segments)} preference segment(s)")
+                        
+                        # 为每个片段创建偏好对
+                        for seg_idx, (preference_value, segment_range) in enumerate(segments):
+                            start, end = segment_range
+                            
+                            if preference_value == 1:
+                                # A更好
+                                preference_buffer.append((i, j, 0, segment_range, segment_range))
+                                logging.info(
+                                    f"    Segment {seg_idx+1}: Trajectory {i} > Trajectory {j}, "
+                                    f"Steps [{start}:{end}] ({end-start} steps)"
+                                )
+                            elif preference_value == -1:
+                                # B更好
+                                preference_buffer.append((i, j, 1, segment_range, segment_range))
+                                logging.info(
+                                    f"    Segment {seg_idx+1}: Trajectory {j} > Trajectory {i}, "
+                                    f"Steps [{start}:{end}] ({end-start} steps)"
+                                )
+                            
+                            total_segments += 1
+                    else:
+                        logging.info(f"  ⚠️ No strong preference detected")
+                        
+                except Exception as e:
+                    logging.error(f"  ❌ Comparison failed: {e}")
+                    import traceback
+                    logging.error(traceback.format_exc())
+                    continue
+        
+        logging.info(
+            f"\n[Preference Buffer] Summary:\n"
+            f"  - Trajectory comparisons: {comparison_count}\n"
+            f"  - Total preference segments: {total_segments}\n"
+            f"  - Unique preference pairs: {len(preference_buffer)}"
+        )
+        
+        return preference_buffer
+    
+    def extract_trajectory_segment(self, trajectory: Dict, segment: Tuple[int, int]) -> Dict:
+        """
+        从完整轨迹中提取指定片段
+        
+        Args:
+            trajectory: 完整轨迹字典
+            segment: 片段范围 (start, end)
+        
+        Returns:
+            片段轨迹字典
+        """
+        start, end = segment
+        
+        if start < 0 or end > trajectory.get('length', 0):
+            logging.warning(f"Invalid segment range ({start}, {end}) for trajectory length {trajectory.get('length', 0)}")
+            # 调整范围
+            start = max(0, start)
+            end = min(trajectory.get('length', 0), end)
+        
+        # 创建新的轨迹字典
+        segment_traj = {}
+        
+        for key, value in trajectory.items():
+            if key in ['length', 'total_reward']:
+                # 特殊字段处理
+                if key == 'length':
+                    segment_traj[key] = end - start
+                # total_reward 不复制
+                continue
+            
+            # 提取片段数据
+            if isinstance(value, np.ndarray):
+                if value.ndim > 0 and len(value) >= end:
+                    segment_traj[key] = value[start:end]
+                else:
+                    # 标量或长度不足，直接复制
+                    segment_traj[key] = value
+            elif isinstance(value, list):
+                if len(value) >= end:
+                    segment_traj[key] = value[start:end]
+                else:
+                    segment_traj[key] = value
+            else:
+                # 标量直接复制
+                segment_traj[key] = value
+        
+        return segment_traj
+    
+    def reconstruct_trajectory(self, traj_dict):
+        """
+        将保存的轨迹字典拆分为每个时间步的状态字典列表
+        """
+        length = traj_dict['length']
+        traj_list = []
+        for t in range(length):
+            state = {k: (v[t] if np.ndim(v) > 0 and hasattr(v, '__getitem__') else v) 
+                    for k, v in traj_dict.items() 
+                    if k not in ['length', 'total_reward']}
+            traj_list.append(state)
+        return traj_list
     
     def load_trajectories(self, filepath: str) -> List[Dict]:
         """
@@ -358,59 +672,29 @@ class IsaacGymPreferenceLearning:
         
         return trajectories
     
-    def generate_random_preferences(self, trajectories: List[Dict], n_pairs: int = 10) -> List[Tuple[int, int, int]]:
-        """
-        随机生成偏好对（用于验证）
-        
-        Args:
-            trajectories: 轨迹列表
-            n_pairs: 生成的偏好对数量
-        
-        Returns:
-            偏好对列表，每个元素为 (traj1_idx, traj2_idx, preferred_idx)
-            preferred_idx: 0表示traj1更好，1表示traj2更好
-        """
-        preferences = []
-        n_trajs = len(trajectories)
-        
-        for _ in range(n_pairs):
-            # 随机选择两条不同的轨迹
-            idx1, idx2 = random.sample(range(n_trajs), 2)
-            
-            # 随机选择哪一个更好（或基于总奖励）
-            total_reward1 = trajectories[idx1]['total_reward']
-            total_reward2 = trajectories[idx2]['total_reward']
-            
-            # 基于总奖励决定偏好（也可以完全随机）
-            if total_reward1 > total_reward2:
-                preferred = 0
-            else:
-                preferred = 1
-            
-            preferences.append((idx1, idx2, preferred))
-            
-            print(f"[Preference] Trajectory {idx1} (reward: {total_reward1:.2f}) vs "
-                  f"Trajectory {idx2} (reward: {total_reward2:.2f}) -> "
-                  f"Preferred: {idx1 if preferred == 0 else idx2}")
-        
-        return preferences
+    def normalize_hps(self, hps: Dict) -> Dict:
+        """归一化超参数到[0, 1]"""
+        normalized = {}
+        for k, v in hps.items():
+            min_v, max_v = self.hp_ranges[k]
+            normalized[k] = (v - min_v) / (max_v - min_v)
+        return normalized
     
     def update_reward_parameters(self, 
-                                 trajectories: List[Dict],
-                                 preferences: List[Tuple[int, int, int]],
+                                trajectories: List[Dict],
+                                preferences: List[Tuple[int, int, int, Tuple[int, int], Tuple[int, int]]],
                                 ) -> Dict:
         """
-        使用偏好学习更新奖励函数参数
+        使用偏好学习更新奖励函数参数（使用片段）
         
         Args:
-            trajectories: 轨迹列表
-            preferences: 偏好对列表 [(traj1_idx, traj2_idx, preferred_idx), ...]
-            visualize: 是否可视化更新过程
+            trajectories: 完整轨迹列表
+            preferences: 偏好对列表 [(traj1_idx, traj2_idx, preferred_idx, segment1, segment2), ...]
         
         Returns:
             更新后的参数字典
         """
-        print(f"\n[IsaacGymPreferenceLearning] Starting parameter update with {len(preferences)} preferences")
+        print(f"\n[IsaacGymPreferenceLearning] Starting parameter update with {len(preferences)} preference segments")
         
         # 初始化参数
         params = {
@@ -427,19 +711,28 @@ class IsaacGymPreferenceLearning:
         # 初始化贝叶斯信念
         belief = aprel.SamplingBasedBelief(user_model, [], params)
         
-        
         # 遍历偏好对进行贝叶斯更新
-        for i, (idx1, idx2, preferred) in enumerate(preferences):
-            # 构造偏好查询
-            traj1 = IsaacGymTrajectoryStep(trajectories[idx1])
-            traj2 = IsaacGymTrajectoryStep(trajectories[idx2])
+        for i, (idx1, idx2, preferred, segment1, segment2) in enumerate(preferences):
+            # 提取轨迹片段
+            traj1_segment = self.extract_trajectory_segment(trajectories[idx1], segment1)
+            traj2_segment = self.extract_trajectory_segment(trajectories[idx2], segment2)
+            
+            # 构造偏好查询（使用片段）
+            traj1 = IsaacGymTrajectoryStep(traj1_segment)
+            traj2 = IsaacGymTrajectoryStep(traj2_segment)
             
             query = aprel.PreferenceQuery([traj1, traj2])
             
-            # 更新信念（preferred是0或1，表示第几个轨迹更好）
+            # 更新信念
             belief.update(aprel.Preference(query, [preferred]))
             
-            print(f"[Update {i+1}/{len(preferences)}] Processed preference pair ({idx1}, {idx2}) -> {preferred}")
+            start1, end1 = segment1
+            start2, end2 = segment2
+            print(
+                f"[Update {i+1}/{len(preferences)}] "
+                f"Traj {idx1}[{start1}:{end1}] vs Traj {idx2}[{start2}:{end2}] "
+                f"-> Preferred: {idx1 if preferred == 0 else idx2}"
+            )
         
         # 获取更新后的参数
         updated_norm_hps = belief.mean['norm_hps']
@@ -449,7 +742,6 @@ class IsaacGymPreferenceLearning:
         for i, (k, v) in enumerate(self.hp_ranges.items()):
             min_v, max_v = v
             updated_hps[k] = (max_v - min_v) * updated_norm_hps[i] + min_v
-        
         
         # 打印更新结果
         print(f"\n[IsaacGymPreferenceLearning] Parameter update complete!")
@@ -469,4 +761,3 @@ class IsaacGymPreferenceLearning:
         self.hps = updated_hps
         
         return updated_hps
-

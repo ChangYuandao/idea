@@ -1,0 +1,99 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the efficiency of the sub-trajectory:
+      - if A is more energy efficient, the label is 1 ("Former")
+      - if B is more energy efficient, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract relevant data for efficiency evaluation
+        # Joint velocities (energy consumption is related to velocity magnitude)
+        dof_vel_a = state_a_info['dof_vel'][:, 3]  # Using [:, 3] as per instruction
+        dof_vel_b = state_b_info['dof_vel'][:, 3]
+        
+        # Contact forces (energy waste through excessive contact forces)
+        contact_force_a = state_a_info['vec_sensor_tensor'][:, 3] if 'vec_sensor_tensor' in state_a_info else np.zeros_like(dof_vel_a)
+        contact_force_b = state_b_info['vec_sensor_tensor'][:, 3] if 'vec_sensor_tensor' in state_b_info else np.zeros_like(dof_vel_b)
+        
+        # Actions (control effort, related to energy consumption)
+        actions_a = state_a_info['actions'][:, 3] if 'actions' in state_a_info else np.zeros_like(dof_vel_a)
+        actions_b = state_b_info['actions'][:, 3] if 'actions' in state_b_info else np.zeros_like(dof_vel_b)
+        
+        # Root velocity (forward motion efficiency)
+        root_states_a = state_a_info['root_states'][:, 3]
+        root_states_b = state_b_info['root_states'][:, 3]
+        # Extract linear velocity (indices 7:10 in root_states)
+        lin_vel_a = root_states_a[7:10] if len(root_states_a) >= 10 else np.array([0, 0, 0])
+        lin_vel_b = root_states_b[7:10] if len(root_states_b) >= 10 else np.array([0, 0, 0])
+        
+        # Calculate metrics for energy efficiency
+        # Joint velocity magnitude (lower is more efficient)
+        joint_vel_mag_a = np.sum(np.abs(dof_vel_a))
+        joint_vel_mag_b = np.sum(np.abs(dof_vel_b))
+        
+        # Contact force magnitude (lower is more efficient)
+        contact_force_mag_a = np.sum(np.abs(contact_force_a))
+        contact_force_mag_b = np.sum(np.abs(contact_force_b))
+        
+        # Action magnitude (lower is more efficient)
+        action_mag_a = np.sum(np.abs(actions_a))
+        action_mag_b = np.sum(np.abs(actions_b))
+        
+        # Forward velocity (higher is more efficient if comparable energy use)
+        forward_vel_a = np.abs(lin_vel_a[0])  # x-axis is forward direction
+        forward_vel_b = np.abs(lin_vel_b[0])
+        
+        # Energy efficiency metric: forward velocity per unit energy expenditure
+        # Calculate total energy-related metrics (lower is better)
+        total_effort_a = joint_vel_mag_a + contact_force_mag_a + action_mag_a
+        total_effort_b = joint_vel_mag_b + contact_force_mag_b + action_mag_b
+        
+        # Calculate efficiency (forward progress per energy unit)
+        if total_effort_a > 0:
+            efficiency_a = forward_vel_a / total_effort_a
+        else:
+            efficiency_a = forward_vel_a if forward_vel_a > 0 else 0
+            
+        if total_effort_b > 0:
+            efficiency_b = forward_vel_b / total_effort_b
+        else:
+            efficiency_b = forward_vel_b if forward_vel_b > 0 else 0
+
+        # Compare efficiency: A is better if it has lower total energy expenditure for similar or better forward progress
+        # Or higher efficiency (forward progress per energy unit)
+        
+        # State A is more efficient if it has lower total effort while achieving similar or better forward velocity
+        condition_a_better = (total_effort_a < total_effort_b and forward_vel_a >= forward_vel_b) or \
+                            (total_effort_a <= total_effort_b and forward_vel_a > forward_vel_b) or \
+                            efficiency_a > efficiency_b
+        
+        # State B is more efficient if it has lower total effort while achieving similar or better forward velocity
+        condition_b_better = (total_effort_b < total_effort_a and forward_vel_b >= forward_vel_a) or \
+                            (total_effort_b <= total_effort_a and forward_vel_b > forward_vel_a) or \
+                            efficiency_b > efficiency_a
+
+        if condition_a_better and not condition_b_better:
+            label_list.append(1)
+        elif condition_b_better and not condition_a_better:
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list

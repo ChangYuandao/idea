@@ -1,0 +1,142 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract root states for both trajectories
+        # Root states format: [pos_x, pos_y, pos_z, quat_x, quat_y, quat_z, quat_w, vel_x, vel_y, vel_z, ang_vel_x, ang_vel_y, ang_vel_z]
+        root_states_a = state_a_info['root_states'][0]  # Shape [13,]
+        root_states_b = state_b_info['root_states'][0]  # Shape [13,]
+        
+        # Extract position and rotation
+        pos_a = root_states_a[0:3]  # Position [x, y, z]
+        rot_a = root_states_a[3:7]  # Rotation quaternion [x, y, z, w]
+        vel_a = root_states_a[7:10]  # Linear velocity [x, y, z]
+        ang_vel_a = root_states_a[10:13]  # Angular velocity [x, y, z]
+        
+        pos_b = root_states_b[0:3]
+        rot_b = root_states_b[3:7]
+        vel_b = root_states_b[7:10]
+        ang_vel_b = root_states_b[10:13]
+
+        # Calculate up vector projection to assess posture stability
+        # Up vector is [0, 0, 1] in world coordinates
+        up_world = np.array([0, 0, 1], dtype=np.float32)
+        
+        # Convert quaternion to rotation matrix to get the up vector of the robot
+        def quat_to_matrix(q):
+            # q = [x, y, z, w]
+            x, y, z, w = q
+            return np.array([
+                [1 - 2*(y*y + z*z), 2*(x*y - w*z), 2*(x*z + w*y)],
+                [2*(x*y + w*z), 1 - 2*(x*x + z*z), 2*(y*z - w*x)],
+                [2*(x*z - w*y), 2*(y*z + w*x), 1 - 2*(x*x + y*y)]
+            ], dtype=np.float32)
+        
+        # Get up vector of robot in world frame
+        rot_matrix_a = quat_to_matrix(rot_a)
+        up_vec_robot_a = rot_matrix_a[:, 2]  # Third column is the up vector
+        
+        rot_matrix_b = quat_to_matrix(rot_b)
+        up_vec_robot_b = rot_matrix_b[:, 2]  # Third column is the up vector
+        
+        # Calculate up projection (how much the robot is upright)
+        up_proj_a = np.dot(up_vec_robot_a, up_world)
+        up_proj_b = np.dot(up_vec_robot_b, up_world)
+        
+        # Calculate angular velocity magnitude (for stability - lower is better)
+        ang_vel_mag_a = np.linalg.norm(ang_vel_a)
+        ang_vel_mag_b = np.linalg.norm(ang_vel_b)
+        
+        # Calculate roll angle (deviation from upright position)
+        # From the compute_observations function, roll is computed from rotation
+        # Approximate roll and pitch from quaternion
+        # Using standard conversion: roll about x-axis
+        sinr_cosp = 2 * (rot_a[3] * rot_a[0] + rot_a[1] * rot_a[2])
+        cosr_cosp = 1 - 2 * (rot_a[0] * rot_a[0] + rot_a[1] * rot_a[1])
+        roll_a = np.arctan2(sinr_cosp, cosr_cosp)
+        
+        sinr_cosp_b = 2 * (rot_b[3] * rot_b[0] + rot_b[1] * rot_b[2])
+        cosr_cosp_b = 1 - 2 * (rot_b[0] * rot_b[0] + rot_b[1] * rot_b[1])
+        roll_b = np.arctan2(sinr_cosp_b, cosr_cosp_b)
+        
+        # Calculate pitch angle
+        sinp_a = 2 * (rot_a[3] * rot_a[1] - rot_a[2] * rot_a[0])
+        if np.abs(sinp_a) >= 1:
+            pitch_a = np.copysign(np.pi / 2, sinp_a)
+        else:
+            pitch_a = np.arcsin(sinp_a)
+            
+        sinp_b = 2 * (rot_b[3] * rot_b[1] - rot_b[2] * rot_b[0])
+        if np.abs(sinp_b) >= 1:
+            pitch_b = np.copysign(np.pi / 2, sinp_b)
+        else:
+            pitch_b = np.arcsin(sinp_b)
+        
+        # Calculate deviation from upright (roll and pitch magnitude)
+        posture_dev_a = np.sqrt(roll_a**2 + pitch_a**2)
+        posture_dev_b = np.sqrt(roll_b**2 + pitch_b**2)
+        
+        # Extract contact forces if available
+        if 'vec_sensor_tensor' in state_a_info and 'contact_force_scale' in state_a_info:
+            contact_forces_a = state_a_info['vec_sensor_tensor'][0] * state_a_info['contact_force_scale']
+            contact_forces_b = state_b_info['vec_sensor_tensor'][0] * state_b_info['contact_force_scale']
+            
+            # Sum of absolute contact forces as measure of impact
+            total_contact_force_a = np.sum(np.abs(contact_forces_a))
+            total_contact_force_b = np.sum(np.abs(contact_forces_b))
+        else:
+            # If contact forces not available, use zero
+            total_contact_force_a = 0.0
+            total_contact_force_b = 0.0
+        
+        # Calculate joint velocities magnitude for abnormal movements
+        if 'dof_vel' in state_a_info:
+            dof_vel_a = state_a_info['dof_vel'][0]
+            dof_vel_b = state_b_info['dof_vel'][0]
+            joint_vel_mag_a = np.linalg.norm(dof_vel_a)
+            joint_vel_mag_b = np.linalg.norm(dof_vel_b)
+        else:
+            joint_vel_mag_a = 0.0
+            joint_vel_mag_b = 0.0
+
+        # Compare metrics: higher up projection, lower angular velocity, lower posture deviation, 
+        # lower contact forces, and lower joint velocities indicate better stability/safety
+        # State a is better if it has: higher up projection, lower angular velocity magnitude, 
+        # lower posture deviation, lower contact forces, and lower joint velocities
+        if (up_proj_a >= up_proj_b and 
+            ang_vel_mag_a <= ang_vel_mag_b and 
+            posture_dev_a <= posture_dev_b and 
+            total_contact_force_a <= total_contact_force_b and 
+            joint_vel_mag_a <= joint_vel_mag_b):
+            label_list.append(1)
+        elif (up_proj_a <= up_proj_b and 
+              ang_vel_mag_a >= ang_vel_mag_b and 
+              posture_dev_a >= posture_dev_b and 
+              total_contact_force_a >= total_contact_force_b and 
+              joint_vel_mag_a >= joint_vel_mag_b):
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list
