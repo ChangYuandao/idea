@@ -1,0 +1,174 @@
+You are an expert in evaluating the quality of manipulate task trajectories, responsible for distinguishing the quality of two robot control trajectories. You need to analyze the trajectories and select appropriate evaluation metrics based on your current role. Your current evaluation role is EFFICIENCY.  
+
+The function output should include a label_list:
+
+	- If at a given index state a is better than state b, the label for that index is 1.
+
+	- If state b is better than state a, the label is -1.
+
+	- Otherwise, the label is 0.
+
+label_list contains the quality labels corresponding to the indexed states in the trajectories.
+
+Notes:
+1. Important! Use traj_a[key][:, 3] to obtain values, rather than traj_a[key][3].
+2. When comparing trajectories, use numeric distance metrics, not Boolean values.
+3. If a key does not exist in the list, do not create that variable.
+4. Data types used in the generated function must be NumPy types, not tensor types.
+
+Code implementation guidelines:
+
+1. Comparison Criterion for States at the Same Index: The evaluation criterion for comparing states at the same index is as follows: State a is considered superior to state b only if state a is superior to state b across all metrics. For example, if two robotic hands are performing a task, and the left hand of a is superior to the left hand of b, but the right hand of b is superior to the right hand of a, then the label should be 0.
+
+2. Decomposing the Task into Phases for More Accurate Evaluation: The task needs to be divided into multiple Phases to allow for a more accurate evaluation. For example, in a dual-arm cooperative manipulation task, if neither hand has yet grasped the target, it is more appropriate to compare the distance from the (robotic hand) manipulators to the target object. However, if both hands have already grasped the target, the comparison should focus on the distance from the (grasped object) to the target position.
+
+3. Do not set thresholds; directly perform numerical comparisons on the information. For example, if for all distance metrics, a < b, then a is better.
+
+4. The information provided is raw, unprocessed data. The distance information and other metrics need to be calculated independently.
+
+5. Generally, you need to consider two types of distance: the distance between the manipulator or robotic arm and the block to be manipulated, and the distance between the manipulated cube and the target. Or other types of distances, such as the distance a drawer has been pulled open, the distance between two objects, and so on.
+
+6. The code output should be formatted as a python code string: "```python ... ```".
+
+The Python environment is: 
+class ShadowHand(VecTask):
+    """Rest of the environment definition omitted."""
+    def compute_observations(self):
+        self.gym.refresh_dof_state_tensor(self.sim)
+        self.gym.refresh_actor_root_state_tensor(self.sim)
+        self.gym.refresh_rigid_body_state_tensor(self.sim)
+
+        if self.obs_type == "full_state" or self.asymmetric_obs:
+            self.gym.refresh_force_sensor_tensor(self.sim)
+            self.gym.refresh_dof_force_tensor(self.sim)
+
+        self.object_pose = self.root_state_tensor[self.object_indices, 0:7]
+        self.object_pos = self.root_state_tensor[self.object_indices, 0:3]
+        self.object_rot = self.root_state_tensor[self.object_indices, 3:7]
+        self.object_linvel = self.root_state_tensor[self.object_indices, 7:10]
+        self.object_angvel = self.root_state_tensor[self.object_indices, 10:13]
+
+        self.goal_pose = self.goal_states[:, 0:7]
+        self.goal_pos = self.goal_states[:, 0:3]
+        self.goal_rot = self.goal_states[:, 3:7]
+
+        self.fingertip_state = self.rigid_body_states[:, self.fingertip_handles][:, :, 0:13]
+        self.fingertip_pos = self.rigid_body_states[:, self.fingertip_handles][:, :, 0:3]
+
+        if self.obs_type == "openai":
+            self.compute_fingertip_observations(True)
+        elif self.obs_type == "full_no_vel":
+            self.compute_full_observations(True)
+        elif self.obs_type == "full":
+            self.compute_full_observations()
+        elif self.obs_type == "full_state":
+            self.compute_full_state()
+        else:
+            print("Unknown observations type!")
+
+        if self.asymmetric_obs:
+            self.compute_full_state(True)
+
+    def compute_full_state(self, asymm_obs=False):
+        if asymm_obs:
+            self.states_buf[:, 0:self.num_shadow_hand_dofs] = unscale(self.shadow_hand_dof_pos,
+                                                                      self.shadow_hand_dof_lower_limits, self.shadow_hand_dof_upper_limits)
+            self.states_buf[:, self.num_shadow_hand_dofs:2*self.num_shadow_hand_dofs] = self.vel_obs_scale * self.shadow_hand_dof_vel
+            self.states_buf[:, 2*self.num_shadow_hand_dofs:3*self.num_shadow_hand_dofs] = self.force_torque_obs_scale * self.dof_force_tensor
+
+            obj_obs_start = 3*self.num_shadow_hand_dofs  # 72
+            self.states_buf[:, obj_obs_start:obj_obs_start + 7] = self.object_pose
+            self.states_buf[:, obj_obs_start + 7:obj_obs_start + 10] = self.object_linvel
+            self.states_buf[:, obj_obs_start + 10:obj_obs_start + 13] = self.vel_obs_scale * self.object_angvel
+
+            goal_obs_start = obj_obs_start + 13  # 85
+            self.states_buf[:, goal_obs_start:goal_obs_start + 7] = self.goal_pose
+            self.states_buf[:, goal_obs_start + 7:goal_obs_start + 11] = quat_mul(self.object_rot, quat_conjugate(self.goal_rot))
+
+            num_ft_states = 13 * self.num_fingertips  # 65
+            num_ft_force_torques = 6 * self.num_fingertips  # 30
+
+            fingertip_obs_start = goal_obs_start + 11  # 96
+            self.states_buf[:, fingertip_obs_start:fingertip_obs_start + num_ft_states] = self.fingertip_state.reshape(self.num_envs, num_ft_states)
+            self.states_buf[:, fingertip_obs_start + num_ft_states:fingertip_obs_start + num_ft_states +
+                            num_ft_force_torques] = self.force_torque_obs_scale * self.vec_sensor_tensor
+
+            obs_end = fingertip_obs_start + num_ft_states + num_ft_force_torques
+            self.states_buf[:, obs_end:obs_end + self.num_actions] = self.actions
+        else:
+            self.obs_buf[:, 0:self.num_shadow_hand_dofs] = unscale(self.shadow_hand_dof_pos,
+                                                                   self.shadow_hand_dof_lower_limits, self.shadow_hand_dof_upper_limits)
+            self.obs_buf[:, self.num_shadow_hand_dofs:2*self.num_shadow_hand_dofs] = self.vel_obs_scale * self.shadow_hand_dof_vel
+            self.obs_buf[:, 2*self.num_shadow_hand_dofs:3*self.num_shadow_hand_dofs] = self.force_torque_obs_scale * self.dof_force_tensor
+
+            obj_obs_start = 3*self.num_shadow_hand_dofs  # 72
+            self.obs_buf[:, obj_obs_start:obj_obs_start + 7] = self.object_pose
+            self.obs_buf[:, obj_obs_start + 7:obj_obs_start + 10] = self.object_linvel
+            self.obs_buf[:, obj_obs_start + 10:obj_obs_start + 13] = self.vel_obs_scale * self.object_angvel
+
+            goal_obs_start = obj_obs_start + 13  # 85
+            self.obs_buf[:, goal_obs_start:goal_obs_start + 7] = self.goal_pose
+            self.obs_buf[:, goal_obs_start + 7:goal_obs_start + 11] = quat_mul(self.object_rot, quat_conjugate(self.goal_rot))
+
+            num_ft_states = 13 * self.num_fingertips  # 65
+            num_ft_force_torques = 6 * self.num_fingertips  # 30
+
+            fingertip_obs_start = goal_obs_start + 11  # 96
+            self.obs_buf[:, fingertip_obs_start:fingertip_obs_start + num_ft_states] = self.fingertip_state.reshape(self.num_envs, num_ft_states)
+            self.obs_buf[:, fingertip_obs_start + num_ft_states:fingertip_obs_start + num_ft_states +
+                         num_ft_force_torques] = self.force_torque_obs_scale * self.vec_sensor_tensor
+
+            obs_end = fingertip_obs_start + num_ft_states + num_ft_force_torques
+            self.obs_buf[:, obs_end:obs_end + self.num_actions] = self.actions
+.
+
+
+The data extraction function may be defined as: 
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # TODO: Compute metrics for state_a and state_b using observation keys
+        # e.g., metric_1_a, metric_1_b, metric_2_a, metric_2_b, ...
+
+        if metric_1_a >= metric_1_b and metric_2_a >= metric_2_b and ...:
+            label_list.append(1)
+        elif metric_1_a <= metric_1_b and metric_2_a <= metric_2_b and ...:
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list.
+    
+The metric keys used to generate the function are: 
+['object_pose',
+'object_pos',
+'object_rot',
+'object_linvel',
+'object_angvel',
+'goal_pose',
+'goal_pos',
+'goal_rot',
+'fingertip_state',
+'fingertip_pos']. Ensure that all keys used in the generated function exist in this list.
+
+Please write a trajectory comparison function for the following mobile task: to make the shadow hand spin the object to a target orientation.

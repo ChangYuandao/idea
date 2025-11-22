@@ -1,6 +1,4 @@
-You are an expert in evaluating the quality of mobile task trajectories, responsible for distinguishing the quality of two robot motion trajectories. You need to analyze the trajectories and select appropriate evaluation metrics based on your current role. Your current evaluation role is SAFE.
-
-Your current evaluation should focus on the robot’s postural stability and safety during movement, including whether it maintains a near-upright posture, whether it experiences rolling or significant tilting, whether any body parts collide abnormally with the ground, whether foot contacts are natural and consistent with normal gait patterns, and whether joints exhibit violent or abnormal movements. When evaluating, you should prioritize comparing two trajectories based on postural deviations, root angular velocity, tendency to roll, abnormal accelerations, and magnitude/distribution of ground impact forces—all indicators related to safety. Ignore task completion speed and energy consumption, and focus solely on whether the robot is more stable, experiences fewer collisions, and is less prone to falling.
+You are an expert in evaluating the quality of mobile task trajectories, responsible for distinguishing the quality of two robot motion trajectories. You need to analyze the trajectories and select appropriate evaluation metrics based on your current role. Your current evaluation role is SAFE.You must evaluate the safety of the trajectory throughout the entire execution process, and you can ignore whether the task is ultimately successful.
 
 The function output should include a label_list:
 
@@ -114,8 +112,7 @@ def trajectory_evaluate(trajectory_a, trajectory_b):
 .
 
 The metric keys used to generate the function are: 
-{           
-'potentials',
+['potentials',
 'prev_potentials',
 'up_vec',
 'heading_vec',
@@ -128,13 +125,10 @@ The metric keys used to generate the function are:
 'dof_limits_upper',
 'dof_vel_scale',
 'vec_sensor_tensor',
-'actions',
 'dt',
 'contact_force_scale',
 'basis_vec0',
 'basis_vec1',
-'up_axis_idx',
-'rewards'
-}. Ensure that all keys used in the generated function exist in this list.
+'up_axis_idx']. Ensure that all keys used in the generated function exist in this list.
 
 Please write a trajectory comparison function for the following mobile task: to make the ant run forward as fast as possible.

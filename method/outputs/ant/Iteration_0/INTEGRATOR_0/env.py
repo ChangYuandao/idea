@@ -184,7 +184,7 @@ class AntGPT(VecTask):
             self.extremities_index[i] = self.gym.find_actor_rigid_body_handle(self.envs[0], self.ant_handles[0], extremity_names[i])
 
     def compute_reward(self, actions):
-        self.rew_buf[:], self.rew_dict = compute_reward(self.root_states, self.targets, self.potentials, self.prev_potentials, self.actions, self.dt)
+        self.rew_buf[:], self.rew_dict = compute_reward(self.root_states, self.targets, self.prev_potentials, self.potentials, self.dt)
         self.extras['gpt_reward'] = self.rew_buf.mean()
         for rew_state in self.rew_dict: self.extras[rew_state] = self.rew_dict[rew_state].mean()
         self.gt_rew_buf, self.reset_buf[:], self.consecutive_successes[:] = compute_success(
@@ -377,40 +377,25 @@ import math
 import torch
 from torch import Tensor
 @torch.jit.script
-def compute_reward(root_states: torch.Tensor, targets: torch.Tensor, potentials: torch.Tensor, prev_potentials: torch.Tensor, actions: torch.Tensor, dt: float) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
-    # Extract relevant information
+def compute_reward(root_states: torch.Tensor, targets: torch.Tensor, prev_potentials: torch.Tensor, potentials: torch.Tensor, dt: float) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+    # Extract current position and velocity
     torso_position = root_states[:, 0:3]
     velocity = root_states[:, 7:10]
     
-    # Compute distance to target (potential progress reward)
-    to_target = targets - torso_position
-    to_target[:, 2] = 0.0  # Ignore height difference
-    current_potential = -torch.norm(to_target, p=2.0, dim=-1) / dt
-    potential_diff = current_potential - prev_potentials
+    # Reward forward velocity (x-direction velocity)
+    forward_velocity = velocity[:, 0]  # Assuming x is forward direction
+    forward_reward = forward_velocity
     
-    # Forward velocity reward (encourage movement in forward direction)
-    forward_velocity = velocity[:, 0]  # Assuming x-axis is forward direction
-    forward_velocity_reward = forward_velocity
+    # Reward for making progress toward target (potential-based reward)
+    progress_reward = (prev_potentials - potentials) / dt
     
-    # Energy efficiency penalty (prevent excessive action usage)
-    action_penalty_temp = 0.1
-    action_penalty = -torch.sum(actions ** 2, dim=-1) * action_penalty_temp
+    # Combine rewards
+    total_reward = forward_reward + progress_reward
     
-    # Height stability reward (keep torso at reasonable height)
-    target_height = 0.5
-    height_deviation = torch.abs(torso_position[:, 2] - target_height)
-    height_reward_temp = 1.0
-    height_reward = -height_deviation * height_reward_temp
-    
-    # Total reward composition
-    total_reward = potential_diff + forward_velocity_reward + action_penalty + height_reward
-    
-    # Return individual components for analysis
+    # Create reward components dictionary
     reward_components = {
-        "potential_diff": potential_diff,
-        "forward_velocity": forward_velocity_reward,
-        "action_penalty": action_penalty,
-        "height_reward": height_reward
+        "forward_velocity_reward": forward_reward,
+        "progress_reward": progress_reward
     }
     
     return total_reward, reward_components

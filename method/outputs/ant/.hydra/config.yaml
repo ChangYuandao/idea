@@ -3,7 +3,7 @@ temperature: 1.0
 suffix: GPT
 iteration: 1
 sample: 1
-max_iterations: 200
+max_iterations: 500
 num_eval: 5
 capture_video: false
 use_wandb: false

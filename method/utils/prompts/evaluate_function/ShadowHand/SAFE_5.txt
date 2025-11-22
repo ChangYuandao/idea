@@ -1,0 +1,72 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract object orientation and goal orientation for both trajectories
+        object_rot_a = state_a_info['object_rot'][:, 3:7]  # quaternion [x, y, z, w]
+        goal_rot_a = state_a_info['goal_rot'][:, 3:7]      # quaternion [x, y, z, w]
+        
+        object_rot_b = state_b_info['object_rot'][:, 3:7]  # quaternion [x, y, z, w]
+        goal_rot_b = state_b_info['goal_rot'][:, 3:7]      # quaternion [x, y, z, w]
+
+        # Calculate orientation error (distance between object and goal orientation)
+        # Using quaternion dot product to measure similarity
+        dot_product_a = np.sum(object_rot_a * goal_rot_a, axis=1)
+        dot_product_b = np.sum(object_rot_b * goal_rot_b, axis=1)
+        
+        # Convert to orientation error (1 - |dot_product|), where lower is better
+        orientation_error_a = 1 - np.abs(dot_product_a)
+        orientation_error_b = 1 - np.abs(dot_product_b)
+
+        # Extract object linear velocity for both trajectories (for safety - lower velocity is safer)
+        object_linvel_a = state_a_info['object_linvel'][:, 0:3]
+        object_linvel_b = state_b_info['object_linvel'][:, 0:3]
+        
+        # Calculate magnitude of linear velocity
+        linvel_magnitude_a = np.linalg.norm(object_linvel_a, axis=1)
+        linvel_magnitude_b = np.linalg.norm(object_linvel_b, axis=1)
+
+        # Extract object angular velocity for both trajectories (for safety - lower angular velocity is safer)
+        object_angvel_a = state_a_info['object_angvel'][:, 0:3]
+        object_angvel_b = state_b_info['object_angvel'][:, 0:3]
+        
+        # Calculate magnitude of angular velocity
+        angvel_magnitude_a = np.linalg.norm(object_angvel_a, axis=1)
+        angvel_magnitude_b = np.linalg.norm(object_angvel_b, axis=1)
+
+        # Evaluate safety based on all metrics
+        # For safety, we want lower orientation error, lower linear velocity, and lower angular velocity
+        # State A is safer if all its metrics are better (lower values)
+        if (orientation_error_a <= orientation_error_b and 
+            linvel_magnitude_a <= linvel_magnitude_b and 
+            angvel_magnitude_a <= angvel_magnitude_b):
+            label_list.append(1)
+        elif (orientation_error_a >= orientation_error_b and 
+              linvel_magnitude_a >= linvel_magnitude_b and 
+              angvel_magnitude_a >= angvel_magnitude_b):
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list

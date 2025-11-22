@@ -1,0 +1,68 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract object and goal positions and rotations for both trajectories
+        object_pos_a = state_a_info['object_pos'][:, :3]  # shape (1, 3)
+        object_rot_a = state_a_info['object_rot'][:, :4]  # shape (1, 4) - quaternion
+        goal_pos_a = state_a_info['goal_pos'][:, :3]      # shape (1, 3)
+        goal_rot_a = state_a_info['goal_rot'][:, :4]      # shape (1, 4) - quaternion
+        
+        object_pos_b = state_b_info['object_pos'][:, :3]  # shape (1, 3)
+        object_rot_b = state_b_info['object_rot'][:, :4]  # shape (1, 4) - quaternion
+        goal_pos_b = state_b_info['goal_pos'][:, :3]      # shape (1, 3)
+        goal_rot_b = state_b_info['goal_rot'][:, :4]      # shape (1, 4) - quaternion
+
+        # Calculate orientation error (angular distance between current and target orientation)
+        # Using quaternion dot product to measure alignment (higher is better alignment)
+        # Convert quaternions to unit quaternions first
+        object_rot_a_norm = object_rot_a / np.linalg.norm(object_rot_a, axis=1, keepdims=True)
+        goal_rot_a_norm = goal_rot_a / np.linalg.norm(goal_rot_a, axis=1, keepdims=True)
+        object_rot_b_norm = object_rot_b / np.linalg.norm(object_rot_b, axis=1, keepdims=True)
+        goal_rot_b_norm = goal_rot_b / np.linalg.norm(goal_rot_b, axis=1, keepdims=True)
+        
+        # Dot product between quaternions gives cosine of half the rotation angle
+        orientation_alignment_a = np.abs(np.sum(object_rot_a_norm * goal_rot_a_norm, axis=1))  # Higher is better
+        orientation_alignment_b = np.abs(np.sum(object_rot_b_norm * goal_rot_b_norm, axis=1))  # Higher is better
+        
+        # Convert alignment to orientation error (lower is better)
+        orientation_error_a = 1.0 - orientation_alignment_a  # Lower is better
+        orientation_error_b = 1.0 - orientation_alignment_b  # Lower is better
+
+        # Calculate position error (distance between object and goal position)
+        pos_error_a = np.linalg.norm(object_pos_a - goal_pos_a, axis=1)  # Lower is better
+        pos_error_b = np.linalg.norm(object_pos_b - goal_pos_b, axis=1)  # Lower is better
+
+        # For orientation task, the primary metric is orientation error
+        # A trajectory is better if it has lower orientation error
+        # We also consider position error as a secondary metric (object should stay near goal)
+        
+        if orientation_error_a < orientation_error_b and pos_error_a <= pos_error_b:
+            label_list.append(1)
+        elif orientation_error_a > orientation_error_b and pos_error_a >= pos_error_b:
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list

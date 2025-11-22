@@ -1,0 +1,116 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract object positions for both trajectories
+        object_pos_a = state_a_info['object_pos'][:, :3]  # shape: (batch, 3)
+        object_pos_b = state_b_info['object_pos'][:, :3]  # shape: (batch, 3)
+        
+        # Extract object rotations for both trajectories
+        object_rot_a = state_a_info['object_rot'][:, :4]  # shape: (batch, 4) quaternion
+        object_rot_b = state_b_info['object_rot'][:, :4]  # shape: (batch, 4) quaternion
+        
+        # Extract goal rotations for both trajectories (assuming they are the same for both)
+        goal_rot_a = state_a_info['goal_rot'][:, :4]  # shape: (batch, 4) quaternion
+        goal_rot_b = state_b_info['goal_rot'][:, :4]  # shape: (batch, 4) quaternion
+        
+        # Calculate orientation error for both trajectories
+        # Using quaternion dot product to measure alignment with target orientation
+        # The dot product of two quaternions gives a measure of how similar they are
+        dot_product_a = np.sum(object_rot_a * goal_rot_a, axis=1)  # shape: (batch,)
+        dot_product_b = np.sum(object_rot_b * goal_rot_b, axis=1)  # shape: (batch,)
+        
+        # Convert to absolute values to measure alignment regardless of sign
+        alignment_a = np.abs(dot_product_a)  # shape: (batch,)
+        alignment_b = np.abs(dot_product_b)  # shape: (batch,)
+        
+        # Higher alignment means closer to target orientation
+        # For efficiency evaluation, we consider how close the object is to the target orientation
+        metric_orientation_a = alignment_a  # Higher is better
+        metric_orientation_b = alignment_b  # Higher is better
+        
+        # Calculate object linear velocity for both trajectories
+        object_linvel_a = state_a_info['object_linvel'][:, :3]  # shape: (batch, 3)
+        object_linvel_b = state_b_info['object_linvel'][:, :3]  # shape: (batch, 3)
+        
+        # Calculate magnitude of linear velocity (lower is better for stability)
+        linvel_magnitude_a = np.linalg.norm(object_linvel_a, axis=1)  # shape: (batch,)
+        linvel_magnitude_b = np.linalg.norm(object_linvel_b, axis=1)  # shape: (batch,)
+        
+        # For efficiency, lower velocity might indicate more controlled movement
+        # But for spinning tasks, we might want to consider angular velocity
+        metric_linvel_a = -linvel_magnitude_a  # Negative because lower velocity is better
+        metric_linvel_b = -linvel_magnitude_b  # Negative because lower velocity is better
+        
+        # Calculate object angular velocity for both trajectories
+        object_angvel_a = state_a_info['object_angvel'][:, :3]  # shape: (batch, 3)
+        object_angvel_b = state_b_info['object_angvel'][:, :3]  # shape: (batch, 3)
+        
+        # Calculate magnitude of angular velocity
+        angvel_magnitude_a = np.linalg.norm(object_angvel_a, axis=1)  # shape: (batch,)
+        angvel_magnitude_b = np.linalg.norm(object_angvel_b, axis=1)  # shape: (batch,)
+        
+        # For efficiency, we consider angular velocity magnitude
+        # Lower angular velocity might indicate more controlled spinning
+        metric_angvel_a = -angvel_magnitude_a  # Negative because lower angular velocity might be better for control
+        metric_angvel_b = -angvel_magnitude_b  # Negative because lower angular velocity might be better for control
+
+        # Calculate fingertip positions
+        fingertip_pos_a = state_a_info['fingertip_pos']  # shape: (batch, num_fingertips, 3)
+        fingertip_pos_b = state_b_info['fingertip_pos']  # shape: (batch, num_fingertips, 3)
+        
+        # Calculate distance from fingertips to object for both trajectories
+        # Reshape object_pos to broadcast with fingertip_pos
+        object_pos_a_expanded = np.expand_dims(object_pos_a, axis=1)  # shape: (batch, 1, 3)
+        object_pos_b_expanded = np.expand_dims(object_pos_b, axis=1)  # shape: (batch, 1, 3)
+        
+        # Calculate distances from each fingertip to object
+        dist_to_object_a = np.linalg.norm(fingertip_pos_a - object_pos_a_expanded, axis=2)  # shape: (batch, num_fingertips)
+        dist_to_object_b = np.linalg.norm(fingertip_pos_b - object_pos_b_expanded, axis=2)  # shape: (batch, num_fingertips)
+        
+        # Calculate mean distance from fingertips to object
+        mean_fingertip_dist_a = np.mean(dist_to_object_a, axis=1)  # shape: (batch,)
+        mean_fingertip_dist_b = np.mean(dist_to_object_b, axis=1)  # shape: (batch,)
+        
+        # For efficiency, lower distance might indicate better manipulation control
+        # But this depends on the task; for spinning, we want stable contact
+        metric_fingertip_dist_a = -mean_fingertip_dist_a  # Negative because closer fingertips might be better
+        metric_fingertip_dist_b = -mean_fingertip_dist_b  # Negative because closer fingertips might be better
+
+        # Evaluate based on orientation alignment (primary metric for spinning task)
+        # Higher alignment with target orientation is better
+        if (metric_orientation_a > metric_orientation_b and 
+            metric_linvel_a >= metric_linvel_b and 
+            metric_angvel_a >= metric_angvel_b and 
+            metric_fingertip_dist_a >= metric_fingertip_dist_b):
+            label_list.append(1)
+        elif (metric_orientation_a < metric_orientation_b and 
+              metric_linvel_a <= metric_linvel_b and 
+              metric_angvel_a <= metric_angvel_b and 
+              metric_fingertip_dist_a <= metric_fingertip_dist_b):
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list

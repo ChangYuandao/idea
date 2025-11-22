@@ -1,0 +1,120 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract relevant information for safety evaluation
+        # Object position and rotation for both trajectories
+        object_pos_a = state_a_info['object_pos'][:, 0:3]
+        object_pos_b = state_b_info['object_pos'][:, 0:3]
+        
+        object_rot_a = state_a_info['object_rot'][:, 3:7]
+        object_rot_b = state_b_info['object_rot'][:, 3:7]
+        
+        goal_pos_a = state_a_info['goal_pos'][:, 0:3]
+        goal_pos_b = state_b_info['goal_pos'][:, 0:3]
+        
+        goal_rot_a = state_a_info['goal_rot'][:, 3:7]
+        goal_rot_b = state_b_info['goal_rot'][:, 3:7]
+        
+        fingertip_pos_a = state_a_info['fingertip_pos']
+        fingertip_pos_b = state_b_info['fingertip_pos']
+
+        # Calculate object orientation error (distance to target orientation)
+        # Using quaternion difference to measure orientation similarity
+        def quat_diff_angle(q1, q2):
+            # Calculate the angle between two quaternions
+            dot_product = np.sum(q1 * q2, axis=1)
+            dot_product = np.clip(dot_product, -1.0, 1.0)
+            angle = 2 * np.arccos(np.abs(dot_product))
+            return angle
+        
+        orientation_error_a = quat_diff_angle(object_rot_a, goal_rot_a)
+        orientation_error_b = quat_diff_angle(object_rot_b, goal_rot_b)
+
+        # Calculate object position deviation from goal (to ensure object doesn't move too far from initial position)
+        pos_deviation_a = np.linalg.norm(object_pos_a - goal_pos_a, axis=1)
+        pos_deviation_b = np.linalg.norm(object_pos_b - goal_pos_b, axis=1)
+
+        # Calculate fingertip positions to evaluate potential unsafe configurations
+        # Average distance of fingertips from object (to ensure stable grasp)
+        avg_fingertip_obj_dist_a = np.mean(np.linalg.norm(fingertip_pos_a - object_pos_a[:, np.newaxis, :], axis=2), axis=1)
+        avg_fingertip_obj_dist_b = np.mean(np.linalg.norm(fingertip_pos_b - object_pos_b[:, np.newaxis, :], axis=2), axis=1)
+
+        # Object linear velocity (to check for excessive movement)
+        obj_linvel_a = state_a_info['object_linvel'][:, 0:3]
+        obj_linvel_b = state_b_info['object_linvel'][:, 0:3]
+        
+        obj_linvel_mag_a = np.linalg.norm(obj_linvel_a, axis=1)
+        obj_linvel_mag_b = np.linalg.norm(obj_linvel_b, axis=1)
+
+        # Object angular velocity (to check for excessive spinning)
+        obj_angvel_a = state_a_info['object_angvel'][:, 0:3]
+        obj_angvel_b = state_b_info['object_angvel'][:, 0:3]
+        
+        obj_angvel_mag_a = np.linalg.norm(obj_angvel_a, axis=1)
+        obj_angvel_mag_b = np.linalg.norm(obj_angvel_b, axis=1)
+
+        # Safety metrics: lower values indicate safer states
+        # 1. Lower angular velocity is safer (controlled rotation)
+        # 2. Lower linear velocity is safer (controlled movement)
+        # 3. Lower position deviation is safer (object stays in expected location)
+        # 4. Lower orientation error means closer to target (controlled manipulation)
+        # 5. Reasonable fingertip-object distance for stable grasp
+        
+        # For safety evaluation, we consider a trajectory safer if:
+        # - lower angular velocity magnitude
+        # - lower linear velocity magnitude  
+        # - lower orientation error
+        # - lower position deviation
+        # - reasonable grasp stability (not too loose or too tight)
+        
+        # Calculate safety metrics
+        # Lower values are safer
+        safety_angvel_a = obj_angvel_mag_a
+        safety_angvel_b = obj_angvel_mag_b
+        
+        safety_linvel_a = obj_linvel_mag_a
+        safety_linvel_b = obj_linvel_mag_b
+        
+        safety_orientation_a = orientation_error_a
+        safety_orientation_b = orientation_error_b
+        
+        safety_pos_dev_a = pos_deviation_a
+        safety_pos_dev_b = pos_deviation_b
+
+        # Compare all safety metrics - trajectory A is safer if ALL its safety metrics are lower
+        if (safety_angvel_a <= safety_angvel_b).all() and \
+           (safety_linvel_a <= safety_linvel_b).all() and \
+           (safety_orientation_a <= safety_orientation_b).all() and \
+           (safety_pos_dev_a <= safety_pos_dev_b).all():
+            label_list.append(1)  # A is safer
+        elif (safety_angvel_a >= safety_angvel_b).all() and \
+             (safety_linvel_a >= safety_linvel_b).all() and \
+             (safety_orientation_a >= safety_orientation_b).all() and \
+             (safety_pos_dev_a >= safety_pos_dev_b).all():
+            label_list.append(-1)  # B is safer
+        else:
+            label_list.append(0)  # Neither is clearly safer
+
+    return label_list

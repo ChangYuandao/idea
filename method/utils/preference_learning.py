@@ -416,16 +416,13 @@ class IsaacGymPreferenceLearning:
             if len(labels) > 0:
                 # 取所有函数的平均值
                 role_scores[role] = np.mean(labels, axis=0)
-            else:
-                # 如果没有有效评估,返回0
-                trajectory_length = len(traj_a.get('states', traj_a.get('observations', [0])))
-                role_scores[role] = np.zeros(trajectory_length)
+
         
         # 加权计算最终得分 (GOAL=0.6, SAFE=0.3, EFFICIENCY=0.1)
         weights = {
-            "GOAL": 0.6,
-            "SAFE": 0.3,
-            "EFFICIENCY": 0.1
+            "GOAL": 0.7,
+            "SAFE": 0.15,
+            "EFFICIENCY": 0.15
         }
         
         final_scores = (

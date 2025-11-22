@@ -1,6 +1,4 @@
-You are an expert in evaluating the quality of mobile task trajectories, responsible for distinguishing the quality of two robot motion trajectories. You need to analyze the trajectories and select appropriate evaluation metrics based on your current role. Your current evaluation role is GOAL.
-
-Your evaluation focus is on the robot’s task-completion capability throughout the entire trajectory, including forward distance along the desired direction, forward velocity, duration of stable continuous walking, whether significant stagnation or falling occurs, and the overall degree of task accomplishment. In the evaluation, you should prioritize comparing the two trajectories using quantitative task-completion-related metrics such as final displacement, average forward speed, directional deviation, and effective movement time. Energy consumption, collisions, and other factors should be ignored. Only focus on whether the robot reaches the target direction faster, more stably, and farther.
+You are an expert in evaluating the quality of mobile task trajectories, responsible for distinguishing the quality of two robot motion trajectories. You need to analyze the trajectories and select appropriate evaluation metrics based on your current role. Your current evaluation role is GOAL.Your current evaluation role is GOAL. You only care about the final result of the task.
 
 The function output should include a label_list:
 
@@ -114,8 +112,7 @@ def trajectory_evaluate(trajectory_a, trajectory_b):
 .
 
 The metric keys used to generate the function are: 
-{           
-'potentials',
+['potentials',
 'prev_potentials',
 'up_vec',
 'heading_vec',
@@ -128,13 +125,10 @@ The metric keys used to generate the function are:
 'dof_limits_upper',
 'dof_vel_scale',
 'vec_sensor_tensor',
-'actions',
 'dt',
 'contact_force_scale',
 'basis_vec0',
 'basis_vec1',
-'up_axis_idx',
-'rewards'
-}. Ensure that all keys used in the generated function exist in this list.
+'up_axis_idx']. Ensure that all keys used in the generated function exist in this list.
 
 Please write a trajectory comparison function for the following mobile task: to make the ant run forward as fast as possible.

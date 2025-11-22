@@ -219,12 +219,12 @@ class AntTrajectoryCollector(PpoPlayerContinuous):
             'dof_limits_upper',
             'dof_vel_scale',
             'vec_sensor_tensor',
-            'actions',
             'dt',
             'contact_force_scale',
             'basis_vec0',
             'basis_vec1',
             'up_axis_idx',
+            'actions',
             'rewards'
         ]
         
@@ -234,7 +234,7 @@ class AntTrajectoryCollector(PpoPlayerContinuous):
         # 当前episode的轨迹缓存
         self.current_trajectory = None
         
-        self.max_steps = 200
+        self.max_steps = 100
         
         print(f"[TrajectoryCollector] Will collect {self.num_trajectories} trajectories")
         print(f"[TrajectoryCollector] Save directory: {self.save_dir}")
@@ -505,6 +505,306 @@ class AntTrajectoryCollector(PpoPlayerContinuous):
 
 
 
+class ShadowHandTrajectoryCollector(PpoPlayerContinuous):
+    """
+    轨迹收集器，继承自PpoPlayerContinuous
+    在运行时收集固定数量的轨迹，每个轨迹对应一个完整的episode
+    只收集指定的状态信息字段
+    """
+    
+    def __init__(self, params):
+        super().__init__(params)
+        
+        # 轨迹收集配置
+        collector_config = params.get('collector_config', {})
+        
+        self.num_trajectories = collector_config.get('num_trajectories', 5)
+        save_dir_str = collector_config.get('save_dir', './trajectories')
+        self.save_filename = collector_config.get('save_filename', 'trajectories')
+
+        # 确保使用绝对路径
+        self.save_dir = Path(save_dir_str).resolve()
+        self.save_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 需要收集的字段列表
+        self.required_fields = [
+            'object_pose',
+            'object_pos',
+            'object_rot',
+            'object_linvel',
+            'object_angvel',
+            'goal_pose',
+            'goal_pos',
+            'goal_rot',
+            'fingertip_state',
+            'fingertip_pos',
+            'actions',
+            'rewards'
+        ]
+        
+        # 已收集的轨迹列表
+        self.collected_trajectories = []
+        
+        # 当前episode的轨迹缓存
+        self.current_trajectory = None
+        
+        # 最大步数限制
+        self.max_steps = 100
+        
+        print(f"[TrajectoryCollector] Will collect {self.num_trajectories} trajectories")
+        print(f"[TrajectoryCollector] Save directory: {self.save_dir}")
+        print(f"[TrajectoryCollector] Required fields: {len(self.required_fields)} fields")
+    
+    def init_trajectory(self):
+        """初始化一条新轨迹"""
+        self.current_trajectory = {field: [] for field in self.required_fields}
+    
+    def add_step(self, state_info):
+        """
+        添加一个时间步的数据到当前轨迹
+        
+        Args:
+            state_info: 包含所需字段的字典
+        """
+        if self.current_trajectory is None:
+            self.init_trajectory()
+        
+        # 遍历所有需要的字段
+        for field in self.required_fields:
+            if field in state_info:
+                value = state_info[field]
+                
+                # 转换tensor为numpy
+                if isinstance(value, torch.Tensor):
+                    value_np = value.cpu().numpy()
+                else:
+                    value_np = value
+                
+                self.current_trajectory[field].append(value_np)
+            else:
+                # 如果字段不存在，记录警告（仅第一次）
+                if len(self.current_trajectory[field]) == 0:
+                    print(f"[TrajectoryCollector] Warning: field '{field}' not found in state_info")
+                self.current_trajectory[field].append(None)
+    
+    def finish_trajectory(self):
+        """完成当前轨迹的收集"""
+        if self.current_trajectory is None or len(self.current_trajectory['actions']) == 0:
+            return
+        
+        # 将列表转换为numpy数组
+        processed_trajectory = {}
+        for field, value_list in self.current_trajectory.items():
+            # 过滤掉None值
+            valid_values = [v for v in value_list if v is not None]
+            
+            if len(valid_values) > 0:
+                try:
+                    # 尝试转换为numpy数组
+                    processed_trajectory[field] = np.array(valid_values)
+                except:
+                    # 如果无法转换（例如shape不一致），保持为列表
+                    processed_trajectory[field] = valid_values
+        
+        # 添加统计信息
+        if 'rewards' in processed_trajectory:
+            processed_trajectory['total_reward'] = np.sum(processed_trajectory['rewards'])
+        processed_trajectory['length'] = len(processed_trajectory['actions']) if 'actions' in processed_trajectory else 0
+        
+        self.collected_trajectories.append(processed_trajectory)
+        
+        total_reward = processed_trajectory.get('total_reward', 0)
+        length = processed_trajectory['length']
+        
+        print(f"[TrajectoryCollector] Trajectory {len(self.collected_trajectories)} collected: "
+              f"length={length}, total_reward={total_reward:.2f}")
+        
+        self.current_trajectory = None
+    
+    def save_trajectories(self):
+        """保存所有收集的轨迹到文件"""
+        if len(self.collected_trajectories) == 0:
+            print("[TrajectoryCollector] No trajectories to save.")
+            return
+        
+        # 保存为字典格式，包含轨迹和元数据
+        save_data = {
+            'trajectories': self.collected_trajectories,
+            'metadata': {
+                'num_trajectories': len(self.collected_trajectories),
+                'timestamp': datetime.now().isoformat()
+            }
+        }
+        
+        save_path = self.save_dir / self.save_filename
+        # 保存为pickle文件
+        with open(save_path, 'wb') as f:
+            pickle.dump(save_data, f)
+        
+        print(f"\n[TrajectoryCollector] Successfully saved {len(self.collected_trajectories)} trajectories to {save_path}")
+
+        return save_path
+    
+    def get_state_info_from_env(self, action, reward):
+        """
+        从环境中提取所需的状态信息
+        
+        Args:
+            action: 当前执行的动作
+            reward: 当前步的奖励
+            
+        Returns:
+            state_info: 包含所需字段的字典
+        """
+        state_info = {}
+        
+        # 从环境中获取状态信息
+        # 假设环境有这些属性，需要根据实际环境调整
+        env = self.env
+        
+        # 尝试获取各个字段
+        field_mappings = {
+            'object_pose': 'object_pose',
+            'object_pos': 'object_pos',
+            'object_rot': 'object_rot',
+            'object_linvel': 'object_linvel',
+            'object_angvel': 'object_angvel',
+            'goal_pose': 'goal_pose',
+            'goal_pos': 'goal_pos',
+            'goal_rot': 'goal_rot',
+            'fingertip_state': 'fingertip_state',
+            'fingertip_pos': 'fingertip_pos',
+        }
+        
+        for field, attr_name in field_mappings.items():
+            if hasattr(env, attr_name):
+                state_info[field] = getattr(env, attr_name)
+            elif hasattr(env, 'task') and hasattr(env.task, attr_name):
+                state_info[field] = getattr(env.task, attr_name)
+        
+        # 添加action和reward
+        state_info['actions'] = action
+        state_info['rewards'] = reward
+        
+        return state_info
+    
+    def get_action(self, obs, is_deterministic=False):
+        """
+        重写get_action方法，保持原有功能
+        """
+        if self.has_batch_dimension == False:
+            obs_input = unsqueeze_obs(obs)
+        else:
+            obs_input = obs
+        
+        obs_input = self._preproc_obs(obs_input)
+        
+        input_dict = {
+            'is_train': False,
+            'prev_actions': None,
+            'obs': obs_input,
+            'rnn_states': self.states
+        }
+        
+        with torch.no_grad():
+            res_dict = self.model(input_dict)
+        
+        mu = res_dict['mus']
+        action = res_dict['actions']
+        self.states = res_dict['rnn_states']
+        
+        if is_deterministic:
+            current_action = mu
+        else:
+            current_action = action
+        
+        if self.has_batch_dimension == False:
+            current_action = torch.squeeze(current_action.detach())
+        
+        if self.clip_actions:
+            return rescale_actions(self.actions_low, self.actions_high, 
+                                 torch.clamp(current_action, -1.0, 1.0))
+        else:
+            return current_action
+    
+    def run(self):
+        """
+        重写run方法，收集指定数量的轨迹
+        """
+        is_deterministic = self.is_deterministic
+        has_masks = False
+        has_masks_func = getattr(self.env, "has_action_mask", None) is not None
+
+        if has_masks_func:
+            has_masks = self.env.has_action_mask()
+
+        self.wait_for_checkpoint()
+        need_init_rnn = self.is_rnn
+        
+        print(f"\n[TrajectoryCollector] Starting trajectory collection...")
+        
+        # 收集指定数量的轨迹
+        while len(self.collected_trajectories) < self.num_trajectories:
+            # 初始化新轨迹
+            self.init_trajectory()
+            
+            # 重置环境
+            obs = self.env_reset(self.env)
+            batch_size = self.get_batch_size(obs, 1)
+
+            if need_init_rnn:
+                self.init_rnn()
+                need_init_rnn = False
+
+            episode_reward = 0
+            episode_steps = 0
+            
+            # 运行一个episode
+            for step in range(self.max_steps):
+                # 获取动作
+                if has_masks:
+                    masks = self.env.get_action_mask()
+                    action = self.get_masked_action(obs, masks, is_deterministic)
+                else:
+                    action = self.get_action(obs, is_deterministic)
+                
+                # 执行动作
+                next_obs, reward, done, info = self.env_step(self.env, action)
+                
+                # 从环境中提取状态信息
+                state_info = self.get_state_info_from_env(action, reward)
+                
+                # 添加到轨迹
+                self.add_step(state_info)
+                
+                episode_reward += reward.item() if isinstance(reward, torch.Tensor) else reward
+                episode_steps += 1
+                
+                obs = next_obs
+                
+                # 检查是否完成
+                if done.any() if isinstance(done, torch.Tensor) else done:
+                    print(f"[TrajectoryCollector] Episode finished: steps={episode_steps}, reward={episode_reward:.2f}")
+                    
+                    # 完成当前轨迹
+                    self.finish_trajectory()
+                    
+                    # 重置RNN状态
+                    if self.is_rnn:
+                        self.init_rnn()
+                    
+                    break
+            
+            # 如果episode没有正常结束（达到最大步数），也保存轨迹
+            if self.current_trajectory is not None:
+                print(f"[TrajectoryCollector] Episode reached max steps: steps={episode_steps}, reward={episode_reward:.2f}")
+                self.finish_trajectory()
+        
+        # 保存所有收集的轨迹
+        self.save_trajectories()
+        
+        print(f"\n[TrajectoryCollector] Collection complete! Total trajectories: {len(self.collected_trajectories)}")
+        
 # 辅助函数
 def unsqueeze_obs(obs):
     """为观察添加batch维度"""

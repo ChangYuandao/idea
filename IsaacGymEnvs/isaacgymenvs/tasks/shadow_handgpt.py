@@ -367,7 +367,7 @@ class ShadowHandGPT(VecTask):
         self.goal_object_indices = to_torch(self.goal_object_indices, dtype=torch.long, device=self.device)
 
     def compute_reward(self, actions):
-        self.rew_buf[:], self.rew_dict = compute_reward(self.object_rot, self.goal_rot)
+        self.rew_buf[:], self.rew_dict = compute_reward(self.object_rot, self.goal_rot, self.fingertip_pos, self.object_pos)
         self.extras['gpt_reward'] = self.rew_buf.mean()
         for rew_state in self.rew_dict: self.extras[rew_state] = self.rew_dict[rew_state].mean()
         self.rew_buf[:] = compute_bonus(
@@ -763,37 +763,44 @@ import math
 import torch
 from torch import Tensor
 @torch.jit.script
-def compute_reward(object_rot: torch.Tensor, goal_rot: torch.Tensor) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
-    # Compute the difference between current object orientation and goal orientation
-    # Using quaternion conjugate multiplication to get relative rotation
-    quat_diff = quat_mul(object_rot, quat_conjugate(goal_rot))
+def compute_reward(object_rot: torch.Tensor, goal_rot: torch.Tensor, fingertip_pos: torch.Tensor, object_pos: torch.Tensor) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+    # Compute orientation alignment reward using quaternion dot product
+    # Quaternion dot product gives us cos(theta/2) where theta is the rotation angle
+    quat_dot = torch.sum(object_rot * goal_rot, dim=-1)
+    # Take absolute value to handle quaternion double cover (q and -q represent same rotation)
+    quat_dot = torch.abs(quat_dot)
     
-    # Extract the angle from the quaternion (w component)
-    # The w component of a unit quaternion is cos(theta/2) where theta is the rotation angle
-    cos_half_angle = quat_diff[:, 0]  # w component
+    # Clamp to valid range [-1, 1] for numerical stability
+    quat_dot = torch.clamp(quat_dot, -1.0, 1.0)
     
-    # Clamp to avoid numerical issues
-    cos_half_angle = torch.clamp(cos_half_angle, -1.0, 1.0)
+    # Convert to alignment reward (higher when closer to 1)
+    orientation_alignment_reward = quat_dot
     
-    # Convert to actual angle difference (in radians)
-    angle_diff = 2.0 * torch.acos(torch.abs(cos_half_angle))
-    
-    # Normalize angle difference to [0, 1] range where 0 is perfect alignment
-    normalized_angle_diff = angle_diff / torch.pi
-    
-    # Create orientation reward: higher when angle difference is smaller
-    # Using exponential to make the reward more sensitive near the target
+    # Temperature parameter for orientation reward transformation
     orientation_temperature = 5.0
-    orientation_reward = torch.exp(-orientation_temperature * normalized_angle_diff)
+    oriented_reward = torch.exp(orientation_temperature * (orientation_alignment_reward - 1.0))
     
-    # Total reward is just the orientation reward since that's the main objective
-    reward = orientation_reward
+    # Compute fingertip distance to object center to encourage grasping
+    # Expand object position to match fingertip dimensions
+    object_pos_expanded = object_pos.unsqueeze(1).expand_as(fingertip_pos)
+    fingertip_to_object_dist = torch.norm(fingertip_pos - object_pos_expanded, dim=-1)
     
-    # Return reward components for debugging/analysis
+    # Mean distance across all fingertips
+    mean_fingertip_distance = torch.mean(fingertip_to_object_dist, dim=-1)
+    
+    # Reward for keeping fingertips close to object (encourages grasp)
+    grasp_temperature = 2.0
+    grasp_reward = torch.exp(-grasp_temperature * mean_fingertip_distance)
+    
+    # Combine rewards
+    total_reward = 1.004827 * oriented_reward + 1.016448 * grasp_reward
+    
+    # Return individual components for monitoring
     reward_components = {
-        "orientation_reward": orientation_reward,
-        "angle_diff_degrees": angle_diff * 180.0 / torch.pi,
-        "normalized_angle_diff": normalized_angle_diff
+        "oriented_reward": oriented_reward,
+        "grasp_reward": grasp_reward,
+        "orientation_alignment": orientation_alignment_reward,
+        "mean_fingertip_distance": mean_fingertip_distance
     }
     
-    return reward, reward_components
+    return total_reward, reward_components

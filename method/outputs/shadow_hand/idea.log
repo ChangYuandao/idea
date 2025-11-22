@@ -1,0 +1,67 @@
+[2025-11-21 17:05:06,826][root][INFO] - Idea Root Dir: /home/changyuandao/changyuandao/paperProject/idea/method
+[2025-11-21 17:05:06,826][root][INFO] - IsaacGymEnvs Root Dir: /home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs
+[2025-11-21 17:05:06,826][root][INFO] - Workspace: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand
+[2025-11-21 17:05:06,826][root][INFO] - Project Root: /home/changyuandao/changyuandao/paperProject/idea/method
+[2025-11-21 17:05:06,903][root][INFO] - Using LLM: qwen3-coder-plus
+[2025-11-21 17:05:06,903][root][INFO] - Task: ShadowHand
+[2025-11-21 17:05:06,903][root][INFO] - Task Description: to make the shadow hand spin the object to a target orientation
+[2025-11-21 17:05:06,903][root][INFO] - Env Parent: isaac
+[2025-11-21 17:05:06,922][root][INFO] - === Iteration 0 ===
+[2025-11-21 17:05:06,922][root][INFO] - Role: EXPLORER
+[2025-11-21 17:05:06,922][root][INFO] - Generating 1 samples with qwen3-coder-plus
+[2025-11-21 17:05:17,031][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-11-21 17:05:17,043][root][INFO] - Iteration 0: Prompt Tokens: 1944, Completion Tokens: 667, Total Tokens: 2611
+[2025-11-21 17:05:17,043][root][INFO] - Role: CONSERVATOR
+[2025-11-21 17:05:17,043][root][INFO] - Generating 1 samples with qwen3-coder-plus
+[2025-11-21 17:05:24,839][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-11-21 17:05:24,840][root][INFO] - Iteration 0: Prompt Tokens: 1933, Completion Tokens: 579, Total Tokens: 2512
+[2025-11-21 17:05:24,841][root][INFO] - Role: INTEGRATOR
+[2025-11-21 17:05:24,841][root][INFO] - Generating 1 samples with qwen3-coder-plus
+[2025-11-21 17:05:32,289][httpx][INFO] - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-11-21 17:05:32,290][root][INFO] - Iteration 0: Prompt Tokens: 1939, Completion Tokens: 507, Total Tokens: 2446
+[2025-11-21 17:05:32,290][root][INFO] - Iteration 0: role_EXPLORER Processing Code Run 0
+[2025-11-21 17:05:42,663][root][INFO] - Iteration 0: Code Run 0 successfully training!
+[2025-11-21 17:05:42,663][root][INFO] - Iteration 0: role_CONSERVATOR Processing Code Run 0
+[2025-11-21 17:05:53,705][root][INFO] - Iteration 0: Code Run 0 successfully training!
+[2025-11-21 17:05:53,706][root][INFO] - Iteration 0: role_INTEGRATOR Processing Code Run 0
+[2025-11-21 17:06:05,505][root][INFO] - Iteration 0: Code Run 0 successfully training!
+[2025-11-21 17:06:05,505][root][INFO] - Role: EXPLORER - Processing RL Results
+[2025-11-21 17:55:02,732][tensorboard][INFO] - No path found after /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/Iteration_0/EXPLORER_0/runs/shadowhandgpt/summaries/events.out.tfevents.1763715937.changyuandao-020318
+[2025-11-21 17:55:02,762][root][INFO] - Role: CONSERVATOR - Processing RL Results
+[2025-11-21 17:55:04,352][tensorboard][INFO] - No path found after /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/Iteration_0/CONSERVATOR_0/runs/shadowhandgpt/summaries/events.out.tfevents.1763715947.changyuandao-020318
+[2025-11-21 17:55:04,389][root][INFO] - Role: INTEGRATOR - Processing RL Results
+[2025-11-21 17:55:05,936][tensorboard][INFO] - No path found after /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/Iteration_0/INTEGRATOR_0/runs/shadowhandgpt/summaries/events.out.tfevents.1763715959.changyuandao-020318
+[2025-11-21 17:55:05,967][root][INFO] - Selecting the best reward function across all roles...
+[2025-11-21 17:55:05,967][root][INFO] - [EXPLORER] Best sample 0: Success=0.0007957856024421138, Corr=nan
+[2025-11-21 17:55:05,967][root][INFO] - [CONSERVATOR] Best sample 0: Success=13.396290626000516, Corr=0.005983551882152968
+[2025-11-21 17:55:05,967][root][INFO] - [INTEGRATOR] Best sample 0: Success=12.519576963952376, Corr=0.22281735681203996
+[2025-11-21 17:55:05,967][root][INFO] - Iteration 0 - 🏆 Global Best Reward Function from Role [CONSERVATOR] - Response ID: 0, 
+[2025-11-21 17:55:05,968][root][INFO] - 📄 Best reward function file: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/env_iter0_role_CONSERVATOR_response0_rewardonly.py
+[2025-11-21 17:55:05,968][root][INFO] - Found temp-like parameter: orientation_temperature = 5.0
+[2025-11-21 17:55:05,968][root][INFO] - Found temp-like parameter: grasp_temperature = 2.0
+[2025-11-21 17:55:05,968][root][INFO] - === Extracted 2 temperature parameters ===
+[2025-11-21 17:55:05,968][root][INFO] - Extracted 2 parameters:
+[2025-11-21 17:55:05,968][root][INFO] -   orientation_temperature: 5.0000 (range: [0.01, 0.5])
+[2025-11-21 17:55:05,968][root][INFO] -   grasp_temperature: 2.0000 (range: [0.01, 0.5])
+[2025-11-21 17:55:06,011][root][INFO] - Starting Preference Learning for Iteration 0
+[2025-11-21 17:55:06,011][root][INFO] - Checkpoint path: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/Iteration_0/CONSERVATOR_0/runs/shadowhandgpt/nn/ShadowHandGPT.pth
+[2025-11-21 17:55:06,011][root][INFO] - Step 1: Collecting trajectories...
+[2025-11-21 17:55:06,011][root][INFO] - Collecting 10 trajectories from checkpoint: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/Iteration_0/CONSERVATOR_0/runs/shadowhandgpt/nn/ShadowHandGPT.pth
+[2025-11-21 17:55:06,011][root][INFO] - Output directory: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand
+[2025-11-21 17:55:06,011][root][INFO] - task: ShadowHand
+[2025-11-21 17:55:06,023][root][INFO] - Rollout process started (PID: 31778)
+[2025-11-21 17:55:06,023][root][INFO] - Log file: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/rollout.log
+[2025-11-21 17:55:26,043][root][INFO] - ✅ Trajectory collection completed successfully
+[2025-11-21 17:55:26,043][root][INFO] - ✅ Trajectory file found: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/iter0_trajectories.pkl
+[2025-11-21 17:55:26,043][root][INFO] - File size: 496.77 KB
+[2025-11-21 17:55:26,043][root][INFO] - Step 2: Loading trajectories...
+[2025-11-21 17:55:26,044][root][INFO] - Step 3: Generating preference pairs...
+[2025-11-21 17:55:26,044][root][ERROR] - ❌ Preference learning failed: local variable 'preferences' referenced before assignment
+[2025-11-21 17:55:26,048][root][ERROR] - Traceback (most recent call last):
+  File "idea.py", line 503, in main
+    if len(preferences) == 0:
+UnboundLocalError: local variable 'preferences' referenced before assignment
+
+[2025-11-21 17:55:26,048][root][INFO] - 
+================================================================================
+

@@ -1,39 +1,25 @@
 import pickle
-import csv
-import os
+import json
+import numpy as np
 
-def export_each_trajectory_to_csv(pkl_path, out_dir):
-    # 创建输出目录
-    os.makedirs(out_dir, exist_ok=True)
+def to_serializable(obj):
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, set):
+        return list(obj)
+    elif isinstance(obj, bytes):
+        return obj.decode(errors="ignore")
+    elif hasattr(obj, "__dict__"):
+        return obj.__dict__
+    else:
+        return str(obj)
 
-    # 读取 pkl
+def pkl_to_json(pkl_path, json_path):
     with open(pkl_path, "rb") as f:
         data = pickle.load(f)
 
-    trajectories = data.get("trajectories", [])
-    print(f"Loaded {len(trajectories)} trajectories.")
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, default=to_serializable, ensure_ascii=False, indent=4)
 
-    # 逐条保存
-    for i, traj in enumerate(trajectories):
-        csv_path = os.path.join(out_dir, f"trajectory_{i}.csv")
-
-        with open(csv_path, "w", newline="", encoding="utf-8") as fcsv:
-            writer = csv.writer(fcsv)
-            writer.writerow(["key", "value"])
-
-            # 把轨迹的所有字段都写进去
-            for key, value in traj.items():
-                writer.writerow([key, str(value)])
-
-        print(f"Saved: {csv_path}")
-
-    print("\nExport finished.")
-
-
-
-# 示例使用
-if __name__ == "__main__":
-    export_each_trajectory_to_csv(
-        "/home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/iter0_trajectories.pkl",
-        "trajectories_export.csv"
-    )
+# 使用方法
+pkl_to_json("/home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/iter0_trajectories.pkl", "/home/changyuandao/changyuandao/paperProject/idea/shadowhand.json")

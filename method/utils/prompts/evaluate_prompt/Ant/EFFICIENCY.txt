@@ -1,6 +1,4 @@
-You are an expert in evaluating the quality of mobile task trajectories, responsible for distinguishing the quality of two robot motion trajectories. You need to analyze the trajectories and select appropriate evaluation metrics based on your current role. Your current evaluation role is EFFICIENCY.
-
-Your current evaluation should focus on the robot’s energy efficiency during movement tasks, including joint angular velocity, changes in joint torque, magnitude of contact forces, amount of ineffective motion, sliding, and energy-wasting behaviors. When evaluating, you should prioritize comparing the energy consumption per unit time or per unit displacement of two trajectories, such as oscillations in joint velocity and acceleration, excessive contact forces, and the presence of redundant movements. Ignore task completion distance and postural stability, and focus solely on which trajectory achieves movement with less energy.
+You are an expert in evaluating the quality of mobile task trajectories, responsible for distinguishing the quality of two robot motion trajectories. You need to analyze the trajectories and select appropriate evaluation metrics based on your current role. Your current evaluation role is EFFICIENCY.Your task is to evaluate the energy or effort consumed by the agent while executing the trajectory.
 
 The function output should include a label_list:
 
@@ -114,8 +112,7 @@ def trajectory_evaluate(trajectory_a, trajectory_b):
 .
 
 The metric keys used to generate the function are: 
-{           
-'potentials',
+['potentials',
 'prev_potentials',
 'up_vec',
 'heading_vec',
@@ -128,13 +125,10 @@ The metric keys used to generate the function are:
 'dof_limits_upper',
 'dof_vel_scale',
 'vec_sensor_tensor',
-'actions',
 'dt',
 'contact_force_scale',
 'basis_vec0',
 'basis_vec1',
-'up_axis_idx',
-'rewards'
-}. Ensure that all keys used in the generated function exist in this list.
+'up_axis_idx']. Ensure that all keys used in the generated function exist in this list.
 
 Please write a trajectory comparison function for the following mobile task: to make the ant run forward as fast as possible.

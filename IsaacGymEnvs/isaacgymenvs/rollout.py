@@ -187,11 +187,12 @@ def launch_rlg_hydra(cfg: DictConfig):
     runner = build_runner(MultiObserver(observers))
     runner.load(rlg_config_dict)
     runner.reset()
-
+    print(f"cfg.task:{cfg.task}")
+    print(f"cfg.task_name:{cfg.task_name}")
     statistics = runner.run({
-        'train': not cfg.test,
-        'play': cfg.test and not cfg.collect,
-        'collect': cfg.test and cfg.collect,
+        'train': False,
+        'play': False,
+        'collect': str(cfg.task_name),
         'checkpoint' : cfg.checkpoint,
         'sigma': cfg.sigma if cfg.sigma != '' else None
     })

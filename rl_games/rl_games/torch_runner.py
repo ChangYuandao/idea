@@ -81,8 +81,9 @@ class Runner:
         self.player_factory.register_builder('a2c_discrete', lambda **kwargs : players.PpoPlayerDiscrete(**kwargs))
         self.player_factory.register_builder('sac', lambda **kwargs : players.SACPlayer(**kwargs))
         
-        # Ant 任务收集轨迹
+        # 任务收集轨迹
         self.player_factory.register_builder('ant_trajectory_collector', lambda **kwargs : players.AntTrajectoryCollector(**kwargs))
+        self.player_factory.register_builder('shadowhand_trajectory_collector', lambda **kwargs : players.ShadowHandTrajectoryCollector(**kwargs))
 
         self.algo_observer = algo_observer if algo_observer else DefaultAlgoObserver()
 
@@ -204,18 +205,30 @@ class Runner:
         player.run()
     
     def run_collect(self, args):
-        """Run the trajectory collection procedure from the algorithm passed in.
-
-        Args:
-            args (:obj:`dict`): Playing specific args passed in as a dict obtained from a yaml file or some other config format.
-
-        """
-        print('Started to collect trajectories')
-        collecter = self.player_factory.create('ant_trajectory_collector', params=self.params)
-        _restore(collecter, args)
-        _override_sigma(collecter, args)
-        collecter.run()
+        """根据任务名称运行对应的轨迹收集程序
         
+        Args:
+            args (:obj:`dict`): 包含collect字段的参数字典，collect应为任务名称(如'Ant', 'Humanoid')
+        """
+        task_name = args.get('collect', '')
+        
+        if not task_name:
+            raise ValueError("collect参数不能为空，需要指定任务名称")
+        
+        # 将任务名转换为小写并添加_trajectory_collector后缀
+        collector_name = f"{task_name.lower()}_trajectory_collector"
+        
+        print(f'Started to collect trajectories for task: {task_name}')
+        print(f'Using collector: {collector_name}')
+        
+        try:
+            collector = self.player_factory.create(collector_name, params=self.params)
+        except KeyError:
+            raise ValueError(f"未找到任务 {task_name} 对应的轨迹收集器: {collector_name}")
+        
+        _restore(collector, args)
+        _override_sigma(collector, args)
+        collector.run()
 
     def create_player(self):
         return self.player_factory.create(self.algo_name, params=self.params)
@@ -234,7 +247,7 @@ class Runner:
             self.run_train(args)
         elif args['play']:
             self.run_play(args)
-        elif args['collect']:
+        elif args.get('collect'):
             self.run_collect(args)
         else:
             self.run_train(args)

@@ -169,73 +169,18 @@ def test_preference_learning(
 
 
 def main():
-    """
-    主函数 - 配置测试参数
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Test Preference Learning")
-    parser.add_argument(
-        "--trajectory_file",
-        default="./outputs/ant/iter0_trajectories.pkl",
-        type=str,
-        required=True,
-        help="Path to trajectory file (.pkl)"
-    )
-    parser.add_argument(
-        "--reward_file",
-        type=str,
-        default="./outputs/ant/env_iter0_role_EXPLORER_response0_rewardonly.py",
-        required=True,
-        help="Path to reward function file (_rewardonly.py)"
-    )
-    parser.add_argument(
-        "--evaluate_dir",
-        type=str,
-        default="./utils/prompts/evaluate_function/Ant",
-        help="Path to evaluation function directory"
-    )
-    parser.add_argument(
-        "--task",
-        type=str,
-        default="Ant",
-        help="Task name (default: Ant)"
-    )
-    parser.add_argument(
-        "--min_consecutive",
-        type=int,
-        default=5,
-        help="Minimum consecutive preference steps (default: 5)"
-    )
-    parser.add_argument(
-        "--beta",
-        type=float,
-        default=1.0,
-        help="Rationality coefficient (default: 1.0)"
-    )
-    
-    args = parser.parse_args()
-    
-    # 如果没有指定 evaluate_dir,使用默认路径
-    if args.evaluate_dir is None:
-        args.evaluate_dir = os.path.join(
-            EUREKA_ROOT_DIR,
-            "utils/prompts/evaluate_function",
-            args.task
-        )
-    
+
+
     # 运行测试
-    success = test_preference_learning(
-        trajectory_file=args.trajectory_file,
-        reward_file=args.reward_file,
-        evaluate_dir=args.evaluate_dir,
-        task_name=args.task,
-        min_consecutive_steps=args.min_consecutive,
-        beta=args.beta
+    test_preference_learning(
+        trajectory_file="/home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/iter0_trajectories.pkl",
+        reward_file="/home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/env_iter0_role_CONSERVATOR_response0_rewardonly.py",
+        evaluate_dir="/home/changyuandao/changyuandao/paperProject/idea/method/utils/prompts/evaluate_function/ShadowHand",
+        task_name="ShadowHand",
+        min_consecutive_steps=5,
+        beta=1.0
     )
     
-    # 退出码
-    sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":

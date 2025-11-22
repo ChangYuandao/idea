@@ -35,7 +35,7 @@ def collect_trajectories_from_checkpoint(
     logging.info(f"Collecting {num_trajectories} trajectories from checkpoint: {checkpoint_path}")
     logging.info(f"Output directory: {output_dir}")
     
-    # 构建rollout命令
+    logging.info(f"task: {task_name}")
     rollout_cmd = [
         'python', '-u', f'{isaac_root_dir}/rollout.py',
         f'task={task_name}',
@@ -43,8 +43,6 @@ def collect_trajectories_from_checkpoint(
         f'save_dir={str(output_dir)}',  # 传递保存目录
         f'num_trajectories={num_trajectories}',
         f'save_filename={save_filename}',
-        'test=True',  # 添加：进入测试模式
-        'collect=True',  # 添加：启用轨迹收集
     ]
     
     # 执行rollout命令

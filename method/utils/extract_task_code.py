@@ -105,3 +105,35 @@ def get_function_signature(code_string):
         input_lst.append(arg.arg)
     return signature, input_lst
 
+
+def normalize_total_reward(code_string: str) -> str:
+    # 截取从第一个 def 开始的部分
+    lines = code_string.splitlines()
+    for idx, line in enumerate(lines):
+        if line.strip().startswith("def "):
+            lines = lines[idx:]
+            break
+
+    # 合并多行 total_reward
+    for i, line in enumerate(lines):
+        if re.match(r'\s*total_reward\s*=', line):
+            # 如果该行到 ) 结束不在同一行，继续向下合并
+            if '(' in line and ')' not in line:
+                indent = re.match(r'^(\s*)', line).group(1)
+                combined = line.strip()
+                j = i + 1
+                while j < len(lines):
+                    combined += ' ' + lines[j].strip()
+                    if ')' in lines[j]:
+                        break
+                    j += 1
+                # 规范空格
+                combined = re.sub(r'\s+', ' ', combined)
+                lines[i] = indent + combined
+                # 删除已合并的后续行
+                for k in range(i + 1, j + 1):
+                    lines[k] = None
+            break
+
+    new_lines = [l for l in lines if l is not None]
+    return "\n".join(new_lines)

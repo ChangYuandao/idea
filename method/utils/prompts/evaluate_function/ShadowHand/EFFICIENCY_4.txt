@@ -1,0 +1,88 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract object and goal positions
+        object_pos_a = state_a_info['object_pos'][:, :3]  # shape (1, 3)
+        object_pos_b = state_b_info['object_pos'][:, :3]  # shape (1, 3)
+        goal_pos_a = state_a_info['goal_pos'][:, :3]      # shape (1, 3)
+        goal_pos_b = state_b_info['goal_pos'][:, :3]      # shape (1, 3)
+
+        # Extract object and goal orientations
+        object_rot_a = state_a_info['object_rot'][:, :4]  # quaternion (w, x, y, z)
+        object_rot_b = state_b_info['object_rot'][:, :4]  # quaternion (w, x, y, z)
+        goal_rot_a = state_a_info['goal_rot'][:, :4]      # quaternion (w, x, y, z)
+        goal_rot_b = state_b_info['goal_rot'][:, :4]      # quaternion (w, x, y, z)
+
+        # Calculate orientation error (angular distance between object and goal orientations)
+        # Using quaternion dot product to find angular difference
+        # Normalize quaternions first
+        object_rot_a_norm = object_rot_a / np.linalg.norm(object_rot_a, axis=1, keepdims=True)
+        goal_rot_a_norm = goal_rot_a / np.linalg.norm(goal_rot_a, axis=1, keepdims=True)
+        object_rot_b_norm = object_rot_b / np.linalg.norm(object_rot_b, axis=1, keepdims=True)
+        goal_rot_b_norm = goal_rot_b / np.linalg.norm(goal_rot_b, axis=1, keepdims=True)
+
+        # Dot product gives cosine of half the angle between quaternions
+        dot_prod_a = np.sum(object_rot_a_norm * goal_rot_a_norm, axis=1)
+        dot_prod_b = np.sum(object_rot_b_norm * goal_rot_b_norm, axis=1)
+
+        # Take absolute value since q and -q represent same rotation
+        dot_prod_a = np.abs(dot_prod_a)
+        dot_prod_b = np.abs(dot_prod_b)
+
+        # Convert to angle (smaller angle is better)
+        orientation_error_a = 2 * np.arccos(np.clip(dot_prod_a, -1.0, 1.0))
+        orientation_error_b = 2 * np.arccos(np.clip(dot_prod_b, -1.0, 1.0))
+
+        # Calculate object position error (distance to goal position)
+        pos_error_a = np.linalg.norm(object_pos_a - goal_pos_a, axis=1)
+        pos_error_b = np.linalg.norm(object_pos_b - goal_pos_b, axis=1)
+
+        # Extract fingertip positions
+        fingertip_pos_a = state_a_info['fingertip_pos']  # shape (num_envs, num_fingertips, 3)
+        fingertip_pos_b = state_b_info['fingertip_pos']  # shape (num_envs, num_fingertips, 3)
+
+        # Calculate distance from fingertips to object for both trajectories
+        # Reshape object_pos to broadcast with fingertip_pos
+        object_pos_a_expanded = np.expand_dims(object_pos_a, axis=1)  # (num_envs, 1, 3)
+        object_pos_b_expanded = np.expand_dims(object_pos_b, axis=1)  # (num_envs, 1, 3)
+
+        # Calculate fingertip-to-object distances
+        fingertip_to_object_a = np.linalg.norm(fingertip_pos_a - object_pos_a_expanded, axis=2)  # (num_envs, num_fingertips)
+        fingertip_to_object_b = np.linalg.norm(fingertip_pos_b - object_pos_b_expanded, axis=2)  # (num_envs, num_fingertips)
+
+        # Calculate minimum fingertip-to-object distance (indicating grasp contact)
+        min_fingertip_obj_dist_a = np.min(fingertip_to_object_a, axis=1)  # (num_envs,)
+        min_fingertip_obj_dist_b = np.min(fingertip_to_object_b, axis=1)  # (num_envs,)
+
+        # Evaluate efficiency based on orientation error and grasp stability
+        # Lower orientation error and closer fingertip-to-object distances indicate better efficiency
+        if orientation_error_a < orientation_error_b and min_fingertip_obj_dist_a <= min_fingertip_obj_dist_b:
+            label_list.append(1)
+        elif orientation_error_a > orientation_error_b and min_fingertip_obj_dist_a >= min_fingertip_obj_dist_b:
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list

@@ -3,40 +3,43 @@ import math
 import torch
 from torch import Tensor
 @torch.jit.script
-def compute_reward(root_states: torch.Tensor, targets: torch.Tensor, potentials: torch.Tensor, prev_potentials: torch.Tensor, actions: torch.Tensor, dt: float) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
-    # Extract relevant information
+def compute_reward(root_states: torch.Tensor, targets: torch.Tensor, dt: float) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+    # Extract relevant information from root_states
     torso_position = root_states[:, 0:3]
     velocity = root_states[:, 7:10]
     
-    # Compute distance to target (potential progress reward)
+    # Calculate distance to target (forward progress)
     to_target = targets - torso_position
-    to_target[:, 2] = 0.0  # Ignore height difference
-    current_potential = -torch.norm(to_target, p=2.0, dim=-1) / dt
-    potential_diff = current_potential - prev_potentials
+    to_target[:, 2] = 0.0  # Ignore z-axis for forward progress
+    distance_to_target = torch.norm(to_target, p=2.0, dim=-1)
     
-    # Forward velocity reward (encourage movement in forward direction)
+    # Reward for moving forward (negative change in distance to target)
+    forward_reward = -(distance_to_target - torch.norm(targets - torso_position.detach(), p=2.0, dim=-1)) / dt
+    
+    # Reward for speed in the forward direction
     forward_velocity = velocity[:, 0]  # Assuming x-axis is forward direction
-    forward_velocity_reward = forward_velocity
+    speed_reward = forward_velocity
     
-    # Energy efficiency penalty (prevent excessive action usage)
-    action_penalty_temp = 0.224450
-    action_penalty = -torch.sum(actions ** 2, dim=-1) * action_penalty_temp
+    # Penalty for lateral movement
+    lateral_movement_penalty = -torch.abs(velocity[:, 1])  # Assuming y-axis is lateral
     
-    # Height stability reward (keep torso at reasonable height)
-    target_height = 0.5
-    height_deviation = torch.abs(torso_position[:, 2] - target_height)
-    height_reward_temp = 0.225233
-    height_reward = -height_deviation * height_reward_temp
+    # Penalty for vertical movement (to encourage staying on ground)
+    vertical_movement_penalty = -torch.abs(velocity[:, 2])  # Assuming z-axis is vertical
     
-    # Total reward composition
-    total_reward = potential_diff + 0.995251 * forward_velocity_reward + 1.161059 * action_penalty + 1.033114 * height_reward
+    # Energy efficiency penalty (to encourage efficient movement)
+    energy_penalty_temperature = 0.1
+    energy_penalty = -torch.exp(energy_penalty_temperature * torch.norm(velocity, p=2.0, dim=-1))
     
-    # Return individual components for analysis
+    # Combine rewards and penalties
+    total_reward = ( 2.719379 * forward_reward + 2.383918 * speed_reward + 2.784904 * lateral_movement_penalty + 2.872568 * vertical_movement_penalty + 2.641255 * energy_penalty )
+    
+    # Return individual reward components for analysis
     reward_components = {
-        "potential_diff": potential_diff,
-        "forward_velocity": forward_velocity_reward,
-        "action_penalty": action_penalty,
-        "height_reward": height_reward
+        "forward_reward": forward_reward,
+        "speed_reward": speed_reward,
+        "lateral_penalty": lateral_movement_penalty,
+        "vertical_penalty": vertical_movement_penalty,
+        "energy_penalty": energy_penalty
     }
     
     return total_reward, reward_components

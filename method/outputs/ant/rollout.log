@@ -12,7 +12,7 @@ Loading extension module gymtorch...
 Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
 Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
 See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
-2025-11-19 19:15:39,611 - INFO - logger - logger initialized
+2025-11-20 20:02:37,360 - INFO - logger - logger initialized
 <unknown>:3: DeprecationWarning: invalid escape sequence \*
 Error: FBX library failed to load - importing FBX data will not succeed. Message: No module named 'fbx'
 FBX tools must be installed from https://help.autodesk.com/view/FBX/2020/ENU/?guid=FBX_Developer_Help_scripting_with_python_fbx_installing_python_fbx_html
@@ -47,8 +47,8 @@ See https://hydra.cc/docs/1.2/upgrades/1.1_to_1.2/changes_to_job_working_dir/ fo
 Setting seed: 42
 save_dir: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant
 [Rollout] Collector config set: save_dir=/home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant
-Network Directory: /home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/outputs/rollout/2025-11-19_19-15-40/runs/AntGPT-2025-11-19_19-15-41/nn
-Tensorboard Directory: /home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/outputs/rollout/2025-11-19_19-15-40/runs/AntGPT-2025-11-19_19-15-41/summaries
+Network Directory: /home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/outputs/rollout/2025-11-20_20-02-37/runs/AntGPT-2025-11-20_20-02-38/nn
+Tensorboard Directory: /home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/outputs/rollout/2025-11-20_20-02-37/runs/AntGPT-2025-11-20_20-02-38/summaries
 self.seed = 42
 Started to collect trajectories
 [BasePlayer] Creating regular env:  rlgpu
@@ -71,51 +71,51 @@ RunningMeanStd:  (60,)
 [TrajectoryCollector] Will collect 10 trajectories
 [TrajectoryCollector] Save directory: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant
 [TrajectoryCollector] Required fields: 20 fields
-=> loading checkpoint '/home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/INTEGRATOR_0/runs/antgpt/nn/AntGPT.pth'
+=> loading checkpoint '/home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/Iteration_0/EXPLORER_0/runs/antgpt/nn/AntGPT.pth'
 /home/changyuandao/changyuandao/paperProject/idea/rl_games/rl_games/algos_torch/torch_ext.py:104: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
   checkpoint = torch.load(filename, map_location='cpu')
 
 [TrajectoryCollector] Starting trajectory collection...
 self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
 Inferred batch_size: 1
-[TrajectoryCollector] Episode reached max steps: steps=200, reward=972.95
-[TrajectoryCollector] Trajectory 1 collected: length=200, total_reward=972.95
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=439.59
+[TrajectoryCollector] Trajectory 1 collected: length=100, total_reward=439.59
 self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
 Inferred batch_size: 1
-[TrajectoryCollector] Episode reached max steps: steps=200, reward=1147.14
-[TrajectoryCollector] Trajectory 2 collected: length=200, total_reward=1147.14
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=733.69
+[TrajectoryCollector] Trajectory 2 collected: length=100, total_reward=733.69
 self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
 Inferred batch_size: 1
-[TrajectoryCollector] Episode reached max steps: steps=200, reward=1063.11
-[TrajectoryCollector] Trajectory 3 collected: length=200, total_reward=1063.11
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=821.03
+[TrajectoryCollector] Trajectory 3 collected: length=100, total_reward=821.03
 self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
 Inferred batch_size: 1
-[TrajectoryCollector] Episode reached max steps: steps=200, reward=1110.05
-[TrajectoryCollector] Trajectory 4 collected: length=200, total_reward=1110.05
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=721.89
+[TrajectoryCollector] Trajectory 4 collected: length=100, total_reward=721.89
 self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
 Inferred batch_size: 1
-[TrajectoryCollector] Episode finished: steps=200, reward=161.70
-[TrajectoryCollector] Trajectory 5 collected: length=200, total_reward=161.70
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=896.23
+[TrajectoryCollector] Trajectory 5 collected: length=100, total_reward=896.23
 self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
 Inferred batch_size: 1
-[TrajectoryCollector] Episode reached max steps: steps=200, reward=815.00
-[TrajectoryCollector] Trajectory 6 collected: length=200, total_reward=815.00
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=863.09
+[TrajectoryCollector] Trajectory 6 collected: length=100, total_reward=863.09
 self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
 Inferred batch_size: 1
-[TrajectoryCollector] Episode reached max steps: steps=200, reward=369.30
-[TrajectoryCollector] Trajectory 7 collected: length=200, total_reward=369.30
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=796.78
+[TrajectoryCollector] Trajectory 7 collected: length=100, total_reward=796.78
 self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
 Inferred batch_size: 1
-[TrajectoryCollector] Episode reached max steps: steps=200, reward=1034.21
-[TrajectoryCollector] Trajectory 8 collected: length=200, total_reward=1034.21
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=974.59
+[TrajectoryCollector] Trajectory 8 collected: length=100, total_reward=974.59
 self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
 Inferred batch_size: 1
-[TrajectoryCollector] Episode reached max steps: steps=200, reward=862.97
-[TrajectoryCollector] Trajectory 9 collected: length=200, total_reward=862.97
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=885.42
+[TrajectoryCollector] Trajectory 9 collected: length=100, total_reward=885.42
 self.obs_shape: (60,), obses.size(): torch.Size([1, 60])
 Inferred batch_size: 1
-[TrajectoryCollector] Episode finished: steps=200, reward=935.98
-[TrajectoryCollector] Trajectory 10 collected: length=200, total_reward=935.98
+[TrajectoryCollector] Episode finished: steps=100, reward=795.08
+[TrajectoryCollector] Trajectory 10 collected: length=100, total_reward=795.08
 
 [TrajectoryCollector] Successfully saved 10 trajectories to /home/changyuandao/changyuandao/paperProject/idea/method/outputs/ant/iter0_trajectories.pkl
 

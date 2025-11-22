@@ -1,0 +1,126 @@
+Importing module 'gym_38' (/home/changyuandao/changyuandao/experimentEnv/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)
+Setting GYM_USD_PLUG_INFO_PATH to /home/changyuandao/changyuandao/experimentEnv/isaacgym/python/isaacgym/_bindings/linux-x86_64/usd/plugInfo.json
+PyTorch version 2.4.1+cu121
+Device count 1
+/home/changyuandao/changyuandao/experimentEnv/isaacgym/python/isaacgym/_bindings/src/gymtorch
+Using /home/changyuandao/.cache/torch_extensions/py38_cu121 as PyTorch extensions root...
+Emitting ninja build file /home/changyuandao/.cache/torch_extensions/py38_cu121/gymtorch/build.ninja...
+Building extension module gymtorch...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+ninja: no work to do.
+Loading extension module gymtorch...
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+2025-11-21 17:55:07,814 - INFO - logger - logger initialized
+<unknown>:3: DeprecationWarning: invalid escape sequence \*
+Error: FBX library failed to load - importing FBX data will not succeed. Message: No module named 'fbx'
+FBX tools must be installed from https://help.autodesk.com/view/FBX/2020/ENU/?guid=FBX_Developer_Help_scripting_with_python_fbx_installing_python_fbx_html
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/networkx/classes/graph.py:23: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working
+  from collections import Mapping
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/networkx/classes/reportviews.py:95: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working
+  from collections import Mapping, Set, Iterable
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/networkx/readwrite/graphml.py:346: DeprecationWarning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  (np.int, "int"), (np.int8, "int"),
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/networkx/drawing/nx_pydot.py:27: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+  from pkg_resources import parse_version
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/pkg_resources/__init__.py:3154: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/pkg_resources/__init__.py:3154: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/rollout.py:55: UserWarning: 
+The version_base parameter is not specified.
+Please specify a compatability version level, or None.
+Will assume defaults for version 1.1
+  @hydra.main(config_name="config", config_path="./cfg")
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/hydra/_internal/defaults_list.py:415: UserWarning: In config: Invalid overriding of hydra/job_logging:
+Default list overrides requires 'override' keyword.
+See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/defaults_list_override for more information.
+
+  deprecation_warning(msg)
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/hydra/_internal/hydra.py:119: UserWarning: Future Hydra versions will no longer change working directory at job runtime by default.
+See https://hydra.cc/docs/1.2/upgrades/1.1_to_1.2/changes_to_job_working_dir/ for more information.
+  ret = run_job(
+Setting seed: 42
+save_dir: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand
+[Rollout] Collector config set: save_dir=/home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand
+Network Directory: /home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/outputs/rollout/2025-11-21_17-55-08/runs/ShadowHandGPT-2025-11-21_17-55-09/nn
+Tensorboard Directory: /home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/outputs/rollout/2025-11-21_17-55-08/runs/ShadowHandGPT-2025-11-21_17-55-09/summaries
+self.seed = 42
+cfg.task:{'name': 'ShadowHand', 'physics_engine': '${..physics_engine}', 'env': {'numEnvs': '${resolve_default:8192,${...num_envs}}', 'envSpacing': 0.75, 'episodeLength': 600, 'enableDebugVis': False, 'aggregateMode': 1, 'clipObservations': 5.0, 'clipActions': 1.0, 'stiffnessScale': 1.0, 'forceLimitScale': 1.0, 'useRelativeControl': False, 'dofSpeedScale': 20.0, 'actionsMovingAverage': 1.0, 'controlFrequencyInv': 1, 'startPositionNoise': 0.01, 'startRotationNoise': 0.0, 'resetPositionNoise': 0.01, 'resetRotationNoise': 0.0, 'resetDofPosRandomInterval': 0.2, 'resetDofVelRandomInterval': 0.0, 'forceScale': 0.0, 'forceProbRange': [0.001, 0.1], 'forceDecay': 0.99, 'forceDecayInterval': 0.08, 'distRewardScale': -10.0, 'rotRewardScale': 1.0, 'rotEps': 0.1, 'actionPenaltyScale': -0.0002, 'reachGoalBonus': 250, 'fallDistance': 0.24, 'fallPenalty': 0.0, 'objectType': 'block', 'observationType': 'full_state', 'asymmetric_observations': False, 'successTolerance': 0.1, 'printNumSuccesses': False, 'maxConsecutiveSuccesses': 0, 'asset': {'assetFileName': 'mjcf/open_ai_assets/hand/shadow_hand.xml', 'assetFileNameBlock': 'urdf/objects/cube_multicolor.urdf', 'assetFileNameEgg': 'mjcf/open_ai_assets/hand/egg.xml', 'assetFileNamePen': 'mjcf/open_ai_assets/hand/pen.xml'}, 'enableCameraSensors': False}, 'task': {'randomize': False, 'randomization_params': {'frequency': 720, 'observations': {'range': [0, 0.002], 'range_correlated': [0, 0.001], 'operation': 'additive', 'distribution': 'gaussian'}, 'actions': {'range': [0.0, 0.05], 'range_correlated': [0, 0.015], 'operation': 'additive', 'distribution': 'gaussian'}, 'sim_params': {'gravity': {'range': [0, 0.4], 'operation': 'additive', 'distribution': 'gaussian'}}, 'actor_params': {'hand': {'color': True, 'tendon_properties': {'damping': {'range': [0.3, 3.0], 'operation': 'scaling', 'distribution': 'loguniform'}, 'stiffness': {'range': [0.75, 1.5], 'operation': 'scaling', 'distribution': 'loguniform'}}, 'dof_properties': {'damping': {'range': [0.3, 3.0], 'operation': 'scaling', 'distribution': 'loguniform'}, 'stiffness': {'range': [0.75, 1.5], 'operation': 'scaling', 'distribution': 'loguniform'}, 'lower': {'range': [0, 0.01], 'operation': 'additive', 'distribution': 'gaussian'}, 'upper': {'range': [0, 0.01], 'operation': 'additive', 'distribution': 'gaussian'}}, 'rigid_body_properties': {'mass': {'range': [0.5, 1.5], 'operation': 'scaling', 'distribution': 'uniform', 'setup_only': True}}, 'rigid_shape_properties': {'friction': {'num_buckets': 250, 'range': [0.7, 1.3], 'operation': 'scaling', 'distribution': 'uniform'}}}, 'object': {'scale': {'range': [0.95, 1.05], 'operation': 'scaling', 'distribution': 'uniform', 'setup_only': True}, 'rigid_body_properties': {'mass': {'range': [0.5, 1.5], 'operation': 'scaling', 'distribution': 'uniform', 'setup_only': True}}, 'rigid_shape_properties': {'friction': {'num_buckets': 250, 'range': [0.7, 1.3], 'operation': 'scaling', 'distribution': 'uniform'}}}}}}, 'sim': {'dt': 0.01667, 'substeps': 2, 'up_axis': 'z', 'use_gpu_pipeline': '${eq:${...pipeline},"gpu"}', 'gravity': [0.0, 0.0, -9.81], 'physx': {'num_threads': '${....num_threads}', 'solver_type': '${....solver_type}', 'use_gpu': '${contains:"cuda",${....sim_device}}', 'num_position_iterations': 8, 'num_velocity_iterations': 0, 'max_gpu_contact_pairs': 8388608, 'num_subscenes': '${....num_subscenes}', 'contact_offset': 0.002, 'rest_offset': 0.0, 'bounce_threshold_velocity': 0.2, 'max_depenetration_velocity': 1000.0, 'default_buffer_size_multiplier': 5.0, 'contact_collection': 0}}}
+cfg.task_name:ShadowHand
+Started to collect trajectories for task: ShadowHand
+Using collector: shadowhand_trajectory_collector
+[BasePlayer] Creating regular env:  rlgpu
+Could not import task from file, trying from isaacgym_task_map
+Obs type: full_state
+/home/changyuandao/.conda/envs/rlgpu/lib/python3.8/site-packages/gym/spaces/box.py:84: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
+[Warning] [carb.gym.plugin] useGpu is set, forcing single scene (0 subscenes)
+Not connected to PVD
++++ Using GPU PhysX
+Physics Engine: PhysX
+Physics Device: cuda:0
+GPU Pipeline: enabled
+/home/changyuandao/changyuandao/paperProject/idea/IsaacGymEnvs/isaacgymenvs/tasks/shadow_hand.py:245: DeprecationWarning: an integer is required (got type isaacgym._bindings.linux-x86_64.gym_38.DofDriveMode).  Implicit conversion to integers using __int__ is deprecated, and may be removed in a future version of Python.
+  asset_options.default_dof_drive_mode = gymapi.DOF_MODE_NONE
+JointSpec type free not yet supported!
+{'observation_space': Box(-inf, inf, (211,), float32), 'action_space': Box(-1.0, 1.0, (20,), float32), 'agents': 1, 'value_size': 1}
+build mlp: 211
+RunningMeanStd:  (1,)
+RunningMeanStd:  (211,)
+[TrajectoryCollector] Will collect 10 trajectories
+[TrajectoryCollector] Save directory: /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand
+[TrajectoryCollector] Required fields: 12 fields
+=> loading checkpoint '/home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/Iteration_0/CONSERVATOR_0/runs/shadowhandgpt/nn/ShadowHandGPT.pth'
+/home/changyuandao/changyuandao/paperProject/idea/rl_games/rl_games/algos_torch/torch_ext.py:104: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(filename, map_location='cpu')
+
+[TrajectoryCollector] Starting trajectory collection...
+self.obs_shape: (211,), obses.size(): torch.Size([1, 211])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=792.16
+[TrajectoryCollector] Trajectory 1 collected: length=100, total_reward=792.16
+self.obs_shape: (211,), obses.size(): torch.Size([1, 211])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode finished: steps=33, reward=252.07
+[TrajectoryCollector] Trajectory 2 collected: length=33, total_reward=252.07
+self.obs_shape: (211,), obses.size(): torch.Size([1, 211])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=1068.07
+[TrajectoryCollector] Trajectory 3 collected: length=100, total_reward=1068.07
+self.obs_shape: (211,), obses.size(): torch.Size([1, 211])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=1069.79
+[TrajectoryCollector] Trajectory 4 collected: length=100, total_reward=1069.79
+self.obs_shape: (211,), obses.size(): torch.Size([1, 211])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=530.81
+[TrajectoryCollector] Trajectory 5 collected: length=100, total_reward=530.81
+self.obs_shape: (211,), obses.size(): torch.Size([1, 211])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=1095.87
+[TrajectoryCollector] Trajectory 6 collected: length=100, total_reward=1095.87
+self.obs_shape: (211,), obses.size(): torch.Size([1, 211])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=1347.79
+[TrajectoryCollector] Trajectory 7 collected: length=100, total_reward=1347.79
+self.obs_shape: (211,), obses.size(): torch.Size([1, 211])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode finished: steps=99, reward=1336.71
+[TrajectoryCollector] Trajectory 8 collected: length=99, total_reward=1336.71
+self.obs_shape: (211,), obses.size(): torch.Size([1, 211])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=807.87
+[TrajectoryCollector] Trajectory 9 collected: length=100, total_reward=807.87
+self.obs_shape: (211,), obses.size(): torch.Size([1, 211])
+Inferred batch_size: 1
+[TrajectoryCollector] Episode reached max steps: steps=100, reward=1066.77
+[TrajectoryCollector] Trajectory 10 collected: length=100, total_reward=1066.77
+
+[TrajectoryCollector] Successfully saved 10 trajectories to /home/changyuandao/changyuandao/paperProject/idea/method/outputs/shadow_hand/iter0_trajectories.pkl
+
+[TrajectoryCollector] Collection complete! Total trajectories: 10

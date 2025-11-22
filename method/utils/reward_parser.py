@@ -12,6 +12,7 @@ from typing import Dict, Tuple
 
 
 
+
 def extract_reward_parameters(reward_file_path: str) -> Tuple[Dict[str, Tuple[float, float]], Dict[str, float]]:
     """
     从奖励函数文件中提取可调参数（更鲁棒版本）
@@ -30,7 +31,7 @@ def extract_reward_parameters(reward_file_path: str) -> Tuple[Dict[str, Tuple[fl
     initial_values: Dict[str, float] = {}
 
     # --- 1️⃣ 提取所有 _temp 参数 ---
-    temp_pattern = r'(\w+_temp)\s*=\s*([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)'
+    temp_pattern = r'(\w+_temp|temperature)\s*=\s*([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)'
     for param_name, value in re.findall(temp_pattern, code):
         try:
             val = float(value)
@@ -116,6 +117,7 @@ def extract_reward_parameters(reward_file_path: str) -> Tuple[Dict[str, Tuple[fl
 
 
 
+
 def load_reward_function_code(reward_file_path: str) -> str:
     """
     加载奖励函数代码
@@ -131,24 +133,6 @@ def load_reward_function_code(reward_file_path: str) -> str:
     return code
 
 
-def extract_compute_reward_function(code: str) -> str:
-    """
-    从代码中提取 compute_reward 函数定义
-    
-    Args:
-        code: 完整代码字符串
-    
-    Returns:
-        compute_reward 函数的代码字符串
-    """
-    # 匹配 def compute_reward 开始到下一个同级 def 或文件结束
-    pattern = r'(def\s+compute_reward\s*\([^)]*\):.*?)(?=\ndef\s+\w+|$)'
-    match = re.search(pattern, code, re.DOTALL)
-    
-    if match:
-        return match.group(1)
-    else:
-        raise ValueError("Could not find compute_reward function in code")
 
 
 def create_parameterized_reward_code(original_code: str, params: Dict[str, float]) -> str:

@@ -382,40 +382,38 @@ def compute_reward(root_states: torch.Tensor, targets: torch.Tensor, dt: float) 
     torso_position = root_states[:, 0:3]
     velocity = root_states[:, 7:10]
     
-    # Calculate forward velocity (assuming x-axis is forward direction)
-    forward_velocity = velocity[:, 0]
-    
-    # Calculate distance to target
+    # Calculate distance to target (forward progress)
     to_target = targets - torso_position
-    to_target[:, 2] = 0.0  # Ignore z-component for horizontal distance
-    distance_to_target = torch.norm(to_target, p=2, dim=-1)
+    to_target[:, 2] = 0.0  # Ignore z-axis for forward progress
+    distance_to_target = torch.norm(to_target, p=2.0, dim=-1)
     
-    # Primary reward: forward velocity
-    forward_vel_reward = forward_velocity
+    # Reward for moving forward (negative change in distance to target)
+    forward_reward = -(distance_to_target - torch.norm(targets - torso_position.detach(), p=2.0, dim=-1)) / dt
     
-    # Progress reward: negative distance to target (encourage moving toward target)
-    progress_reward = -distance_to_target / dt
+    # Reward for speed in the forward direction
+    forward_velocity = velocity[:, 0]  # Assuming x-axis is forward direction
+    speed_reward = forward_velocity
     
-    # Exploration bonus: exponential of forward velocity to encourage high speeds
-    exploration_temp = 0.1
-    exploration_bonus = torch.exp(forward_velocity * exploration_temp)
+    # Penalty for lateral movement
+    lateral_movement_penalty = -torch.abs(velocity[:, 1])  # Assuming y-axis is lateral
     
-    # Stability penalty: discourage excessive angular velocity
-    ang_velocity = root_states[:, 10:13]
-    angular_vel_penalty = -torch.norm(ang_velocity, p=2, dim=-1) * 0.01
+    # Penalty for vertical movement (to encourage staying on ground)
+    vertical_movement_penalty = -torch.abs(velocity[:, 2])  # Assuming z-axis is vertical
     
-    # Combine rewards
-    total_reward = forward_vel_reward + progress_reward + exploration_bonus + angular_vel_penalty
+    # Energy efficiency penalty (to encourage efficient movement)
+    energy_penalty_temperature = 0.1
+    energy_penalty = -torch.exp(energy_penalty_temperature * torch.norm(velocity, p=2.0, dim=-1))
     
-    # Normalize reward to a fixed range using tanh
-    total_reward = torch.tanh(total_reward)
+    # Combine rewards and penalties
+    total_reward = ( forward_reward + speed_reward + 0.5 * lateral_movement_penalty + 0.1 * vertical_movement_penalty + 0.01 * energy_penalty )
     
     # Return individual reward components for analysis
     reward_components = {
-        "forward_velocity": forward_vel_reward,
-        "progress": progress_reward,
-        "exploration_bonus": exploration_bonus,
-        "angular_velocity_penalty": angular_vel_penalty
+        "forward_reward": forward_reward,
+        "speed_reward": speed_reward,
+        "lateral_penalty": lateral_movement_penalty,
+        "vertical_penalty": vertical_movement_penalty,
+        "energy_penalty": energy_penalty
     }
     
     return total_reward, reward_components

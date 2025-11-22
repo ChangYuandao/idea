@@ -21,20 +21,20 @@ from utils.reward_updater import update_reward_function_with_params
 from utils.reward_parser import extract_reward_parameters, load_reward_function_code
 
 # 当前脚本所在目录
-EUREKA_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+IDEA_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # 回到 idea，再进入 isaacGymEnvs
-ISAAC_ROOT_DIR = os.path.abspath(os.path.join(EUREKA_ROOT_DIR, "../IsaacGymEnvs/isaacgymenvs"))
+ISAAC_ROOT_DIR = os.path.abspath(os.path.join(IDEA_ROOT_DIR, "../IsaacGymEnvs/isaacgymenvs"))
 
 
 @hydra.main(config_path="cfg", config_name="config", version_base="1.1")
 def main(cfg):
 
     workspace_dir = Path.cwd()
-    logging.info(f"Eureka Root Dir: {EUREKA_ROOT_DIR}")
+    logging.info(f"Idea Root Dir: {IDEA_ROOT_DIR}")
     logging.info(f"IsaacGymEnvs Root Dir: {ISAAC_ROOT_DIR}")
     logging.info(f"Workspace: {workspace_dir}")
-    logging.info(f"Project Root: {EUREKA_ROOT_DIR}")
+    logging.info(f"Project Root: {IDEA_ROOT_DIR}")
 
     # chatGPT = OpenAI(api_key = os.getenv("OPENAI_API_KEY"))
     qwen = OpenAI(
@@ -52,15 +52,15 @@ def main(cfg):
 
     env_name = cfg.env.env_name.lower()
     
-    env_parent = 'isaac' if f'{env_name}.py' in os.listdir(f'{EUREKA_ROOT_DIR}/envs/isaac') else 'dexterity'
+    env_parent = 'isaac' if f'{env_name}.py' in os.listdir(f'{IDEA_ROOT_DIR}/envs/isaac') else 'dexterity'
 
     logging.info(f"Env Parent: {env_parent}")
     
     # 训练文件路径
-    task_file = f'{EUREKA_ROOT_DIR}/envs/{env_parent}/{env_name}.py'
+    task_file = f'{IDEA_ROOT_DIR}/envs/{env_parent}/{env_name}.py'
     
     # 观察文件路径
-    task_obs_file = f'{EUREKA_ROOT_DIR}/envs/{env_parent}/{env_name}_obs.py'
+    task_obs_file = f'{IDEA_ROOT_DIR}/envs/{env_parent}/{env_name}_obs.py'
     
     # 复制初始环境文件到当前工作目录，方便后续调用
     shutil.copy(task_obs_file, f"env_init_obs.py")
@@ -78,7 +78,7 @@ def main(cfg):
     roles = ["EXPLORER", "CONSERVATOR", "INTEGRATOR"]
 
     # prompt 文件夹路径
-    prompt_dir = f'{EUREKA_ROOT_DIR}/utils/prompts'
+    prompt_dir = f'{IDEA_ROOT_DIR}/utils/prompts'
     
     # 系统的初始 prompt
     initial_system = file_to_string(f'{prompt_dir}/initial_system.txt')
@@ -247,12 +247,9 @@ def main(cfg):
                         break
                 code_string = response_cur if not code_string else code_string
 
-                # 找到第一个以 def 开头的函数定义，丢弃前面的内容
-                lines = code_string.split("\n")
-                for i, line in enumerate(lines):
-                    if line.strip().startswith("def "):
-                        code_string = "\n".join(lines[i:])
-                        
+                # 规范 total_reward 赋值格式
+                code_string = normalize_total_reward(code_string)
+                
                 # 将函数签名添加到环境代码中
                 try:
                     gpt_reward_signature, input_lst = get_function_signature(code_string)
@@ -492,7 +489,7 @@ def main(cfg):
                             logging.info("Step 3: Generating preference pairs...")
                             
                             # 构建评估函数目录
-                            evaluate_dir = Path(EUREKA_ROOT_DIR) / "utils" / "prompts" / "evaluate_function" / task
+                            evaluate_dir = Path(IDEA_ROOT_DIR) / "utils" / "prompts" / "evaluate_function" / task
                             
                             if evaluate_dir.exists():
                                 # 使用评估函数生成偏好对

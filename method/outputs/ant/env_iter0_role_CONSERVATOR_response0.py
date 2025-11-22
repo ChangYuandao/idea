@@ -184,7 +184,7 @@ class AntGPT(VecTask):
             self.extremities_index[i] = self.gym.find_actor_rigid_body_handle(self.envs[0], self.ant_handles[0], extremity_names[i])
 
     def compute_reward(self, actions):
-        self.rew_buf[:], self.rew_dict = compute_reward(self.root_states, self.targets, self.potentials, self.prev_potentials, self.actions, self.dt)
+        self.rew_buf[:], self.rew_dict = compute_reward(self.root_states, self.targets, self.dof_pos, self.dof_vel, self.actions, self.dt)
         self.extras['gpt_reward'] = self.rew_buf.mean()
         for rew_state in self.rew_dict: self.extras[rew_state] = self.rew_dict[rew_state].mean()
         self.gt_rew_buf, self.reset_buf[:], self.consecutive_successes[:] = compute_success(
@@ -377,28 +377,43 @@ import math
 import torch
 from torch import Tensor
 @torch.jit.script
-def compute_reward(root_states: torch.Tensor, targets: torch.Tensor, potentials: torch.Tensor, prev_potentials: torch.Tensor, actions: torch.Tensor, dt: float) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
-    # Extract velocity information
-    velocity = root_states[:, 7:10]  # Linear velocity
+def compute_reward(root_states: torch.Tensor, targets: torch.Tensor, dof_pos: torch.Tensor, dof_vel: torch.Tensor, actions: torch.Tensor, dt: float) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+    # Extract relevant information from root states
+    torso_position = root_states[:, 0:3]
+    torso_rotation = root_states[:, 3:7]
+    velocity = root_states[:, 7:10]
     
-    # Calculate progress reward based on potential difference
-    progress_reward = (potentials - prev_potentials) / dt
-    
-    # Bonus for forward velocity (assuming forward is along x-axis based on typical ant env)
+    # Calculate forward velocity reward (project velocity onto forward direction)
+    # Assuming x-axis is forward direction in world coordinates
     forward_velocity = velocity[:, 0]  # x-component of velocity
-    forward_reward = forward_velocity
+    forward_velocity_reward = forward_velocity
     
-    # Energy penalty to encourage efficient movement
-    action_penalty = -torch.sum(actions ** 2, dim=-1) * 0.05
+    # Penalize lateral movement to encourage straight-line running
+    lateral_velocity_penalty = -(torch.abs(velocity[:, 1]) + torch.abs(velocity[:, 2]))
     
-    # Combine rewards
-    total_reward = progress_reward + forward_reward + action_penalty
+    # Penalize energy expenditure (action magnitude)
+    action_penalty_temp = 0.1
+    action_penalty = -torch.sum(actions ** 2, dim=-1) * action_penalty_temp
     
-    # Create reward components dictionary
+    # Penalize excessive joint velocities (smoothness)
+    dof_vel_penalty_temp = 0.01
+    dof_vel_penalty = -torch.sum(dof_vel ** 2, dim=-1) * dof_vel_penalty_temp
+    
+    # Penalize deviation from nominal joint positions to encourage natural gait
+    dof_pos_nominal = torch.zeros_like(dof_pos)
+    dof_pos_penalty_temp = 0.05
+    dof_pos_penalty = -torch.sum((dof_pos - dof_pos_nominal) ** 2, dim=-1) * dof_pos_penalty_temp
+    
+    # Combine all reward components
+    total_reward = ( forward_velocity_reward + lateral_velocity_penalty * 0.5 + action_penalty + dof_vel_penalty + dof_pos_penalty )
+    
+    # Create info dictionary for debugging
     reward_components = {
-        "progress_reward": progress_reward,
-        "forward_reward": forward_reward,
-        "action_penalty": action_penalty
+        "forward_velocity_reward": forward_velocity_reward,
+        "lateral_velocity_penalty": lateral_velocity_penalty,
+        "action_penalty": action_penalty,
+        "dof_vel_penalty": dof_vel_penalty,
+        "dof_pos_penalty": dof_pos_penalty
     }
     
     return total_reward, reward_components

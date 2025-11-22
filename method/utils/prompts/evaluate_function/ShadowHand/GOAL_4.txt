@@ -1,0 +1,72 @@
+import numpy as np
+
+def trajectory_evaluate(trajectory_a, trajectory_b):
+    """
+    Both trajectory_a and trajectory_b are lists, each containing multiple states,
+    and each state is represented as a dictionary.
+
+    The label_list is a list of indices that corresponds to the states in the subtrajectory
+    where A is definitively better or worse than B.
+
+    The label indicates the quality of the sub-trajectory:
+      - if A is better, the label is 1 ("Former")
+      - if B is better, the label is -1 ("Latter")
+      - if no valid sub-trajectory can be found between the two trajectories, label_list will be an empty list ([]).
+    """
+    traj_a_length = len(trajectory_a)
+    traj_b_length = len(trajectory_b)
+    assert traj_a_length == traj_b_length
+
+    label_list = []
+
+    for state_index in range(traj_a_length):
+        state_a_info = trajectory_a[state_index]
+        state_b_info = trajectory_b[state_index]
+
+        # Extract object and goal poses
+        object_pos_a = state_a_info['object_pos'][:, 0:3]  # shape: (batch, 3)
+        object_rot_a = state_a_info['object_rot'][:, 3:7]  # shape: (batch, 4) - quaternion
+        goal_pos_a = state_a_info['goal_pos'][:, 0:3]  # shape: (batch, 3)
+        goal_rot_a = state_a_info['goal_rot'][:, 3:7]   # shape: (batch, 4) - quaternion
+        
+        object_pos_b = state_b_info['object_pos'][:, 0:3]  # shape: (batch, 3)
+        object_rot_b = state_b_info['object_rot'][:, 3:7]  # shape: (batch, 4) - quaternion
+        goal_pos_b = state_b_info['goal_pos'][:, 0:3]  # shape: (batch, 3)
+        goal_rot_b = state_b_info['goal_rot'][:, 3:7]   # shape: (batch, 4) - quaternion
+
+        # Calculate orientation difference (angular distance) between object and goal
+        # For quaternions, we can use the dot product to measure similarity
+        # The dot product of two quaternions gives cos(theta/2) where theta is the rotation angle
+        # So the angular difference can be calculated as 2*acos(|dot_product|)
+        
+        # Normalize quaternions to ensure they are unit quaternions
+        object_rot_a_norm = object_rot_a / np.linalg.norm(object_rot_a, axis=1, keepdims=True)
+        goal_rot_a_norm = goal_rot_a / np.linalg.norm(goal_rot_a, axis=1, keepdims=True)
+        object_rot_b_norm = object_rot_b / np.linalg.norm(object_rot_b, axis=1, keepdims=True)
+        goal_rot_b_norm = goal_rot_b / np.linalg.norm(goal_rot_b, axis=1, keepdims=True)
+
+        # Calculate dot product between object and goal orientations
+        dot_product_a = np.sum(object_rot_a_norm * goal_rot_a_norm, axis=1)  # shape: (batch,)
+        dot_product_b = np.sum(object_rot_b_norm * goal_rot_b_norm, axis=1)  # shape: (batch,)
+
+        # Calculate angular distance (smaller is better)
+        # Use absolute value of dot product to account for quaternion double-cover
+        angular_diff_a = 2 * np.arccos(np.clip(np.abs(dot_product_a), 0.0, 1.0))  # shape: (batch,)
+        angular_diff_b = 2 * np.arccos(np.clip(np.abs(dot_product_b), 0.0, 1.0))  # shape: (batch,)
+
+        # Calculate position distance between object and goal (smaller is better)
+        pos_dist_a = np.linalg.norm(object_pos_a - goal_pos_a, axis=1)  # shape: (batch,)
+        pos_dist_b = np.linalg.norm(object_pos_b - goal_pos_b, axis=1)  # shape: (batch,)
+
+        # For this task, the primary goal is to reach the target orientation
+        # So we focus on the angular difference as the main metric
+        # The position distance is a secondary metric
+        
+        if angular_diff_a <= angular_diff_b and pos_dist_a <= pos_dist_b:
+            label_list.append(1)
+        elif angular_diff_a >= angular_diff_b and pos_dist_a >= pos_dist_b:
+            label_list.append(-1)
+        else:
+            label_list.append(0)
+
+    return label_list
